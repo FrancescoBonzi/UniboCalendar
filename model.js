@@ -19,10 +19,10 @@ function getTimetable(timetable_url, year, callback) {
             });
             lectures_form = '<form id="select_lectures" action="/get_calendar_url" method="post">';
             for (i = 0; i < inputs.length; i++)
-                lectures_form += '<label><input type="checkbox" name="lectures" value="' + inputs[i] + '"/>' + labels[i] + '</label></br>';
+                lectures_form += '<div class="row"><input type="checkbox" name="lectures" value="' + inputs[i] + '"/><label>' + labels[i] + '</label></div></br>';
             lectures_form += '<input type="hidden" name="timetable_url" value="' + timetable_url + '"/>';
             lectures_form += '<input type="hidden" name="year" value="' + year + '"/>';
-            lectures_form += '<input type="submit" value="Ottieni URL"/></form>';
+            lectures_form += '<input type="submit" class="btn btn-primary" value="Ottieni URL"/></form>';
             /*
             fs.writeFile("./labels.html", labels, function (err) {
                 if (err)
