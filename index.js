@@ -6,7 +6,7 @@ var hbs = require('express-handlebars').create();
 var app = express();
 
 //set up port
-app.set('port', process.env.PORT || 3000);
+app.set('port', process.env.PORT || 3002);
 
 //set up static folder
 app.use(express.static(__dirname + '/public'));
