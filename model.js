@@ -54,7 +54,7 @@ function generateUrl(timetable_url, year, lectures) {
 }
 
 function castDateInICalendarFormat(date) {
-    console.log(date.toLocaleDateString('en-US'));
+    console.log(date.toLocaleTimeString('en-US') + " vs " + date.toLocaleTimeString('en-US', {hour12: false}));
     var [month, day, year] = date.toLocaleDateString('en-US').split(/[-/]/);
     var [hour, minute, second] = date.toLocaleTimeString('en-US', {hour12: false}).slice(0,7).split(":");
     if(minute == "00") minute = "0";
