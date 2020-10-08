@@ -54,12 +54,12 @@ function generateUrl(timetable_url, year, lectures) {
 }
 
 function castDateInICalendarFormat(date) {
-    var [month, day, year] = date.toLocaleDateString().split(/[-/]/);
+    var [year, month, day] = date.toLocaleDateString().split(/[-/]/);
     var [hour, minute, second] = date.toLocaleTimeString().slice(0,7).split(":");
     if(minute == "00") minute = "0";
     if(second == "00") second = "0";
     const formatted_data = [year, month, day, hour, minute, second];
-    console.log(formatted_data);
+    //console.log(formatted_data);
     return formatted_data;
 }
 
@@ -79,6 +79,7 @@ function getICalendarEvents(timetable_url, year, lectures, callback) {
                 const start = castDateInICalendarFormat(new Date(l.start));
                 const end = castDateInICalendarFormat(new Date(l.end));
                 const event = new UniboEventClass(l.title, start, end);
+                console.log(event);
                 calendar.push(event);
             }
             ics.createEvents(calendar, (error, value) => {
