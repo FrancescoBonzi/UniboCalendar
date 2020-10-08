@@ -45,7 +45,7 @@ function getTimetable(timetable_url, year, callback) {
 };
 
 function generateUrl(timetable_url, year, lectures) {
-    var url = "http://unibocalendar.duckdns.org:3002/get_ical?" +
+    var url = "http://unibocalendar.duckdns.org/get_ical?" +
         "timetable_url=" + timetable_url + "&" +
         "year=" + year;
     for (const l of lectures.values())
