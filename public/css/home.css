@@ -5,3 +5,17 @@
 #year-label {
     padding-right: 1%;
 }
+
+.row {
+    margin-bottom: 1%;
+}
+
+.btn {
+    margin-top: 1%;
+}
+
+input[type="text"] {
+    border-radius: 4px;
+    border: 1px solid lightgray;
+    text-indent: 5px;
+}
