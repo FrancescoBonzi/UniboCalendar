@@ -19,7 +19,7 @@ function getTimetable(timetable_url, year, callback) {
             });
             lectures_form = '<form id="select_lectures" action="/get_calendar_url" method="post">';
             for (i = 0; i < inputs.length; i++)
-                lectures_form += '<div class="row"><input type="checkbox" name="lectures" value="' + inputs[i] + '"/><label>' + labels[i] + '</label></div></br>';
+                lectures_form += '<div class="row"><input type="checkbox" name="lectures" value="' + inputs[i] + '" checked/><label>' + labels[i] + '</label></div></br>';
             lectures_form += '<input type="hidden" name="timetable_url" value="' + timetable_url + '"/>';
             lectures_form += '<input type="hidden" name="year" value="' + year + '"/>';
             lectures_form += '<input type="submit" class="btn btn-primary" value="Ottieni URL"/></form>';
@@ -39,13 +39,13 @@ function getTimetable(timetable_url, year, callback) {
             callback(lectures_form);
         })
         .catch(function (err) {
-            callback([]);
+            callback('<h5 style="color: #dc3545;">Errore! L\'indirizzo non è valido...</h5>');
             console.log(err);
         });
 };
 
 function generateUrl(timetable_url, year, lectures) {
-    var url = "unibocalendar.duckdns.org:3002/get_ical?" +
+    var url = "http://unibocalendar.duckdns.org:3002/get_ical?" +
         "timetable_url=" + timetable_url + "&" +
         "year=" + year;
     for (const l of lectures.values())
