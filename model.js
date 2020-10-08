@@ -54,6 +54,7 @@ function generateUrl(timetable_url, year, lectures) {
 }
 
 function castDateInICalendarFormat(date) {
+    console.log(date.toLocaleDateString('en-GB'));
     var [month, day, year] = date.toLocaleDateString('en-GB').split(/[-/]/);
     var [hour, minute, second] = date.toLocaleTimeString('en-GB').slice(0,7).split(":");
     if(minute == "00") minute = "0";
@@ -79,10 +80,8 @@ function getICalendarEvents(timetable_url, year, lectures, callback) {
                 const start = castDateInICalendarFormat(new Date(l.start));
                 const end = castDateInICalendarFormat(new Date(l.end));
                 var location = "solo ONLINE";
-                if(l.aule.length > 0) {
-                    console.log("dentro al ciclo con l=" + l.aule.length);
-                    location += l.aule[0].des_risorsa + ", " + l.aule[0].des_indirizzo;
-                }
+                if(l.aule.length > 0)
+                    location = l.aule[0].des_risorsa + ", " + l.aule[0].des_indirizzo;
                 const url = l.teams;
                 const prof = l.docente;
                 const event = new UniboEventClass(l.title, start, end, location, url, prof);
@@ -94,7 +93,7 @@ function getICalendarEvents(timetable_url, year, lectures, callback) {
                     console.log(error);
                     throw "Calendar format not valid! ending...";
                 } else {
-                    console.log(value);
+                    //console.log(value);
                 }
                callback(value);
             });
