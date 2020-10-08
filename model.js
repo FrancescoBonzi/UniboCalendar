@@ -85,7 +85,7 @@ function getICalendarEvents(timetable_url, year, lectures, callback) {
                 const url = l.teams;
                 const prof = l.docente;
                 const event = new UniboEventClass(l.title, start, end, location, url, prof);
-                console.log(event);
+                //console.log(event);
                 calendar.push(event);
             }
             ics.createEvents(calendar, (error, value) => {
@@ -93,7 +93,7 @@ function getICalendarEvents(timetable_url, year, lectures, callback) {
                     console.log(error);
                     throw "Calendar format not valid! ending...";
                 } else {
-                    //console.log(value);
+                    console.log(value);
                 }
                callback(value);
             });
