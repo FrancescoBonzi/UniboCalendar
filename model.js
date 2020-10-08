@@ -54,10 +54,8 @@ function generateUrl(timetable_url, year, lectures) {
 }
 
 function castDateInICalendarFormat(date) {
-    console.log(date);
-    console.log(date.toLocaleDateString());
-    var [year, month, day] = date.toLocaleDateString().split(/[-/]/);
-    var [hour, minute, second] = date.toLocaleTimeString().slice(0,7).split(":");
+    var [month, day, year] = date.toLocaleDateString('en-GB').split(/[-/]/);
+    var [hour, minute, second] = date.toLocaleTimeString('en-GB').slice(0,7).split(":");
     if(minute == "00") minute = "0";
     if(second == "00") second = "0";
     const formatted_data = [year, month, day, hour, minute, second];
@@ -80,7 +78,14 @@ function getICalendarEvents(timetable_url, year, lectures, callback) {
             for (var l of json) {
                 const start = castDateInICalendarFormat(new Date(l.start));
                 const end = castDateInICalendarFormat(new Date(l.end));
-                const event = new UniboEventClass(l.title, start, end);
+                var location = "solo ONLINE";
+                if(l.aule.length > 0) {
+                    console.log("dentro al ciclo con l=" + l.aule.length);
+                    location += l.aule[0].des_risorsa + ", " + l.aule[0].des_indirizzo;
+                }
+                const url = l.teams;
+                const prof = l.docente;
+                const event = new UniboEventClass(l.title, start, end, location, url, prof);
                 //console.log(event);
                 calendar.push(event);
             }
