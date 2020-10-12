@@ -5,18 +5,20 @@
       <br />
       Aggiungi infine l'anno di corso di cui vuoi seguire le lezioni.</h5>
   </div>
-  <form id="form_calendar" action="/course" method="post">
-    <div class="row">
-      <label id="url-label">URL del corso:</label><br>
-      <input type="text" id="url" name="url" size="50"
-        placeholder="https://corsi.unibo.it/2cycle/artificial-intelligence/timetable"><br>
-    </div>
-    <div class="row">
-      <label id="year-label">anno:</label><br>
-      <input type="text" id="year" name="year" size="3" placeholder="2"><br>
-    </div>
-    <div class="row">
-      <input type="submit" class="btn btn-primary" value="Avanti">
-    </div>
-  </form>
+  <div class="container">
+    <form id="form_calendar" action="/course" method="post">
+      <div class="row">
+        <label id="url-label">URL del corso:</label><br>
+        <input type="text" id="url" name="url" size="50"
+          placeholder="https://corsi.unibo.it/2cycle/artificial-intelligence/timetable"><br>
+      </div>
+      <div class="row">
+        <label id="year-label">anno:</label><br>
+        <input type="text" id="year" name="year" size="3" placeholder="2"><br>
+      </div>
+      <div class="row">
+        <input type="submit" class="btn btn-primary" value="Avanti">
+      </div>
+    </form>
+  </div>
 </div>
