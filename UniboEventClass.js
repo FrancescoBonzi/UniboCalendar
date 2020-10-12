@@ -3,10 +3,10 @@ class UniboEventClass {
         this.title = title;
         this.start = start;
         this.startInputType = "local";
-        this.startOutputType = "utc";
+        this.startOutputType = "local";
         this.end = end;
         this.endInputType = "local";
-        this.endOutputType = "utc";
+        this.endOutputType = "local";
         this.location = location;
         this.url = url;
         this.organizer = {name: docente, email: "nome.cognome@unibo.it"};
