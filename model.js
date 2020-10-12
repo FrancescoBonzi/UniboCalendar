@@ -17,9 +17,10 @@ function getTimetable(timetable_url, year, callback) {
             $('#insegnamenti-popup ul li label').each(function (index, element) {
                 labels.push($(element).text());
             });
-            lectures_form = '<form id="select_lectures" action="/get_calendar_url" method="post">';
+            lectures_form = '<button class="btn btn-secondary" id="select_or_deselect_all" onclick="return selectOrDeselectAll();">Deseleziona tutti</button>';
+            lectures_form += '<form id="select_lectures" action="/get_calendar_url" method="post">';
             for (i = 0; i < inputs.length; i++)
-                lectures_form += '<div class="row"><input type="checkbox" name="lectures" value="' + inputs[i] + '" checked/><label>' + labels[i] + '</label></div></br>';
+                lectures_form += '<div class="row"><input type="checkbox" class="checkbox" name="lectures" value="' + inputs[i] + '" checked/><label>' + labels[i] + '</label></div></br>';
             lectures_form += '<input type="hidden" name="timetable_url" value="' + timetable_url + '"/>';
             lectures_form += '<input type="hidden" name="year" value="' + year + '"/>';
             lectures_form += '<input type="submit" class="btn btn-primary" value="Ottieni URL"/></form>';
@@ -56,10 +57,9 @@ function generateUrl(timetable_url, year, lectures) {
 function castDateInICalendarFormat(date) {
     //console.log(date.toLocaleTimeString('en-US') + " vs " + date.toLocaleTimeString('en-US', {hour12: false}));
     var [month, day, year] = date.toLocaleDateString('en-US').split(/[-/]/);
-    var [hour, minute, second] = date.toLocaleTimeString('en-US', {hour12: false}).slice(0,7).split(":");
+    var [hour, minute, _] = date.toLocaleTimeString('en-US', {hour12: false}).slice(0,7).split(":");
     if(minute == "00") minute = "0";
-    if(second == "00") second = "0";
-    const formatted_data = [year, month, day, hour, minute, second];
+    const formatted_data = [year, month, day, hour, minute];
     //console.log(formatted_data);
     return formatted_data;
 }
