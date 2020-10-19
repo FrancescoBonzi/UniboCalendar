@@ -1,10 +1,10 @@
 class UniboEventClass {
     constructor(title, start, end, location, url, docente) {
         this.title = title;
-        this.start = castTimeFromUtcToLocalItaly(start);
+        this.start = this.castTimeFromUtcToLocalItaly(start);
         this.startInputType = "local";
         this.startOutputType = "local";
-        this.end = castTimeFromUtcToLocalItaly(end);
+        this.end = this.castTimeFromUtcToLocalItaly(end);
         this.endInputType = "local";
         this.endOutputType = "local";
         this.location = location;
