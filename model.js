@@ -83,7 +83,7 @@ function getICalendarEvents(timetable_url, year, lectures, callback) {
                 //console.log(event);
                 calendar.push(event);
             }
-            let factory = new iCalendar(0);
+            let factory = new iCalendar(null);
             let vcalendar = factory.ical(calendar);
             callback(vcalendar);
         })
