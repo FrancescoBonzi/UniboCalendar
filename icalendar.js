@@ -1,15 +1,13 @@
-import UniboEventClass from "./UniboEventClass";
-
 class iCalendar {
-    private secsAlarm = 900;
-    private pid = "-//ETSoftware//JSiCal//IT";
+    secsAlarm = 900;
+    pid = "-//ETSoftware//JSiCal//IT";
     constructor(alarm) {
         this.secsAlarm = alarm;
     }
-    private dt(epoch: Date) {
-        epoch.toISOString();
+    dt(epoch) {
+        return epoch.toISOString().replace(/-/g, '').replace(/:/g, '').split(".")[0] + "Z";
     }
-    private id(event: UniboEventClass) {
+    id(event) {
         var id = event.start.getTime().toString(16);
         id = id + ((event.end.getTime() - event.start.getTime()) % 4095).toString(16).padStart(4, '0');
         var crc = 0;
@@ -20,7 +18,7 @@ class iCalendar {
         id = id + crc.toString(16).padStart(3, "0");
         return id;
     }
-    private interval(secs: number) {
+    interval(secs) {
         var s = secs % 60;
         secs = parseInt((secs / 60).toString());
         var m = secs % 60;
@@ -41,10 +39,10 @@ class iCalendar {
         res = res + s.toString() + "S";
         return res;
     }
-    private escape(t: String) {
+    escape(t) {
         return t.replace(/\\/g, "\\\\").replace(/;/g, "\\,").replace(/:/g, "\\:").replace(/,/g, "\\,").replace(/"/g, "\\'");
     }
-    private wrapLine(l, o) {
+    wrapLine(l, o) {
         l = this.escape(l);
         if (l.length > (75 - o)) {
             var res = l.substr(0, 75 - o);// substr($l, 0, (75 - $o));
@@ -55,13 +53,16 @@ class iCalendar {
         }
         return l;
     }
-    private event(e) {
+    event(e) {
         var event = "BEGIN:VEVENT\r\nDTSTAMP:" + this.dt(new Date());
+        event = event + "\r\nORGANIZER;" + this.wrapLine("CN=" + e.organizer.name + ":MAILTO:" + e.organizer.email, 10).replace(/\\:/g, ":");
         event = event + "\r\nUID:" + this.id(e) + "\r\n";
         event = event + "SEQUENCE:0\r\n";
         event = event + "DTSTART:" + this.dt(e.start) + "\r\n";
-        event = event + "SUMMARY:" + this.wrapLine(e.title, 8) + "\r\n";
-        event = event + "DTEND:" + this.dt(e.end) + "\r\nBEGIN:VALARM\r\nTRIGGER:";
+        event = event + "SUMMARY:" + this.wrapLine(e.title, 8);
+        event = event + "\r\nURL:" + this.wrapLine(e.url, 5).replace("\\:", ":");
+        event = event + "\r\nLOCATION:" + this.wrapLine(e.location, 11);
+        event = event + "\r\nDTEND:" + this.dt(e.end) + "\r\nBEGIN:VALARM\r\nTRIGGER:";
         event = event + this.interval(this.secsAlarm);
         event = event + "\r\nDESCRIPTION:" + this.wrapLine(e.title, 13) + "\r\nACTION:DISPLAY\r\nEND:VALARM\r\nEND:VEVENT\r\n";
         return event;
@@ -76,3 +77,4 @@ class iCalendar {
         return vcal;
     }
 }
+module.exports = iCalendar;
