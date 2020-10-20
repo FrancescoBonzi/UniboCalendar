@@ -49,7 +49,7 @@ function get_ical(req, res, next) {
         lectures = req.query.lectures;
     }
     model.getICalendarEvents(timetable_url, year, lectures, function (unibo_cal) {
-        res.type("text/calendar")
+        res.type("text/calendar");
         res.send(unibo_cal);
     });
 }
