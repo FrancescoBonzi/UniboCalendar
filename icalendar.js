@@ -62,9 +62,13 @@ class iCalendar {
         event = event + "SUMMARY:" + this.wrapLine(e.title, 8);
         event = event + "\r\nURL:" + this.wrapLine(e.url, 5).replace("\\:", ":");
         event = event + "\r\nLOCATION:" + this.wrapLine(e.location, 11);
-        event = event + "\r\nDTEND:" + this.dt(e.end) + "\r\nBEGIN:VALARM\r\nTRIGGER:";
-        event = event + this.interval(this.secsAlarm);
-        event = event + "\r\nDESCRIPTION:" + this.wrapLine(e.title, 13) + "\r\nACTION:DISPLAY\r\nEND:VALARM\r\nEND:VEVENT\r\n";
+        event = event + "\r\nDTEND:" + this.dt(e.end);
+        if (this.secsAlarm !== null) {
+            event = event + "\r\nBEGIN:VALARM\r\nTRIGGER:";
+            event = event + this.interval(this.secsAlarm);
+            event = event + "\r\nDESCRIPTION:" + this.wrapLine(e.title, 13) + "\r\nACTION:DISPLAY\r\nEND:VALARM";
+        }
+        event = event + "\r\nEND:VEVENT\r\n";
         return event;
     }
     ical(events) {
