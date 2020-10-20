@@ -1,12 +1,12 @@
-var rp = require('request-promise');
 var cheerio = require('cheerio');
-var fs = require('fs');
+var fetch = require('node-fetch');
 const iCalendar = require('./icalendar');
 const UniboEventClass = require('./UniboEventClass');
 
 function getTimetable(timetable_url, year, callback) {
     var link = timetable_url + '?anno=' + year;
-    rp(link)
+    console.log(link);
+    fetch(link).then(x => x.text())
         .then(function (html) {
             var $ = cheerio.load(html);
             var inputs = [];
@@ -45,13 +45,18 @@ function getTimetable(timetable_url, year, callback) {
         });
 };
 
-function generateUrl(timetable_url, year, lectures) {
+async function generateUrl(timetable_url, year, lectures) {
     var url = "http://unibocalendar.duckdns.org/get_ical?" +
         "timetable_url=" + timetable_url + "&" +
         "year=" + year;
     for (const l of lectures.values())
         url += '&lectures=' + l;
-    return url;
+    let response = await fetch("https://shorties.cloud/shlnk/save.php?url=" + encodeURIComponent(url));
+    if (response.ok) {
+        return await response.text();
+    } else {
+        return url;
+    }
 }
 
 function getICalendarEvents(timetable_url, year, lectures, callback) {
@@ -62,7 +67,7 @@ function getICalendarEvents(timetable_url, year, lectures, callback) {
     link += 'calendar_view=';
     console.log('sending request of orario vero!:\n' + link);
     // Send the request and parse the response
-    rp(link)
+    fetch(link).then(x => x.text())
         .then(function (json) {
             json = JSON.parse(json);
             calendar = []
