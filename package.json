@@ -1,0 +1,28 @@
+{
+  "name": "unibocalendar",
+  "version": "1.0.0",
+  "description": "Servizio che consente a tutti gli studenti Unibo di aggiungere l'orario delle loro lezioni, filtrando solo quelle di interesse, al proprio calendario. Dopo aver aggiunto il link del proprio orario e l'anno di corso, il servizio permette di selezionare solo i corsi da frequentare e genera un semplice link con il quale eseguire una \"Iscrizione a Calendario\" nel proprio calendario personale.",
+  "main": "index.js",
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.3",
+    "express-handlebars": "^5.1.0",
+    "express": "^4.17.1",
+    "ics": "^2.25.0",
+    "request": "^2.88.2",
+    "request-promise": "^4.2.6"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FrancescoBonzi/UniboCalendar.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/FrancescoBonzi/UniboCalendar/issues"
+  },
+  "homepage": "https://github.com/FrancescoBonzi/UniboCalendar#readme"
+}
