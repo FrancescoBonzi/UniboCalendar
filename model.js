@@ -59,7 +59,7 @@ async function generateUrl(timetable_url, year, lectures) {
     }
 }
 
-function getICalendarEvents(timetable_url, year, lectures, callback) {
+function getICalendarEvents(timetable_url, year, lectures, alert, callback) {
     var link = timetable_url + '/@@orario_reale_json?anno=' + year + '&curricula=';
     // Adding only the selected lectures to the request
     for (var l of lectures.values())
@@ -83,7 +83,7 @@ function getICalendarEvents(timetable_url, year, lectures, callback) {
                 //console.log(event);
                 calendar.push(event);
             }
-            let factory = new iCalendar(null);
+            let factory = new iCalendar(alert);
             let vcalendar = factory.ical(calendar);
             callback(vcalendar);
         })
