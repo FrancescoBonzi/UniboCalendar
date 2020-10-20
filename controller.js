@@ -1,6 +1,3 @@
-const { time } = require('console');
-const { type } = require('os');
-const { parse } = require('path');
 var model = require('./model.js')
 
 function error404(req, res, next) {
@@ -29,9 +26,10 @@ async function get_calendar_url(req, res, next) {
     const timetable_url = req.body.timetable_url;
     const year = req.body.year;
     var lectures = req.body.lectures;
-    if (typeof lectures == 'string') {
+    if (typeof lectures === undefined || lectures == '')
+        lectures = [];
+    else if (typeof lectures == 'string')
         lectures = [lectures];
-    }
     var url = await model.generateUrl(timetable_url, year, lectures);
     res.render('link', { 'page': 'link', 'url': url });
 }
