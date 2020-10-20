@@ -1,4 +1,5 @@
 const { time } = require('console');
+const { type } = require('os');
 var model = require('./model.js')
 
 function error404(req, res, next) {
@@ -27,7 +28,7 @@ async function get_calendar_url(req, res, next) {
     const timetable_url = req.body.timetable_url;
     const year = req.body.year;
     var lectures = req.body.lectures;
-    if( typeof lectures == 'string' ) {
+    if (typeof lectures == 'string') {
         lectures = [lectures];
     }
     var url = await model.generateUrl(timetable_url, year, lectures);
@@ -37,9 +38,15 @@ async function get_calendar_url(req, res, next) {
 function get_ical(req, res, next) {
     const timetable_url = req.query.timetable_url;
     const year = req.query.year;
-    const lectures = req.query.lectures;
-    if (typeof lectures === 'string') {
+    let lectures;
+    if (req.query.lectures === undefined) {
+        lectures = [];
+    } else if (req.query.lectures === '') {
+        lectures = [];
+    } else if (typeof lectures === 'string') {
         lectures = [lectures];
+    } else {
+        lectures = req.query.lectures;
     }
     model.getICalendarEvents(timetable_url, year, lectures, function (unibo_cal) {
         res.type("text/calendar")

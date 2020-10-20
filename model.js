@@ -60,11 +60,11 @@ async function generateUrl(timetable_url, year, lectures) {
 }
 
 function getICalendarEvents(timetable_url, year, lectures, callback) {
-    var link = timetable_url + '/@@orario_reale_json?anno=' + year + '&amp;curricula=&amp;';
+    var link = timetable_url + '/@@orario_reale_json?anno=' + year + '&curricula=';
     // Adding only the selected lectures to the request
     for (var l of lectures.values())
-        link += 'insegnamenti=' + l + '&amp;';
-    link += 'calendar_view=';
+        link += '&insegnamenti=' + l;
+    link += '&calendar_view=';
     console.log('sending request of orario vero!:\n' + link);
     // Send the request and parse the response
     fetch(link).then(x => x.text())
