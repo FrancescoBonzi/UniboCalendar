@@ -1,8 +1,7 @@
 class iCalendar {
-    secsAlarm = 900;
-    pid = "-//ETSoftware//JSiCal//IT";
     constructor(alarm) {
         this.secsAlarm = alarm;
+        this.pid = "-//ETSoftware//JSiCal//IT";
     }
     dt(epoch) {
         return epoch.toISOString().replace(/-/g, '').replace(/:/g, '').split(".")[0] + "Z";
