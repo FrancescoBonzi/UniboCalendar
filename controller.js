@@ -1,5 +1,6 @@
 const { time } = require('console');
 const { type } = require('os');
+const { parse } = require('path');
 var model = require('./model.js')
 
 function error404(req, res, next) {
@@ -48,7 +49,8 @@ function get_ical(req, res, next) {
     } else {
         lectures = req.query.lectures;
     }
-    model.getICalendarEvents(timetable_url, year, lectures, function (unibo_cal) {
+    let alert = req.query.alert === undefined ? null : parseInt(req.query.lectures);
+    model.getICalendarEvents(timetable_url, year, lectures, alert, function (unibo_cal) {
         res.type("text/calendar");
         res.send(unibo_cal);
     });
