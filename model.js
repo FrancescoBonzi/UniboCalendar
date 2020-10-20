@@ -1,12 +1,12 @@
-var rp = require('request-promise');
 var cheerio = require('cheerio');
-var fs = require('fs');
-var ics = require('ics');
+var fetch = require('node-fetch');
+const iCalendar = require('./icalendar');
 const UniboEventClass = require('./UniboEventClass');
 
 function getTimetable(timetable_url, year, callback) {
     var link = timetable_url + '?anno=' + year;
-    rp(link)
+    console.log(link);
+    fetch(link).then(x => x.text())
         .then(function (html) {
             var $ = cheerio.load(html);
             var inputs = [];
@@ -45,23 +45,18 @@ function getTimetable(timetable_url, year, callback) {
         });
 };
 
-function generateUrl(timetable_url, year, lectures) {
+async function generateUrl(timetable_url, year, lectures) {
     var url = "http://unibocalendar.duckdns.org/get_ical?" +
         "timetable_url=" + timetable_url + "&" +
         "year=" + year;
     for (const l of lectures.values())
         url += '&lectures=' + l;
-    return url;
-}
-
-function castDateInICalendarFormat(date) {
-    //console.log(date.toLocaleTimeString('en-US') + " vs " + date.toLocaleTimeString('en-US', {hour12: false}));
-    var [month, day, year] = date.toLocaleDateString('en-US').split(/[-/]/);
-    var [hour, minute, _] = date.toLocaleTimeString('en-US', {hour12: false}).slice(0,7).split(":");
-    if(minute == "00") minute = "0";
-    const formatted_data = [year, month, day, hour, minute];
-    //console.log(formatted_data);
-    return formatted_data;
+    let response = await fetch("https://shorties.cloud/shlnk/save.php?url=" + encodeURIComponent(url));
+    if (response.ok) {
+        return await response.text();
+    } else {
+        return url;
+    }
 }
 
 function getICalendarEvents(timetable_url, year, lectures, callback) {
@@ -72,15 +67,15 @@ function getICalendarEvents(timetable_url, year, lectures, callback) {
     link += 'calendar_view=';
     console.log('sending request of orario vero!:\n' + link);
     // Send the request and parse the response
-    rp(link)
+    fetch(link).then(x => x.text())
         .then(function (json) {
             json = JSON.parse(json);
             calendar = []
             for (var l of json) {
-                const start = castDateInICalendarFormat(new Date(l.start));
-                const end = castDateInICalendarFormat(new Date(l.end));
+                const start = new Date(l.start);
+                const end = new Date(l.end);
                 var location = "solo ONLINE";
-                if(l.aule.length > 0)
+                if (l.aule.length > 0)
                     location = l.aule[0].des_risorsa + ", " + l.aule[0].des_indirizzo;
                 const url = l.teams;
                 const prof = l.docente;
@@ -88,15 +83,9 @@ function getICalendarEvents(timetable_url, year, lectures, callback) {
                 //console.log(event);
                 calendar.push(event);
             }
-            ics.createEvents(calendar, (error, value) => {
-                if (error) {
-                    console.log(error);
-                    throw "Calendar format not valid! ending...";
-                } else {
-                    console.log(value);
-                }
-               callback(value);
-            });
+            let factory = new iCalendar(0);
+            let vcalendar = factory.ical(calendar);
+            callback(vcalendar);
         })
         .catch(function (err) {
             callback("An error occurred while creating the calendar.");
