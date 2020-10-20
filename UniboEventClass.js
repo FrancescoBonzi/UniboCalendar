@@ -5,7 +5,7 @@ class UniboEventClass {
         this.end = end;
         this.location = location;
         this.url = url;
-        this.organizer = { name: docente, email: "nome.cognome@unibo.it" };
+        this.organizer = { name: docente, email: docente.toLowerCase().replace(/\s/g, '.') + "@unibo.it" };
     }
 }
 
