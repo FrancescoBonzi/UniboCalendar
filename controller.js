@@ -1,3 +1,4 @@
+const { time } = require('console');
 var model = require('./model.js')
 
 function error404(req, res, next) {
@@ -25,11 +26,10 @@ function course_page(req, res, next) {
 function get_calendar_url(req, res, next) {
     const timetable_url = req.body.timetable_url;
     const year = req.body.year;
-    const lectures = req.body.lectures;
-    if( typeof lectures === 'string' ) {
+    var lectures = req.body.lectures;
+    if( typeof lectures == 'string' ) {
         lectures = [lectures];
     }
-    console.log(lectures);
     var url = model.generateUrl(timetable_url, year, lectures);
     res.render('link', {'page': 'link', 'url': url});
 }
