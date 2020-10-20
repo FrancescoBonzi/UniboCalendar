@@ -29,6 +29,7 @@ function get_calendar_url(req, res, next) {
     if( typeof lectures === 'string' ) {
         lectures = [lectures];
     }
+    console.log(lectures);
     var url = model.generateUrl(timetable_url, year, lectures);
     res.render('link', {'page': 'link', 'url': url});
 }

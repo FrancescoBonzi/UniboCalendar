@@ -5,8 +5,8 @@ class UniboEventClass {
         this.startInputType = "utc";
         this.startOutputType = "utc";
         this.end = this.castTimeFromUtcToLocalItaly(end);
-        this.endInputType = "local";
-        this.endOutputType = "local";
+        this.endInputType = "utc";
+        this.endOutputType = "utc";
         this.location = location;
         this.url = url;
         this.organizer = {name: docente, email: "nome.cognome@unibo.it"};
