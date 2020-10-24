@@ -1,23 +1,32 @@
 <div class="container">
   <div class="header">
     <h1>Unibo Calendar</h1>
-    <h5>Vai nella pagina del tuo corso, nella sezione "studiare" premi "orario delle lezioni" e copia l'url qui sotto.
-      <br />
-      Aggiungi infine l'anno di corso di cui vuoi seguire le lezioni.</h5>
+    <h5>Sleziona il tuo corso di studi, l'anno che stai frequentando e il curriculum.</h5>
   </div>
   <div class="container">
-    <form id="form_calendar" action="/course" method="post">
+    <form id="form_calendar" class="form-group" action="/course" method="post" onchange="checkFormValidity();">
       <div class="row">
-        <label id="url-label">URL del corso:</label><br>
-        <input type="text" id="url" name="url" size="50"
-          placeholder="https://corsi.unibo.it/2cycle/artificial-intelligence/timetable"><br>
+        <select id="areas" class="form-control" name="areas" onchange="getCoursesGivenArea();">
+          <option value="">--- Seleziona Scuola ---</option>
+          {{#each areas}}
+          <option value="{{this}}">{{this}}</option>
+          {{/each}}
+        </select>
       </div>
       <div class="row">
-        <label id="year-label">anno:</label><br>
-        <input type="text" id="year" name="year" size="3" placeholder="2"><br>
+        <select id="courses" class="form-control" name="courses" onchange="getYearsAndCurriculaGivenCourse();">
+        </select>
       </div>
       <div class="row">
-        <input type="submit" class="btn btn-primary" value="Avanti">
+        <select id="years" class="form-control" name="years">
+        </select>
+      </div>
+      <div class="row">
+        <select id="curricula" class="form-control" name="curricula">
+        </select>
+      </div>
+      <div class="row">
+        <input type="submit" id="submit-form-button" class="btn btn-primary" value="Avanti" disabled>
       </div>
     </form>
   </div>
