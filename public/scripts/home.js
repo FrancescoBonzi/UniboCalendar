@@ -5,8 +5,6 @@ function checkFormValidity() {
     var areas_checked = areas.options[areas.selectedIndex].value;
 
     var courses = document.getElementById('courses');
-    console.log(typeof courses);
-    console.log(courses);
     var courses_checked = courses.options[courses.selectedIndex].value;
 
     var years = document.getElementById('years');
@@ -61,6 +59,11 @@ function ajaxPostRequest(xhr, uri, params, callback) {
 
 function getCoursesGivenArea() {
 
+    // Cleaning Courses, Years and Curricula
+    document.getElementById('courses').innerHTML = "";
+    document.getElementById('years').innerHTML = "";
+    document.getElementById('curricula').innerHTML = "";
+
     //sending request for Courses given an Area
     var xhr = new XMLHttpRequest();
     var list = document.getElementById('areas');
@@ -68,11 +71,6 @@ function getCoursesGivenArea() {
     var uri = "/get_courses_given_area?area=" + area;
     ajaxGetRequest(xhr, uri, function (json) {
         var courses = JSON.parse(json);
-
-        // Cleaning Courses, Years and Curricula
-        document.getElementById('courses').innerHTML = "";
-        document.getElementById('years').innerHTML = "";
-        document.getElementById('curricula').innerHTML = "";
 
         // Adding Select Course
         var node = document.createElement("option");
@@ -87,7 +85,7 @@ function getCoursesGivenArea() {
         })
         for (i = 0; i < courses.length; i++) {
             node = document.createElement("option");
-            text_node = document.createTextNode(courses[i].description + ' - ' + courses[i].type);
+            text_node = document.createTextNode(courses[i].code + ' - ' + courses[i].description + ' - ' + courses[i].type);
             node.appendChild(text_node);
             dict[courses[i].url] = {
                 "description": courses[i].description + ' - ' + courses[i].type,
@@ -136,9 +134,7 @@ function getYearsAndCurriculaGivenCourse() {
     // Sending request for Curricula
     var xhr = new XMLHttpRequest();
     var uri = "/get_curricula_given_course";
-    console.log(url);
     var params = { "url": url };
-    console.log(params.url);
     ajaxPostRequest(xhr, uri, params, function (curricula) {
         curricula = JSON.parse(curricula);
 
