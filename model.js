@@ -109,8 +109,6 @@ function getAreas(callback) {
     // Finding most recent file of opendata directory
     const data_dir = './opendata/';
     fs.readdir(data_dir, function (err, files) {
-        console.log(typeof files);
-        console.log(files);
         var title = files[0];
         data_file = data_dir + title;
 
@@ -131,7 +129,7 @@ function getCoursesGivenArea(area, callback) {
             for (i = 0; i < results.length; i++) {
                 if (results[i].ambiti === area) {
                     var course = new Object();
-                    //course.code = results[i].corso_codice;
+                    course.code = results[i].corso_codice;
                     course.description = results[i].corso_descrizione;
                     course.url = results[i].url;
                     course.duration = results[i].durata;
@@ -160,9 +158,8 @@ function getTimetableUrlGivenUniboUrl(unibo_url, callback) {
 function getCurriculaGivenCourseUrl(unibo_url, callback) {
     getTimetableUrlGivenUniboUrl(unibo_url, function (timetable_url) {
         var type = timetable_url.split('/')[3];
-        console.log('type = ' + type);
         var curricula_url = timetable_url + '/' + language[type] + '/@@available_curricula';
-        console.log('curricula_url + ' + curricula_url);
+
         // ex. https://corsi.unibo.it/laurea/clei/orario-lezioni/@@available_curricula
         fetch(curricula_url).then(x => x.json())
             .then(function (json) {
@@ -179,7 +176,6 @@ function getTimetable(unibo_url, year, curriculum, callback) {
     getTimetableUrlGivenUniboUrl(unibo_url, function (timetable_url) {
         var type = timetable_url.split('/')[3];
         var link = timetable_url + '/' + language[type] + '?anno=' + year + "&curricula=" + curriculum;
-        console.log(link);
         fetch(link).then(x => x.text())
             .then(function (html) {
                 var $ = cheerio.load(html);
@@ -192,12 +188,14 @@ function getTimetable(unibo_url, year, curriculum, callback) {
                     labels.push($(element).text());
                 });
                 lectures_form = '<button class="btn btn-secondary" id="select_or_deselect_all" onclick="return selectOrDeselectAll();">Deseleziona tutti</button>';
+                lectures_form += '<div class="container">';
                 lectures_form += '<form id="select_lectures" action="/get_calendar_url" method="post">';
                 for (i = 0; i < inputs.length; i++)
                     lectures_form += '<div class="row"><input type="checkbox" class="checkbox" name="lectures" value="' + inputs[i] + '" checked/><label>' + labels[i] + '</label></div></br>';
                 lectures_form += '<input type="hidden" name="timetable_url" value="' + timetable_url + '"/>';
                 lectures_form += '<input type="hidden" name="year" value="' + year + '"/>';
                 lectures_form += '<input type="hidden" name="curriculum" value="' + curriculum + '"/>';
+                lectures_form += '</div>';
                 lectures_form += '<input type="submit" class="btn btn-primary" value="Ottieni URL"/></form>';
                 /*
                 fs.writeFile("./labels.html", labels, function (err) {
@@ -244,7 +242,6 @@ function getICalendarEvents(timetable_url, year, curriculum, lectures, alert, ca
     for (var l of lectures.values())
         link += '&insegnamenti=' + l;
     link += '&calendar_view=';
-    console.log(link);
     // Send the request and parse the response
     fetch(link).then(x => x.text())
         .then(function (json) {
@@ -266,10 +263,8 @@ function getICalendarEvents(timetable_url, year, curriculum, lectures, alert, ca
                     prof = l.docente;
                 }
                 const event = new UniboEventClass(l.title, start, end, location, url, prof);
-                //console.log(event);
                 calendar.push(event);
             }
-            console.log(calendar);
             let factory = new iCalendar(alert);
             let vcalendar = factory.ical(calendar);
             callback(vcalendar);

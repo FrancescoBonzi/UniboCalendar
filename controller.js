@@ -20,6 +20,8 @@ function course_page(req, res, next) {
     const unibo_url = req.body.courses;
     const year = req.body.years;
     const curriculum = req.body.curricula;
+    var today = new Date();
+    console.log(today + ' Request for: ' + unibo_url + ', year = ' + year + ', curriculum = ' + curriculum);
     model.getTimetable(unibo_url, year, curriculum, function (list) {
         res.render('course', { 'page': 'course', 'list': list });
     });
@@ -29,7 +31,6 @@ function get_calendar_url(req, res, next) {
     const timetable_url = req.body.timetable_url;
     const year = req.body.year;
     const curriculum = req.body.curriculum;
-    console.log('curriculum = ' + curriculum);
     var lectures = req.body.lectures;
     if (typeof lectures === undefined || lectures === '') {
         lectures = [];
@@ -45,7 +46,6 @@ function get_ical(req, res, next) {
     const timetable_url = req.query.timetable_url;
     const year = req.query.year;
     const curriculum = req.query.curricula;
-    console.log(curriculum);
     var lectures = req.query.lectures;
     if (req.query.lectures === undefined || req.query.lectures === '')
         lectures = [];
@@ -53,6 +53,8 @@ function get_ical(req, res, next) {
         lectures = [lectures];
         let alert = req.query.alert === undefined ? null : parseInt(req.query.lectures);
     model.getICalendarEvents(timetable_url, year, curriculum, lectures, alert, function (unibo_cal) {
+        var today = new Date();
+        console.log(today + ' Send Calendar of: ' + timetable_url + ' - year = ' + year + ', curriculum = ' + curriculum + ', with ' + lectures.length + ' lectures.');
         res.type("text/calendar");
         res.send(unibo_cal);
     });
@@ -68,11 +70,8 @@ function get_courses_given_area(req, res, next) {
 
 function get_curricula_given_course(req, res, next) {
     var url = req.body.url;
-    console.log(url);
     model.getCurriculaGivenCourseUrl(url, function (curricula) {
         res.type("application/json");
-        console.log(typeof curricula);
-        console.log(curricula);
         res.send(JSON.stringify(curricula));
     })
 }

@@ -17,9 +17,10 @@
                     macOS</a></li>
         </ul>
     </div>
-    <!-- The text field -->
-    <input type="text" value="{{{url}}}" id="url" size="100">
-
-    <!-- The button used to copy the text -->
-    <button onclick="copy()" class="btn btn-primary">Copia</button>
+    <div class="input-group mb-3">
+        <input type="text" id="url" class="form-control" value="{{{url}}}">
+        <div class="input-group-append">
+            <button class="btn btn-primary" type="button" onclick="copy()">Copia</button>
+        </div>
+    </div>
 </div>
