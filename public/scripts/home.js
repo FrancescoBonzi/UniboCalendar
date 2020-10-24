@@ -159,6 +159,7 @@ function getYearsAndCurriculaGivenCourse() {
             if(curricula.length == 1) {
                 var list = document.getElementById('curricula');
                 list.options.selectedIndex = 1;
+                checkFormValidity();
             }
         }
     });
