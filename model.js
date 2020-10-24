@@ -216,7 +216,7 @@ function getTimetable(unibo_url, year, curriculum, callback) {
 };
 
 function generateUrl(timetable_url, year, curriculum, lectures, callback) {
-    var url = "http://localhost:3002/get_ical?" +
+    var url = "http://unibocalendar.duckdns.org/get_ical?" +
         "timetable_url=" + timetable_url + "&" +
         "year=" + year + "&" +
         "curricula=" + curriculum;
