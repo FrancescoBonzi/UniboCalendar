@@ -89,7 +89,7 @@ function readCsvAndGetAreas(callback) {
     fs.createReadStream(data_file)
         .pipe(csv())
         .on('data', (data) => {
-            if(data.ambiti != '') {
+            if (data.ambiti != '') {
                 results.push(data)
             }
         })
@@ -159,7 +159,6 @@ function getCurriculaGivenCourseUrl(unibo_url, callback) {
     getTimetableUrlGivenUniboUrl(unibo_url, function (timetable_url) {
         var type = timetable_url.split('/')[3];
         var curricula_url = timetable_url + '/' + language[type] + '/@@available_curricula';
-
         // ex. https://corsi.unibo.it/laurea/clei/orario-lezioni/@@available_curricula
         fetch(curricula_url).then(x => x.json())
             .then(function (json) {
@@ -167,7 +166,12 @@ function getCurriculaGivenCourseUrl(unibo_url, callback) {
             })
             .catch(function (err) {
                 console.log(err);
-                callback(undefined);
+                json_err = [{
+                    "selected": false,
+                    "value": undefined,
+                    "label": "NON SONO PRESENTI CURRICULA"
+                }];
+                callback(json_err);
             });
     })
 }

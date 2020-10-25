@@ -1,9 +1,9 @@
-<div class="container">
+<div class="container" id="main-container">
   <div class="header">
     <h1>Unibo Calendar</h1>
-    <h5>Sleziona il tuo corso di studi, l'anno che stai frequentando e il curriculum.</h5>
+    <h5>Vuoi inserire i tuoi appuntamenti universitari nel tuo calendario (iCloud, Google, ecc)?<br>Riempi i campi qui sotto per cominciare</h5>
   </div>
-  <div class="container">
+  <div class="container" id="body">
     <form id="form_calendar" class="form-group" action="/course" method="post" onchange="checkFormValidity();">
       <div class="row">
         <select id="areas" class="form-control" name="areas" onchange="getCoursesGivenArea();">
