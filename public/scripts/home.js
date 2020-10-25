@@ -13,7 +13,7 @@ function checkFormValidity() {
     var curricula = document.getElementById('curricula');
     var curricula_checked = curricula.options[curricula.selectedIndex].value;
 
-    if(areas_checked != '' && courses_checked != '' && years_checked != '' && curricula_checked != '') {
+    if (areas_checked != '' && courses_checked != '' && years_checked != '' && curricula_checked != '' && curricula_checked != 'undefined') {
         document.getElementById('submit-form-button').disabled = false;
     } else {
         document.getElementById('submit-form-button').disabled = true;
@@ -99,6 +99,8 @@ function getCoursesGivenArea() {
 
 function getYearsAndCurriculaGivenCourse() {
 
+    let node, text_node;
+
     // Setting Duration
     var list = document.getElementById('courses');
     var url = list.options[list.selectedIndex].value;
@@ -109,23 +111,23 @@ function getYearsAndCurriculaGivenCourse() {
     document.getElementById('curricula').innerHTML = "";
 
     // Adding Select Year
-    var node = document.createElement("option");
-    var text_node = document.createTextNode("--- Seleziona Anno ---");
+    node = document.createElement("option");
+    text_node = document.createTextNode("--- Seleziona Anno ---");
     node.appendChild(text_node);
     node.setAttribute('value', '');
     document.getElementById('years').appendChild(node);
 
     // Adding Select Curriculum
-    var node = document.createElement("option");
-    var text_node = document.createTextNode("--- Seleziona Curriculum ---");
+    node = document.createElement("option");
+    text_node = document.createTextNode("--- Seleziona Curriculum ---");
     node.appendChild(text_node);
     node.setAttribute('value', '');
     document.getElementById('curricula').appendChild(node);
 
     // Setting Years
     for (i = 0; i < duration; i++) {
-        var node = document.createElement("option");
-        var text_node = document.createTextNode(i + 1);
+        node = document.createElement("option");
+        text_node = document.createTextNode(i + 1);
         node.appendChild(text_node);
         node.setAttribute('value', i + 1);
         document.getElementById('years').appendChild(node);
@@ -140,22 +142,26 @@ function getYearsAndCurriculaGivenCourse() {
 
         // Setting Curricula
         if (curricula === undefined || curricula === '') {
-            var node = document.createElement("option");
-            var text_node = document.createTextNode("-");
+            node = document.createElement("option");
+            text_node = document.createTextNode("-");
             node.appendChild(text_node);
             document.getElementById('curricula').appendChild(node);
         } else {
             for (i = 0; i < curricula.length; i++) {
-                var node = document.createElement("option");
-                var text_node = document.createTextNode(curricula[i].label);
+                node = document.createElement("option");
+                text_node = document.createTextNode(curricula[i].label);
                 node.appendChild(text_node);
                 node.setAttribute('value', curricula[i].value);
                 document.getElementById('curricula').appendChild(node);
             }
-            if(curricula.length == 1) {
+            if (curricula.length == 1) {
                 var list = document.getElementById('curricula');
                 list.options.selectedIndex = 1;
-                checkFormValidity();
+                if (curricula[0].value === undefined) {
+                    alert("Siamo spiacenti, ma Unibo non ha reso disponibile l'orario per questo corso di studi.\nNon è possibile continuare...");
+                } else {
+                    checkFormValidity();
+                }
             }
         }
     });

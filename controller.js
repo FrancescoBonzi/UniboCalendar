@@ -1,4 +1,5 @@
-var model = require('./model.js')
+const model = require('./model.js');
+const fs = require('fs');
 
 function error404(req, res, next) {
     res.status(404);
@@ -21,7 +22,14 @@ function course_page(req, res, next) {
     const year = req.body.years;
     const curriculum = req.body.curricula;
     var today = new Date();
-    console.log(today + ' Request for: ' + unibo_url + ', year = ' + year + ', curriculum = ' + curriculum);
+    fs.writeFile("./logs/courses.csv", today + ',' + unibo_url + ',' + year + ',' + curriculum + '\n', {
+        encoding: "utf8",
+        flag: "a",
+        mode: 0o666
+    }, function (err) {
+        if (err)
+            return console.log(err);
+    });
     model.getTimetable(unibo_url, year, curriculum, function (list) {
         res.render('course', { 'page': 'course', 'list': list });
     });
@@ -51,10 +59,17 @@ function get_ical(req, res, next) {
         lectures = [];
     else if (typeof lectures === 'string')
         lectures = [lectures];
-        let alert = req.query.alert === undefined ? null : parseInt(req.query.lectures);
+    let alert = req.query.alert === undefined ? null : parseInt(req.query.lectures);
     model.getICalendarEvents(timetable_url, year, curriculum, lectures, alert, function (unibo_cal) {
         var today = new Date();
-        console.log(today + ' Send Calendar of: ' + timetable_url + ' - year = ' + year + ', curriculum = ' + curriculum + ', with ' + lectures.length + ' lectures.');
+        fs.writeFile("./logs/iCal.csv", today + ',' + timetable_url + ',' + year + ',' + curriculum + ',' + lectures.length + '\n', {
+                encoding: "utf8",
+                flag: "a",
+                mode: 0o666
+            }, function (err) {
+                if (err)
+                    return console.log(err);
+            });
         res.type("text/calendar");
         res.send(unibo_cal);
     });
@@ -62,7 +77,7 @@ function get_ical(req, res, next) {
 
 function get_courses_given_area(req, res, next) {
     var area = req.query.area;
-    model.getCoursesGivenArea(area, function(courses) {
+    model.getCoursesGivenArea(area, function (courses) {
         res.type("application/json");
         res.send(courses);
     });
