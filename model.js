@@ -200,7 +200,7 @@ function getTimetable(unibo_url, year, curriculum, callback) {
                 lectures_form += '<input type="hidden" name="year" value="' + year + '"/>';
                 lectures_form += '<input type="hidden" name="curriculum" value="' + curriculum + '"/>';
                 lectures_form += '</div>';
-                lectures_form += '<input type="submit" class="btn btn-primary" value="Ottieni URL"/></form>';
+                lectures_form += '<input type="submit" class="btn btn-primary" value="Ottieni Calendario"/></form>';
                 /*
                 fs.writeFile("./labels.html", labels, function (err) {
                     if (err)
