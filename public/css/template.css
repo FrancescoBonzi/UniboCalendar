@@ -8,3 +8,13 @@ footer {
     bottom: 2rem;
     left: 10rem;
 }
+
+div h1 a {
+    color: #212529;
+    text-decoration: none;
+}
+
+div h1 a:hover {
+    color: #212529;
+    text-decoration: none;
+}
