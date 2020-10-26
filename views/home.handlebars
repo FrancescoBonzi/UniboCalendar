@@ -16,14 +16,16 @@
       <div class="row">
         <select id="courses" class="form-control" name="courses" onchange="getYearsAndCurriculaGivenCourse();">
         </select>
+        <img id="courses-loading" src="../../loader.gif" alt="Stiamo scaricando i corsi..."/>
       </div>
       <div class="row">
         <select id="years" class="form-control" name="years">
         </select>
       </div>
-      <div class="row">
+      <div class="row" style="position: relative;">
         <select id="curricula" class="form-control" name="curricula">
         </select>
+        <img id="curricula-loading" src="../../loader.gif" alt="Stiamo scaricando i curricula..."/>
       </div>
       <div class="row">
         <input type="submit" id="submit-form-button" class="btn btn-primary" value="Avanti" disabled>
