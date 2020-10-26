@@ -64,6 +64,14 @@ function getCoursesGivenArea() {
     document.getElementById('years').innerHTML = "";
     document.getElementById('curricula').innerHTML = "";
 
+    // Show loading gif
+    var height = getComputedStyle(document.getElementById('courses')).height;
+    var width = getComputedStyle(document.getElementById('years')).width; // I take the value of a field that never changes
+    var margin_left_loader = eval(height.split('px')[0]/6);
+    var new_width = eval(width.split('px')[0] - height.split('px')[0] - margin_left_loader);
+    document.getElementById('courses').style = 'width: ' + new_width + 'px; float: left;';
+    document.getElementById('courses-loading').style = 'opacity: 1; margin-left: ' + margin_left_loader + 'px; left: ' + new_width + 'px;';
+
     //sending request for Courses given an Area
     var xhr = new XMLHttpRequest();
     var list = document.getElementById('areas');
@@ -94,6 +102,10 @@ function getCoursesGivenArea() {
             node.setAttribute('value', courses[i].url);
             document.getElementById('courses').appendChild(node);
         }
+
+        // Hide loading gif
+        document.getElementById('courses').style = 'width: 100%;';
+        document.getElementById('courses-loading').style = 'opacity: 1';
     });
 }
 
@@ -133,6 +145,14 @@ function getYearsAndCurriculaGivenCourse() {
         document.getElementById('years').appendChild(node);
     }
 
+    // Show loading gif
+    var height = getComputedStyle(document.getElementById('curricula')).height;
+    var width = getComputedStyle(document.getElementById('years')).width;  // I take the value of a field that never changes
+    var margin_left_loader = eval(height.split('px')[0]/6);
+    var new_width = eval(width.split('px')[0] - height.split('px')[0] - margin_left_loader);
+    document.getElementById('curricula').style = 'width: ' + new_width + 'px; float: left;';
+    document.getElementById('curricula-loading').style = 'opacity: 1; margin-left: ' + margin_left_loader + 'px; left: ' + new_width + 'px;';
+
     // Sending request for Curricula
     var xhr = new XMLHttpRequest();
     var uri = "/get_curricula_given_course";
@@ -164,5 +184,9 @@ function getYearsAndCurriculaGivenCourse() {
                 }
             }
         }
+
+        // Hide loading gif
+        document.getElementById('curricula').style = 'width: 100%;';
+        document.getElementById('curricula-loading').style = 'opacity: 0;';
     });
 }
