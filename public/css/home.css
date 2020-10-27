@@ -19,3 +19,26 @@ input[type="text"] {
     border: 1px solid lightgray;
     text-indent: 5px;
 }
+
+#courses {
+    transition: width 0.3s;
+    transition-delay: 1s;
+}
+
+#courses-loading {
+    display: none;
+}
+
+#curricula {
+    transition: width 0.3s;
+}
+
+#curricula-loading {
+    opacity: 0;
+    transition: left 0.3s;
+    position: absolute;
+    top: 0;
+    left: 100%;
+    height: 100%;
+    width: auto;
+}

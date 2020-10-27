@@ -1,7 +1,5 @@
-const { time } = require('console');
-const { type } = require('os');
-const { parse } = require('path');
-var model = require('./model.js')
+const model = require('./model.js');
+const fs = require('fs');
 
 function error404(req, res, next) {
     res.status(404);
@@ -14,46 +12,83 @@ function error500(err, req, res, next) {
 }
 
 function home_page(req, res, next) {
-    res.render('home', { 'page': 'home' });
-}
-
-function course_page(req, res, next) {
-    const timetable_url = req.body.url;
-    const year = req.body.year;
-    model.getTimetable(timetable_url, year, function (list) {
-        res.render('course', { 'page': 'course', 'list': list, 'timetable_url': timetable_url, 'year': year });
+    model.getAreas(function (areas) {
+        res.render('home', { 'page': 'home', 'areas': areas });
     });
 }
 
-async function get_calendar_url(req, res, next) {
+function course_page(req, res, next) {
+    const unibo_url = req.body.courses;
+    const year = req.body.years;
+    const curriculum = req.body.curricula;
+    var today = new Date();
+    fs.writeFile("./logs/courses.csv", today + ',' + unibo_url + ',' + year + ',' + curriculum + '\n', {
+        encoding: "utf8",
+        flag: "a",
+        mode: 0o666
+    }, function (err) {
+        if (err)
+            return console.log(err);
+    });
+    model.getTimetable(unibo_url, year, curriculum, function (list) {
+        res.render('course', { 'page': 'course', 'list': list });
+    });
+}
+
+function get_calendar_url(req, res, next) {
     const timetable_url = req.body.timetable_url;
     const year = req.body.year;
+    const curriculum = req.body.curriculum;
     var lectures = req.body.lectures;
-    if (typeof lectures == 'string') {
+    if (typeof lectures === undefined || lectures === '') {
+        lectures = [];
+    } else if (typeof lectures === 'string') {
         lectures = [lectures];
     }
-    var url = await model.generateUrl(timetable_url, year, lectures);
-    res.render('link', { 'page': 'link', 'url': url });
+    model.generateUrl(timetable_url, year, curriculum, lectures, function (url) {
+        res.render('link', { 'page': 'link', 'url': url });
+    });
 }
 
 function get_ical(req, res, next) {
     const timetable_url = req.query.timetable_url;
     const year = req.query.year;
-    let lectures;
-    if (req.query.lectures === undefined) {
+    const curriculum = req.query.curricula;
+    var lectures = req.query.lectures;
+    if (req.query.lectures === undefined || req.query.lectures === '')
         lectures = [];
-    } else if (req.query.lectures === '') {
-        lectures = [];
-    } else if (typeof lectures === 'string') {
+    else if (typeof lectures === 'string')
         lectures = [lectures];
-    } else {
-        lectures = req.query.lectures;
-    }
     let alert = req.query.alert === undefined ? null : parseInt(req.query.lectures);
-    model.getICalendarEvents(timetable_url, year, lectures, alert, function (unibo_cal) {
+    model.getICalendarEvents(timetable_url, year, curriculum, lectures, alert, function (unibo_cal) {
+        var today = new Date();
+        fs.writeFile("./logs/iCal.csv", today + ',' + timetable_url + ',' + year + ',' + curriculum + ',' + lectures.length + '\n', {
+                encoding: "utf8",
+                flag: "a",
+                mode: 0o666
+            }, function (err) {
+                if (err)
+                    return console.log(err);
+            });
         res.type("text/calendar");
         res.send(unibo_cal);
     });
+}
+
+function get_courses_given_area(req, res, next) {
+    var area = req.query.area;
+    model.getCoursesGivenArea(area, function (courses) {
+        res.type("application/json");
+        res.send(courses);
+    });
+}
+
+function get_curricula_given_course(req, res, next) {
+    var url = req.body.url;
+    model.getCurriculaGivenCourseUrl(url, function (curricula) {
+        res.type("application/json");
+        res.send(JSON.stringify(curricula));
+    })
 }
 
 exports.dispatcher = function (app) {
@@ -61,6 +96,8 @@ exports.dispatcher = function (app) {
     app.post('/course', course_page);
     app.post('/get_calendar_url', get_calendar_url);
     app.get('/get_ical', get_ical);
+    app.get('/get_courses_given_area', get_courses_given_area);
+    app.post('/get_curricula_given_course', get_curricula_given_course);
     app.use(error404); // 404 catch-all handler (middleware)
     app.use(error500); // 500 error handler (middleware)
 }
