@@ -17,6 +17,23 @@ const language = {
 
 var data_file = './opendata/corsi.csv';
 
+// *** Utility Log ***
+function writeLog(uuid, timetable_url, year, curriculum, lectures, hack) {
+    const today = (new Date).toLocaleString('en-GB', { timeZone: 'UTC' });
+    const date = today.split(',')[0];
+    const time = today.split(' ')[1];
+    const type = timetable_url.split('/')[3];
+    const course = timetable_url.split('/')[4];
+    fs.writeFile("./logs/iCal.csv", uuid + ',' + date + ',' + time + ',' + type + ',' + course + ',' + year + ',' + curriculum + ',' + lectures.length + ',' + hack.toString() + '\n', {
+        encoding: "utf8",
+        flag: "a",
+        mode: 0o666
+    }, function (err) {
+        if (err)
+            return console.log(err);
+    });
+}
+
 function getAreas(callback) {
     //Reading csv file and building an array of unique values
     var results = [];
@@ -205,9 +222,15 @@ function getICalendarEvents(timetable_url, year, curriculum, lectures, alert, ca
         });
 }
 
+function askForUpdate() {
+    
+}
+
+module.exports.writeLog = writeLog;
 module.exports.getAreas = getAreas;
 module.exports.getCoursesGivenArea = getCoursesGivenArea;
 module.exports.getCurriculaGivenCourseUrl = getCurriculaGivenCourseUrl;
 module.exports.getTimetable = getTimetable;
 module.exports.generateUrl = generateUrl;
 module.exports.getICalendarEvents = getICalendarEvents;
+module.exports.askForUpdate = askForUpdate;
