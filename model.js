@@ -18,20 +18,25 @@ const language = {
 var data_file = './opendata/corsi.csv';
 
 // *** Utility Log ***
-function writeLog(uuid, timetable_url, year, curriculum, lectures, hack) {
-    const today = (new Date).toLocaleString('en-GB', { timeZone: 'UTC' });
-    const date = today.split(',')[0];
-    const time = today.split(' ')[1];
-    const type = timetable_url.split('/')[3];
-    const course = timetable_url.split('/')[4];
-    fs.writeFile("./logs/iCal.csv", uuid + ',' + date + ',' + time + ',' + type + ',' + course + ',' + year + ',' + curriculum + ',' + lectures.length + ',' + hack.toString() + '\n', {
-        encoding: "utf8",
-        flag: "a",
-        mode: 0o666
-    }, function (err) {
-        if (err)
-            return console.log(err);
-    });
+function writeLog(uuid, timetable_url, year, curriculum, lectures, hack, callback) {
+    if(uuid === undefined || timetable_url.split('/').length > 5) {
+        callback(false);
+    } else {
+        const today = (new Date).toLocaleString('en-GB', { timeZone: 'UTC' });
+        const date = today.split(',')[0];
+        const time = today.split(' ')[1];
+        const type = timetable_url.split('/')[3];
+        const course = timetable_url.split('/')[4];
+        fs.writeFile("./logs/iCal.csv", uuid + ',' + date + ',' + time + ',' + type + ',' + course + ',' + year + ',' + curriculum + ',' + lectures.length + ',' + hack.toString() + '\n', {
+            encoding: "utf8",
+            flag: "a",
+            mode: 0o666
+        }, function (err) {
+            if (err)
+                return console.log(err);
+        });
+        callback(true);
+    }
 }
 
 function getAreas(callback) {
