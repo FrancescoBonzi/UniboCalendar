@@ -162,7 +162,10 @@ function generateUrl(timetable_url, year, curriculum, lectures, callback) {
 
 function getICalendarEvents(timetable_url, year, curriculum, lectures, alert, callback) {
     var type = timetable_url.split('/')[3]
-    var link = timetable_url + '/' + language[type] + '/@@orario_reale_json?anno=' + year + '&curricula=' + curriculum;
+    var link = timetable_url + '/' + language[type] + '/@@orario_reale_json?anno=' + year
+    if (curriculum !== undefined) {
+        link += '&curricula=' + curriculum;
+    }
     // Adding only the selected lectures to the request
     for (var l of lectures.values())
         link += '&insegnamenti=' + l;
