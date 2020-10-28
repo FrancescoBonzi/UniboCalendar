@@ -51,25 +51,33 @@ function get_calendar_url(req, res, next) {
 }
 
 function get_ical(req, res, next) {
-    const timetable_url = req.query.timetable_url;
     const year = req.query.year;
     const curriculum = req.query.curricula;
+    var timetable_url = req.query.timetable_url;
+    let hack = false;
+    if (timetable_url.split("/").length > 5) {
+        timetable_url = timetable_url.split("/").slice(0, 5).join('/');
+        // So we know wether there's anybody else other than eutampieri who's stuck with the old URL
+        hack = true;
+    }
     var lectures = req.query.lectures;
-    if (req.query.lectures === undefined || req.query.lectures === '')
+    if (req.query.lectures === undefined || req.query.lectures === '') {
         lectures = [];
-    else if (typeof lectures === 'string')
+    }
+    else if (typeof lectures === 'string') {
         lectures = [lectures];
+    }
     let alert = req.query.alert === undefined ? null : parseInt(req.query.lectures);
     model.getICalendarEvents(timetable_url, year, curriculum, lectures, alert, function (unibo_cal) {
         var today = new Date();
-        fs.writeFile("./logs/iCal.csv", today + ',' + timetable_url + ',' + year + ',' + curriculum + ',' + lectures.length + '\n', {
-                encoding: "utf8",
-                flag: "a",
-                mode: 0o666
-            }, function (err) {
-                if (err)
-                    return console.log(err);
-            });
+        fs.writeFile("./logs/iCal.csv", today + ',' + timetable_url + ',' + year + ',' + curriculum + ',' + lectures.length + ',' + hack.toString() + '\n', {
+            encoding: "utf8",
+            flag: "a",
+            mode: 0o666
+        }, function (err) {
+            if (err)
+                return console.log(err);
+        });
         res.type("text/calendar");
         res.send(unibo_cal);
     });
