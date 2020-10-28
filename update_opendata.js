@@ -40,7 +40,7 @@ function downloadUpToDateOpendataFile(latest_version, callback) {
                     console.log(err);
                     return;
                 };
-                json = JSON.stringify({"name":latest_version+".csv"});
+                json = JSON.stringify({ "name": latest_version + ".csv" });
                 fs.writeFile(version_file, json, function (err) {
                     if (err) {
                         console.log(err);
@@ -52,7 +52,7 @@ function downloadUpToDateOpendataFile(latest_version, callback) {
         })
         .catch(function (err) {
             console.log(err);
-            console.log('Fail to download ' + latest_version + ' from: ' + path);
+            console.log('Failed to download ' + latest_version + ' from: ' + path);
             return;
         });
 }
