@@ -186,7 +186,7 @@ function getICalendarEvents(timetable_url, year, curriculum, lectures, alert, ca
                 }
                 var url = 'Non è disponibile una aula virtuale';
                 if (!(l.teams === undefined) && !(l.teams === null)) {
-                    url = l.teams;
+                    url = encodeURI(l.teams);
                 }
                 var prof = '-';
                 if (!(l.docente === undefined) && !(l.docente === null)) {
