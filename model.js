@@ -20,6 +20,14 @@ var data_file = './opendata/corsi.csv';
 // *** Utility Log ***
 function writeLog(uuid, timetable_url, year, curriculum, lectures, hack, callback) {
     if(uuid === undefined || timetable_url.split('/').length > 5) {
+        fs.writeFile("./logs/iCal.csv", 'Errore\n', {
+            encoding: "utf8",
+            flag: "a",
+            mode: 0o666
+        }, function (err) {
+            if (err)
+                return console.log(err);
+        });
         callback(false);
     } else {
         const today = (new Date).toLocaleString('en-GB', { timeZone: 'UTC' });
