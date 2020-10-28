@@ -3,10 +3,13 @@ const fs = require('fs');
 
 // *** Utility Log ***
 function writeLog(uuid, timetable_url, year, curriculum, lectures, hack) {
+    console.log('ehi');
     const today = (new Date).toLocaleString('en-GB', { timeZone: 'UTC' });
+    const date = today.split(',')[0];
+    const time = today.split(' ')[1];
     const type = timetable_url.split('/')[3];
     const course = timetable_url.split('/')[4];
-    fs.writeFile("./logs/iCal.csv", uuid + ',' + today + ',' + type + ',' + course + ',' + year + ',' + curriculum + ',' + lectures.length + ',' + hack.toString() + '\n', {
+    fs.writeFile("./logs/iCal.csv", uuid + ',' + date + ',' + time + ',' + type + ',' + course + ',' + year + ',' + curriculum + ',' + lectures.length + ',' + hack.toString() + '\n', {
         encoding: "utf8",
         flag: "a",
         mode: 0o666
@@ -36,7 +39,6 @@ function course_page(req, res, next) {
     const unibo_url = req.body.courses;
     const year = req.body.years;
     const curriculum = req.body.curricula;
-    writeLog(uuid, timetable_url, year, curriculum, lectures, hack); // async function
     model.getTimetable(unibo_url, year, curriculum, function (list) {
         res.render('course', { 'page': 'course', 'list': list });
     });
