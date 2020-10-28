@@ -51,6 +51,7 @@ function get_calendar_url(req, res, next) {
 }
 
 function get_ical(req, res, next) {
+    const uuid = req.query.uuid;
     const timetable_url = req.query.timetable_url;
     const year = req.query.year;
     const curriculum = req.query.curricula;
@@ -59,10 +60,10 @@ function get_ical(req, res, next) {
         lectures = [];
     else if (typeof lectures === 'string')
         lectures = [lectures];
-    let alert = req.query.alert === undefined ? null : parseInt(req.query.lectures);
+        let alert = req.query.alert === undefined ? null : parseInt(req.query.alert);
     model.getICalendarEvents(timetable_url, year, curriculum, lectures, alert, function (unibo_cal) {
         var today = new Date();
-        fs.writeFile("./logs/iCal.csv", today + ',' + timetable_url + ',' + year + ',' + curriculum + ',' + lectures.length + '\n', {
+        fs.writeFile("./logs/iCal.csv", uuid + ',' + today + ',' + timetable_url + ',' + year + ',' + curriculum + ',' + lectures.length + '\n', {
                 encoding: "utf8",
                 flag: "a",
                 mode: 0o666
