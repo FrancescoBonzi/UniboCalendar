@@ -2,3 +2,5 @@ node_modules
 courses.csv
 logs/*
 opendata/*
+!opendata/.gitkeep
+!logs/.gitkeep
