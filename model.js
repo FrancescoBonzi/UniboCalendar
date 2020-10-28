@@ -80,7 +80,7 @@ function getCurriculaGivenCourseUrl(unibo_url, callback) {
             "value": undefined,
             "label": "NON SONO PRESENTI CURRICULA"
         }];
-        if(timetable_url === undefined) {
+        if (timetable_url === undefined) {
             callback(json_err);
         }
         var type = timetable_url.split('/')[3];
@@ -181,7 +181,7 @@ function getICalendarEvents(timetable_url, year, curriculum, lectures, alert, ca
                 }
                 var url = 'Non è disponibile una aula virtuale';
                 if (!(l.teams === undefined) && !(l.teams === null)) {
-                    url = encodeURIComponent(l.teams);
+                    url = l.teams;
                 }
                 var prof = '-';
                 if (!(l.docente === undefined) && !(l.docente === null)) {
