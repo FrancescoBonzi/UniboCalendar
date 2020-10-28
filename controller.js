@@ -1,6 +1,21 @@
 const model = require('./model.js');
 const fs = require('fs');
 
+// *** Utility Log ***
+function writeLog(uuid, timetable_url, year, curriculum, lectures, hack) {
+    const today = (new Date).toLocaleString('en-GB', { timeZone: 'UTC' });
+    const type = timetable_url.split('/')[3];
+    const course = timetable_url.split('/')[4];
+    fs.writeFile("./logs/iCal.csv", uuid + ',' + today + ',' + type + ',' + course + ',' + year + ',' + curriculum + ',' + lectures.length + ',' + hack.toString() + '\n', {
+        encoding: "utf8",
+        flag: "a",
+        mode: 0o666
+    }, function (err) {
+        if (err)
+            return console.log(err);
+    });
+}
+
 function error404(req, res, next) {
     res.status(404);
     res.render('404');
@@ -21,15 +36,7 @@ function course_page(req, res, next) {
     const unibo_url = req.body.courses;
     const year = req.body.years;
     const curriculum = req.body.curricula;
-    var today = new Date();
-    fs.writeFile("./logs/courses.csv", today + ',' + unibo_url + ',' + year + ',' + curriculum + '\n', {
-        encoding: "utf8",
-        flag: "a",
-        mode: 0o666
-    }, function (err) {
-        if (err)
-            return console.log(err);
-    });
+    writeLog(uuid, timetable_url, year, curriculum, lectures, hack); // async function
     model.getTimetable(unibo_url, year, curriculum, function (list) {
         res.render('course', { 'page': 'course', 'list': list });
     });
@@ -51,9 +58,10 @@ function get_calendar_url(req, res, next) {
 }
 
 function get_ical(req, res, next) {
+    const uuid = req.query.uuid;
     const year = req.query.year;
     const curriculum = req.query.curricula;
-    var timetable_url = req.query.timetable_url;
+    let timetable_url = req.query.timetable_url;
     let hack = false;
     if (timetable_url.split("/").length > 5) {
         timetable_url = timetable_url.split("/").slice(0, 5).join('/');
@@ -69,15 +77,7 @@ function get_ical(req, res, next) {
     }
     let alert = req.query.alert === undefined ? null : parseInt(req.query.lectures);
     model.getICalendarEvents(timetable_url, year, curriculum, lectures, alert, function (unibo_cal) {
-        var today = new Date();
-        fs.writeFile("./logs/iCal.csv", today + ',' + timetable_url + ',' + year + ',' + curriculum + ',' + lectures.length + ',' + hack.toString() + '\n', {
-            encoding: "utf8",
-            flag: "a",
-            mode: 0o666
-        }, function (err) {
-            if (err)
-                return console.log(err);
-        });
+        writeLog(uuid, timetable_url, year, curriculum, lectures, hack); // async function
         res.type("text/calendar");
         res.send(unibo_cal);
     });

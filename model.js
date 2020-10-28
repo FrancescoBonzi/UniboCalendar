@@ -1,5 +1,6 @@
 const cheerio = require('cheerio');
 const fetch = require('node-fetch');
+const uuid = require('uuid');
 const csv = require('csv-parser');
 const fs = require('fs');
 const iCalendar = require('./icalendar');
@@ -140,6 +141,7 @@ function getTimetable(unibo_url, year, curriculum, callback) {
 
 function generateUrl(timetable_url, year, curriculum, lectures, callback) {
     var url = "http://unibocalendar.duckdns.org/get_ical?" +
+        "uuid=" + uuid.v4() + "&" +
         "timetable_url=" + timetable_url + "&" +
         "year=" + year + "&" +
         "curricula=" + curriculum;
@@ -170,7 +172,7 @@ function getICalendarEvents(timetable_url, year, curriculum, lectures, alert, ca
     for (var l of lectures.values())
         link += '&insegnamenti=' + l;
     link += '&calendar_view=';
-    // Send the request and parse the response
+    // Sending the request and parsing the response
     fetch(link).then(x => x.text())
         .then(function (json) {
             json = JSON.parse(json);
@@ -184,7 +186,7 @@ function getICalendarEvents(timetable_url, year, curriculum, lectures, alert, ca
                 }
                 var url = 'Non è disponibile una aula virtuale';
                 if (!(l.teams === undefined) && !(l.teams === null)) {
-                    url = l.teams;
+                    url = encodeURI(l.teams);
                 }
                 var prof = '-';
                 if (!(l.docente === undefined) && !(l.docente === null)) {

@@ -15,6 +15,10 @@ function checkIfOpendataFileIsUpToDate(callback) {
             latest_version = relative_path.split('/')[relative_path.split('/').length - 1];
             // Check if the file exists in the current directory.
             var up_to_date = false;
+            if (!fs.existsSync(version_file)) {
+                callback(latest_version, up_to_date);
+                return;
+            }
             fs.readFile(version_file, (err, json) => {
                 var version = JSON.parse(json);
                 if (!err && version.name == latest_version) {
