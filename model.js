@@ -222,8 +222,8 @@ function getICalendarEvents(timetable_url, year, curriculum, lectures, alert, ca
         });
 }
 
-function askForUpdate() {
-    
+function askForUpdate(callback) {
+    callback('Ehi ci sono grandi miglioramenti nel servizio!\nAggiorna il tuo link su http://unibocalendar.duckdns.org');
 }
 
 module.exports.writeLog = writeLog;
