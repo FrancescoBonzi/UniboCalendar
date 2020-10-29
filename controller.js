@@ -46,11 +46,8 @@ function get_ical(req, res, next) {
     const year = req.query.year;
     const curriculum = req.query.curricula;
     let timetable_url = req.query.timetable_url;
-    let hack = false;
     if (timetable_url.split("/").length > 5) {
         timetable_url = timetable_url.split("/").slice(0, 5).join('/');
-        // So we know wether there's anybody else other than eutampieri who's stuck with the old URL
-        hack = true;
     }
     var lectures = req.query.lectures;
     if (req.query.lectures === undefined || req.query.lectures === '') {

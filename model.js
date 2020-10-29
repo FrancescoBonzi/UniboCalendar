@@ -178,9 +178,7 @@ function generateUrl(timetable_url, year, curriculum, lectures, callback) {
     var type = timetable_url.split('/')[3];
     var course = timetable_url.split('/')[4];
     var params = [uuid_value, type, course, year, curriculum];
-    console.log(params);
     params = [uuid_value, type, course, year, curriculum].concat(lectures);
-    console.log(params);
     writeLog('./logs/enrollments.csv', params);
 
     // Shortening address
@@ -200,10 +198,10 @@ function generateUrl(timetable_url, year, curriculum, lectures, callback) {
 
 function getICalendarEvents(uuid_value, timetable_url, year, curriculum, lectures, alert, callback) {
     if (uuid_value === undefined || timetable_url.split('/').length > 5) {
-        var start = new Date();
-        var day = 864e5;
-        var end = new Date(+today + day / 24);
-        const ask_for_update_event = new UniboEventClass('Aggiorna la nuova versione di UniboCalendar', start, end, '', 'http://unibocalendar.duckdns.org', '');
+        const start = new Date();
+        const day = 864e5;
+        const end = new Date(+start + day / 24);
+        const ask_for_update_event = new UniboEventClass('Aggiorna UniboCalendar!', start, end, 'unknown', 'http://unibocalendar.duckdns.org', 'unknown');
         var factory = new iCalendar(alert);
         var vcalendar = factory.ical([ask_for_update_event]);
         callback(vcalendar);
