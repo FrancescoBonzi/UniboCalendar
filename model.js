@@ -114,17 +114,19 @@ function getCurriculaGivenCourseUrl(unibo_url, callback) {
         if (timetable_url === undefined) {
             callback(json_err);
         }
-        var type = timetable_url.split('/')[3];
-        var curricula_url = timetable_url + '/' + language[type] + '/@@available_curricula';
-        // ex. https://corsi.unibo.it/laurea/clei/orario-lezioni/@@available_curricula
-        fetch(curricula_url).then(x => x.json())
-            .then(function (json) {
-                callback(json);
-            })
-            .catch(function (err) {
-                console.log(err);
-                callback(json_err);
-            });
+        setTimeout(function () {
+            var type = timetable_url.split('/')[3];
+            var curricula_url = timetable_url + '/' + language[type] + '/@@available_curricula';
+            // ex. https://corsi.unibo.it/laurea/clei/orario-lezioni/@@available_curricula
+            fetch(curricula_url).then(x => x.json())
+                .then(function (json) {
+                    callback(json);
+                })
+                .catch(function (err) {
+                    console.log(err);
+                    callback(json_err);
+                });
+        }, 5000);
     })
 }
 

@@ -1,4 +1,7 @@
-var dict = {};
+let dict = {};
+let timeout;
+let already_send_curricula_req = false;
+let already_send_courses_req = false;
 
 function checkFormValidity() {
     var areas = document.getElementById('areas');
@@ -59,6 +62,11 @@ function ajaxPostRequest(xhr, uri, params, callback) {
 
 function getCoursesGivenArea() {
 
+    if(already_send_courses_req || already_send_curricula_req) {
+        window.open('/', '_self');
+        return;
+    }
+
     // Cleaning Courses, Years and Curricula
     document.getElementById('courses').innerHTML = "";
     document.getElementById('years').innerHTML = "";
@@ -67,7 +75,7 @@ function getCoursesGivenArea() {
     // Show loading gif
     var height = getComputedStyle(document.getElementById('courses')).height;
     var width = getComputedStyle(document.getElementById('years')).width; // I take the value of a field that never changes
-    var margin_left_loader = eval(height.split('px')[0]/6);
+    var margin_left_loader = eval(height.split('px')[0] / 6);
     var new_width = eval(width.split('px')[0] - height.split('px')[0] - margin_left_loader);
     document.getElementById('courses').style = 'width: ' + new_width + 'px; float: left;';
     document.getElementById('courses-loading').style = 'opacity: 1; margin-left: ' + margin_left_loader + 'px; left: ' + new_width + 'px;';
@@ -77,6 +85,7 @@ function getCoursesGivenArea() {
     var list = document.getElementById('areas');
     var area = list.options[list.selectedIndex].value;
     var uri = "/get_courses_given_area?area=" + area;
+    already_send_courses_req = true;
     ajaxGetRequest(xhr, uri, function (json) {
         var courses = JSON.parse(json);
 
@@ -106,10 +115,17 @@ function getCoursesGivenArea() {
         // Hide loading gif
         document.getElementById('courses').style = 'width: 100%;';
         document.getElementById('courses-loading').style = 'opacity: 1';
+
+        already_send_courses_req = false;
     });
 }
 
 function getYearsAndCurriculaGivenCourse() {
+
+    if(already_send_courses_req || already_send_curricula_req) {
+        window.open('/', '_self');
+        return;
+    }
 
     let node, text_node;
 
@@ -148,15 +164,30 @@ function getYearsAndCurriculaGivenCourse() {
     // Show loading gif
     var height = getComputedStyle(document.getElementById('curricula')).height;
     var width = getComputedStyle(document.getElementById('years')).width;  // I take the value of a field that never changes
-    var margin_left_loader = eval(height.split('px')[0]/6);
+    var margin_left_loader = eval(height.split('px')[0] / 6);
     var new_width = eval(width.split('px')[0] - height.split('px')[0] - margin_left_loader);
     document.getElementById('curricula').style = 'width: ' + new_width + 'px; float: left;';
     document.getElementById('curricula-loading').style = 'opacity: 1; margin-left: ' + margin_left_loader + 'px; left: ' + new_width + 'px;';
+
+    // Start Timeout for Low Internet Connection
+    timeout = setTimeout(function () {
+        document.getElementById('low-connection').style = 'opacity: 1;';
+        var n = 0;
+        interval = setInterval(function () {
+            var message = 'Connessione debole';
+            for (i = 0; i < n; i++) {
+                message += '.';
+            }
+            document.getElementById('low-connection').innerHTML = message;
+            n = (n + 1) % 4;
+        }, 500);
+    }, 5000);
 
     // Sending request for Curricula
     var xhr = new XMLHttpRequest();
     var uri = "/get_curricula_given_course";
     var params = { "url": url };
+    already_send_curricula_req = true;
     ajaxPostRequest(xhr, uri, params, function (curricula) {
         curricula = JSON.parse(curricula);
 
@@ -185,8 +216,14 @@ function getYearsAndCurriculaGivenCourse() {
             }
         }
 
+        // Stop Timeout and Hide message
+        clearTimeout(timeout);
+        document.getElementById('low-connection').style = 'opacity: 0;';
+
         // Hide loading gif
         document.getElementById('curricula').style = 'width: 100%;';
         document.getElementById('curricula-loading').style = 'opacity: 0;';
+
+        already_send_curricula_req = false;
     });
 }

@@ -42,3 +42,9 @@ input[type="text"] {
     height: 100%;
     width: auto;
 }
+
+#low-connection {
+    opacity: 0;
+    color: #dc3545;
+    transition: opacity 1s;
+}
