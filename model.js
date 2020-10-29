@@ -17,34 +17,23 @@ const language = {
 
 var data_file = './opendata/corsi.csv';
 
-// *** Utility Log ***
-function writeLog(uuid, timetable_url, year, curriculum, lectures, hack, callback) {
-    if(uuid === undefined || timetable_url.split('/').length > 5) {
-        fs.writeFile("./logs/iCal.csv", 'Errore\n', {
-            encoding: "utf8",
-            flag: "a",
-            mode: 0o666
-        }, function (err) {
-            if (err)
-                return console.log(err);
-        });
-        callback(false);
-    } else {
-        const today = (new Date).toLocaleString('en-GB', { timeZone: 'UTC' });
-        const date = today.split(',')[0];
-        const time = today.split(' ')[1];
-        const type = timetable_url.split('/')[3];
-        const course = timetable_url.split('/')[4];
-        fs.writeFile("./logs/iCal.csv", uuid + ',' + date + ',' + time + ',' + type + ',' + course + ',' + year + ',' + curriculum + ',' + lectures.length + ',' + hack.toString() + '\n', {
-            encoding: "utf8",
-            flag: "a",
-            mode: 0o666
-        }, function (err) {
-            if (err)
-                return console.log(err);
-        });
-        callback(true);
+function writeLog(file, data) {
+    const today = (new Date).toLocaleString('en-GB', { timeZone: 'UTC' });
+    const date = today.split(',')[0];
+    const time = today.split(' ')[1];
+    var string = date + ',' + time;
+    for (i = 0; i < data.length; i++) {
+        string += ',' + data[i];
     }
+    string += '\n';
+    fs.writeFile(file, string, {
+        encoding: "utf8",
+        flag: "a",
+        mode: 0o666
+    }, function (err) {
+        if (err)
+            return console.log(err);
+    });
 }
 
 function getAreas(callback) {
@@ -114,19 +103,17 @@ function getCurriculaGivenCourseUrl(unibo_url, callback) {
         if (timetable_url === undefined) {
             callback(json_err);
         }
-        setTimeout(function () {
-            var type = timetable_url.split('/')[3];
-            var curricula_url = timetable_url + '/' + language[type] + '/@@available_curricula';
-            // ex. https://corsi.unibo.it/laurea/clei/orario-lezioni/@@available_curricula
-            fetch(curricula_url).then(x => x.json())
-                .then(function (json) {
-                    callback(json);
-                })
-                .catch(function (err) {
-                    console.log(err);
-                    callback(json_err);
-                });
-        }, 5000);
+        var type = timetable_url.split('/')[3];
+        var curricula_url = timetable_url + '/' + language[type] + '/@@available_curricula';
+        // ex. https://corsi.unibo.it/laurea/clei/orario-lezioni/@@available_curricula
+        fetch(curricula_url).then(x => x.json())
+            .then(function (json) {
+                callback(json);
+            })
+            .catch(function (err) {
+                console.log(err);
+                callback(json_err);
+            });
     })
 }
 
@@ -172,14 +159,26 @@ function getTimetable(unibo_url, year, curriculum, callback) {
 };
 
 function generateUrl(timetable_url, year, curriculum, lectures, callback) {
+
+    //Creating URL to get the calendar
+    const uuid_value = uuid.v4();
     var url = "http://unibocalendar.duckdns.org/get_ical?" +
-        "uuid=" + uuid.v4() + "&" +
+        "uuid=" + uuid_value + "&" +
         "timetable_url=" + timetable_url + "&" +
-        "year=" + year + "&" +
-        "curricula=" + curriculum;
+        "year=" + year;
+    if (curriculum !== undefined) {
+        url += '&curricula=' + curriculum;
+    }
     for (const l of lectures.values()) {
         url += '&lectures=' + l;
     }
+
+    // Writing logs
+    var type = timetable_url.split('/')[3];
+    var course = timetable_url.split('/')[4];
+    writeLog('./log/enrollments.csv', [uuid_value, type, course, year, curriculum] + lectures);
+
+    // Shortening address
     fetch("https://shorties.cloud/shlnk/save.php?url=" + encodeURIComponent(url)).then(x => x.text())
         .then(function (response) {
             if (response === undefined || response == '') {
@@ -194,58 +193,67 @@ function generateUrl(timetable_url, year, curriculum, lectures, callback) {
         });;
 }
 
-function getICalendarEvents(timetable_url, year, curriculum, lectures, alert, callback) {
-    var type = timetable_url.split('/')[3]
-    var link = timetable_url + '/' + language[type] + '/@@orario_reale_json?anno=' + year
-    if (curriculum !== undefined) {
-        link += '&curricula=' + curriculum;
+function getICalendarEvents(uuid_value, timetable_url, year, curriculum, lectures, alert, callback) {
+    if (uuid_value === undefined || timetable_url.split('/').length > 5) {
+        var start = new Date();
+        var day = 864e5;
+        var end = new Date(+today + day / 24);
+        const ask_for_update_event = new UniboEventClass('Aggiorna la nuova versione di UniboCalendar', start, end, '', 'http://unibocalendar.duckdns.org', '');
+        var factory = new iCalendar(alert);
+        var vcalendar = factory.ical([ask_for_update_event]);
+        callback(vcalendar);
+    } else {
+        var type = timetable_url.split('/')[3];
+        var link = timetable_url + '/' + language[type] + '/@@orario_reale_json?anno=' + year;
+        if (curriculum !== undefined) {
+            link += '&curricula=' + curriculum;
+        }
+        // Adding only the selected lectures to the request
+        for (var l of lectures.values())
+            link += '&insegnamenti=' + l;
+        link += '&calendar_view=';
+        // Sending the request and parsing the response
+        fetch(link).then(x => x.text())
+            .then(function (json) {
+                json = JSON.parse(json);
+                calendar = []
+                for (var l of json) {
+                    const start = new Date(l.start);
+                    const end = new Date(l.end);
+                    var location = "Solo ONLINE";
+                    if (l.aule.length > 0) {
+                        location = l.aule[0].des_risorsa + ", " + l.aule[0].des_indirizzo;
+                    }
+                    var url = 'Non è disponibile una aula virtuale';
+                    if (!(l.teams === undefined) && !(l.teams === null)) {
+                        url = encodeURI(l.teams);
+                    }
+                    var prof = 'Non noto';
+                    if (!(l.docente === undefined) && !(l.docente === null)) {
+                        prof = l.docente;
+                    }
+                    const event = new UniboEventClass(l.title, start, end, location, url, prof);
+                    calendar.push(event);
+                }
+                var factory = new iCalendar(alert);
+                var vcalendar = factory.ical(calendar);
+                callback(vcalendar);
+            })
+            .catch(function (err) {
+                console.log(err);
+                callback("An error occurred while creating the calendar.");
+            });
     }
-    // Adding only the selected lectures to the request
-    for (var l of lectures.values())
-        link += '&insegnamenti=' + l;
-    link += '&calendar_view=';
-    // Sending the request and parsing the response
-    fetch(link).then(x => x.text())
-        .then(function (json) {
-            json = JSON.parse(json);
-            calendar = []
-            for (var l of json) {
-                const start = new Date(l.start);
-                const end = new Date(l.end);
-                var location = "solo ONLINE";
-                if (l.aule.length > 0) {
-                    location = l.aule[0].des_risorsa + ", " + l.aule[0].des_indirizzo;
-                }
-                var url = 'Non è disponibile una aula virtuale';
-                if (!(l.teams === undefined) && !(l.teams === null)) {
-                    url = encodeURI(l.teams);
-                }
-                var prof = '-';
-                if (!(l.docente === undefined) && !(l.docente === null)) {
-                    prof = l.docente;
-                }
-                const event = new UniboEventClass(l.title, start, end, location, url, prof);
-                calendar.push(event);
-            }
-            let factory = new iCalendar(alert);
-            let vcalendar = factory.ical(calendar);
-            callback(vcalendar);
-        })
-        .catch(function (err) {
-            console.log(err);
-            callback("An error occurred while creating the calendar.");
-        });
+
+    // Writing logs
+    var type = timetable_url.split('/')[3];
+    var course = timetable_url.split('/')[4];
+    writeLog('./log/iCal.csv', [uuid_value, type, course, year, curriculum]);
 }
 
-function askForUpdate(callback) {
-    callback('Ehi ci sono grandi miglioramenti nel servizio!\nAggiorna il tuo link su http://unibocalendar.duckdns.org');
-}
-
-module.exports.writeLog = writeLog;
 module.exports.getAreas = getAreas;
 module.exports.getCoursesGivenArea = getCoursesGivenArea;
 module.exports.getCurriculaGivenCourseUrl = getCurriculaGivenCourseUrl;
 module.exports.getTimetable = getTimetable;
 module.exports.generateUrl = generateUrl;
 module.exports.getICalendarEvents = getICalendarEvents;
-module.exports.askForUpdate = askForUpdate;

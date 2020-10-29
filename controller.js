@@ -60,18 +60,9 @@ function get_ical(req, res, next) {
         lectures = [lectures];
     }
     let alert = req.query.alert === undefined ? null : parseInt(req.query.lectures);
-    model.writeLog(uuid, timetable_url, year, curriculum, lectures, hack, function(saved) {
-        if(saved) {
-            model.getICalendarEvents(timetable_url, year, curriculum, lectures, alert, function (unibo_cal) {
-                res.type("text/calendar");
-                res.send(unibo_cal);
-            });
-        } else {
-            model.askForUpdate(function(cal) {
-                res.type("text/calendar");
-                res.send(cal);
-            })
-        }
+    model.getICalendarEvents(uuid, timetable_url, year, curriculum, lectures, alert, function (unibo_cal) {
+        res.type("text/calendar");
+        res.send(unibo_cal);
     });
 }
 
