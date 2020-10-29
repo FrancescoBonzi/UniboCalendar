@@ -18,6 +18,7 @@ const language = {
 var data_file = './opendata/corsi.csv';
 
 function writeLog(file, data) {
+    console.log(typeof data);
     const today = (new Date).toLocaleString('en-GB', { timeZone: 'UTC' });
     const date = today.split(',')[0];
     const time = today.split(' ')[1];
@@ -176,7 +177,11 @@ function generateUrl(timetable_url, year, curriculum, lectures, callback) {
     // Writing logs
     var type = timetable_url.split('/')[3];
     var course = timetable_url.split('/')[4];
-    writeLog('./log/enrollments.csv', [uuid_value, type, course, year, curriculum] + lectures);
+    var params = [uuid_value, type, course, year, curriculum];
+    console.log(params);
+    params = [uuid_value, type, course, year, curriculum].concat(lectures);
+    console.log(params);
+    writeLog('./logs/enrollments.csv', params);
 
     // Shortening address
     fetch("https://shorties.cloud/shlnk/save.php?url=" + encodeURIComponent(url)).then(x => x.text())
@@ -248,7 +253,7 @@ function getICalendarEvents(uuid_value, timetable_url, year, curriculum, lecture
     // Writing logs
     var type = timetable_url.split('/')[3];
     var course = timetable_url.split('/')[4];
-    writeLog('./log/iCal.csv', [uuid_value, type, course, year, curriculum]);
+    writeLog('./logs/iCal.csv', [uuid_value, type, course, year, curriculum]);
 }
 
 module.exports.getAreas = getAreas;
