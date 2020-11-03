@@ -180,6 +180,7 @@ function generateUrl(timetable_url, year, curriculum, lectures, callback) {
     var params = [uuid_value, type, course, year, curriculum];
     params = [uuid_value, type, course, year, curriculum].concat(lectures);
     writeLog('./logs/enrollments.csv', params);
+    console.log(url);
 
     // Shortening address
     fetch("https://shorties.cloud/shlnk/save.php?url=" + encodeURIComponent(url)).then(x => x.text())
@@ -251,7 +252,7 @@ function getICalendarEvents(uuid_value, timetable_url, year, curriculum, lecture
     // Writing logs
     var type = timetable_url.split('/')[3];
     var course = timetable_url.split('/')[4];
-    writeLog('./logs/iCal.csv', [uuid_value, type, course, year, curriculum]);
+    writeLog('./logs/iCal.csv', [uuid_value, type, course, year, curriculum, lectures.length].concat(lectures));
 }
 
 module.exports.getAreas = getAreas;
