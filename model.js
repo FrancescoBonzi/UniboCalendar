@@ -252,7 +252,11 @@ function getICalendarEvents(uuid_value, timetable_url, year, curriculum, lecture
     // Writing logs
     var type = timetable_url.split('/')[3];
     var course = timetable_url.split('/')[4];
-    writeLog('./logs/iCal.csv', [uuid_value, type, course, year, curriculum, lectures.length].concat(lectures));
+    if(uuid_value.split('-').length == 5) {
+        writeLog('./logs/iCal.csv', [uuid_value]);
+    } else {
+        writeLog('./logs/iCal.csv', [uuid_value, type, course, year, curriculum, lectures.length].concat(lectures));
+    }
 }
 
 module.exports.getAreas = getAreas;
