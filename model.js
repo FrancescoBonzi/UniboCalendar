@@ -16,9 +16,10 @@ const language = {
 }
 
 var data_file = './opendata/corsi.csv';
+const file_iCal_logs = './logs/iCal.csv';
+const file_enrollments_logs = './logs/enrollments.csv';
 
 function writeLog(file, data) {
-    console.log(typeof data);
     const today = (new Date).toLocaleString('en-GB', { timeZone: 'UTC' });
     const date = today.split(',')[0];
     const time = today.split(' ')[1];
@@ -163,7 +164,8 @@ function generateUrl(timetable_url, year, curriculum, lectures, callback) {
 
     //Creating URL to get the calendar
     const uuid_value = uuid.v4();
-    var url = "http://unibocalendar.duckdns.org/get_ical?" +
+    //unibocalendar.duckdns.org
+    var url = "http://localhost:3002/get_ical?" +
         "uuid=" + uuid_value + "&" +
         "timetable_url=" + timetable_url + "&" +
         "year=" + year;
@@ -179,7 +181,7 @@ function generateUrl(timetable_url, year, curriculum, lectures, callback) {
     var course = timetable_url.split('/')[4];
     var params = [uuid_value, type, course, year, curriculum];
     params = [uuid_value, type, course, year, curriculum].concat(lectures);
-    writeLog('./logs/enrollments.csv', params);
+    writeLog(file_enrollments_logs, params);
     console.log(url);
 
     // Shortening address
@@ -194,7 +196,23 @@ function generateUrl(timetable_url, year, curriculum, lectures, callback) {
         .catch(function (err) {
             console.log(err);
             callback(url);
-        });;
+        });
+}
+
+function checkEnrollment(uuid_value, callback) {
+    fs.readFile(file_enrollments_logs, 'utf8', (err, data) => {
+        if (err) {
+            console.error(err);
+            callback(false);
+        }
+        console.log(typeof uuid_value);
+        console.log(data.search(uuid_value));
+        if (data.search(uuid_value) >= 0) {
+            callback(true);
+        } else {
+            callback(false);
+        }
+    });
 }
 
 function getICalendarEvents(uuid_value, timetable_url, year, curriculum, lectures, alert, callback) {
@@ -252,10 +270,23 @@ function getICalendarEvents(uuid_value, timetable_url, year, curriculum, lecture
     // Writing logs
     var type = timetable_url.split('/')[3];
     var course = timetable_url.split('/')[4];
-    if(uuid_value.split('-').length == 5) {
-        writeLog('./logs/iCal.csv', [uuid_value]);
-    } else {
-        writeLog('./logs/iCal.csv', [uuid_value, type, course, year, curriculum, lectures.length].concat(lectures));
+    if (!(uuid_value === undefined) && !(uuid_value === null) && uuid_value != '') {
+        if (uuid_value.split('-').length == 5) {
+            // It means that this url was done by unibocalenadr.duckdns.org and I know all the other information looking at enrollments.csv
+            writeLog(file_iCal_logs, [uuid_value]);
+        } else {
+            // It means that this url was done by Eugenio's service and I may not know anything about this request
+            checkEnrollment(uuid_value, function (isAlreadyEnrolled) {
+                console.log(isAlreadyEnrolled);
+                if (isAlreadyEnrolled) {
+                    writeLog(file_iCal_logs, [uuid_value]);
+                } else {
+                    // Adding uuid in enrollments.csv
+                    writeLog(file_enrollments_logs, [uuid_value, type, course, year, curriculum, lectures.length].concat(lectures));
+                    writeLog(file_iCal_logs, [uuid_value]);
+                }
+            });
+        }
     }
 }
 
