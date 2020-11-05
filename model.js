@@ -165,7 +165,7 @@ function generateUrl(timetable_url, year, curriculum, lectures, callback) {
     //Creating URL to get the calendar
     const uuid_value = uuid.v4();
     //unibocalendar.duckdns.org
-    var url = "http://localhost:3002/get_ical?" +
+    var url = "http://unibocalendar.duckdns.org/get_ical?" +
         "uuid=" + uuid_value + "&" +
         "timetable_url=" + timetable_url + "&" +
         "year=" + year;
