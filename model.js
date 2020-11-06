@@ -185,12 +185,14 @@ function generateUrl(timetable_url, year, curriculum, lectures, callback) {
     console.log(url);
 
     // Shortening address
-    fetch("https://shorties.cloud/shlnk/save.php?url=" + encodeURIComponent(url)).then(x => x.text())
+    fetch("http://bitly.ws/create.php?url=" + encodeURIComponent(url)).then(x => x.text())
         .then(function (response) {
             if (response === undefined || response == '') {
                 callback(url);
             } else {
-                callback(response);
+                var $ = cheerio.load(response);
+                var short_url = $('#clip-text b').text();
+                callback(short_url);
             }
         })
         .catch(function (err) {
