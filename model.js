@@ -284,7 +284,7 @@ function getICalendarEvents(uuid_value, timetable_url, year, curriculum, lecture
                     writeLog(file_iCal_logs, [uuid_value]);
                 } else {
                     // Adding uuid in enrollments.csv
-                    writeLog(file_enrollments_logs, [uuid_value, type, course, year, curriculum, lectures.length].concat(lectures));
+                    //writeLog(file_enrollments_logs, [uuid_value, type, course, year, curriculum, lectures.length].concat(lectures));
                     writeLog(file_iCal_logs, [uuid_value]);
                 }
             });
