@@ -19,7 +19,7 @@ div h1 a:hover {
     text-decoration: none;
 }
 
-@media (max-width : 800px) {
+@media (max-width : 320px) {
     .header h5::after {
         content: "\AIl telefono è bello, ma faresti molto prima con il computer...";
         white-space: pre;
