@@ -18,3 +18,20 @@ div h1 a:hover {
     color: #212529;
     text-decoration: none;
 }
+
+@media (max-width : 800px) {
+    .header h5::after {
+        content: "\AIl telefono è bello, ma faresti molto prima con il computer...";
+        white-space: pre;
+        color: #dc3545;
+        font-size: initial;
+        font-weight: initial;
+        animation: blinker 2s linear infinite;
+    }
+}
+
+@keyframes blinker {
+    50% {
+      opacity: 0;
+    }
+  }
