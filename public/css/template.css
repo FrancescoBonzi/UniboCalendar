@@ -21,7 +21,7 @@ div h1 a:hover {
 
 @media (max-aspect-ratio: 1/1) {
     .header h5::after {
-        content: "\AIl telefono è bello, ma faresti molto prima con il computer...";
+        content: "\AFaresti molto prima con il computer...";
         white-space: pre;
         color: #dc3545;
         font-size: initial;
