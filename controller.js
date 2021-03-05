@@ -7,6 +7,7 @@ function error404(req, res, next) {
 }
 
 function error500(err, req, res, next) {
+    console.error(err)
     res.status(500);
     res.render('500');
 }
@@ -57,7 +58,7 @@ function get_ical(req, res, next) {
         lectures = [lectures];
     }
     let alert = req.query.alert === undefined ? null : parseInt(req.query.lectures);
-    model.getICalendarEvents(uuid, timetable_url, year, curriculum, lectures, alert, function (unibo_cal) {
+    model.getICalendarEvents(uuid, timetable_url, year, curriculum, lectures, alert, req.get("User-Agent"), function (unibo_cal) {
         res.type("text/calendar");
         res.send(unibo_cal);
     });

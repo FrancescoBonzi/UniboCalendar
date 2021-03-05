@@ -3,6 +3,10 @@ var express = require('express');
 var bodyParser = require("body-parser");
 var hbs = require('express-handlebars').create();
 var updater = require("./update_opendata.js");
+var csvMigrator = require("./migrate_csv.js");
+var sqlite3 = require('sqlite3').verbose();
+
+var db = new sqlite3.Database('./logs/data.db');
 
 var app = express();
 
@@ -26,6 +30,15 @@ app.set('view engine', 'handlebars');
 
 // Update opendata on launch
 updater.checkForOpendataUpdates();
+
+/**
+ * Create DB tables and migrate CSV
+ */
+db.run("CREATE TABLE IF NOT EXISTS enrollments (id TEXT, date INTEGER, type TEXT, course TEXT, year INTEGER, curriculum TEXT)");
+db.run("CREATE TABLE IF NOT EXISTS requested_lectures (enrollment_id TEXT, lecture_id TEXT)");
+db.run("CREATE TABLE IF NOT EXISTS hits (date INTEGER, enrollment_id TEXT, user_agent TEXT)");
+csvMigrator.migrate(db);
+db.close()
 
 //start server
 app.listen(app.get('port'), '127.0.0.1', function () {
