@@ -16,26 +16,20 @@ const language = {
 }
 
 var data_file = './opendata/corsi.csv';
-const file_iCal_logs = './logs/iCal.csv';
+const db_file = './logs/data.db';
 const file_enrollments_logs = './logs/enrollments.csv';
 
-function writeLog(file, data) {
-    const today = (new Date).toLocaleString('en-GB', { timeZone: 'UTC' });
-    const date = today.split(',')[0];
-    const time = today.split(' ')[1];
-    var string = date + ',' + time;
-    for (i = 0; i < data.length; i++) {
-        string += ',' + data[i];
+
+function log_enrollment(params, lectures) {
+    var db = new sqlite3.Database(db_file);
+
+    let enrollment_query = "INSERT INTO enrollments VALUES(?, ?, ?, ?, ?, ?)";
+    db.run(enrollment_query, params);
+    let lectures_query = "INSERT INTO requested_lectures VALUES(?, ?)";
+    for (let i = 0; i < lectures.length; i++) {
+        db.run(lectures_query, uuid_value, lectures[i]);
     }
-    string += '\n';
-    fs.writeFile(file, string, {
-        encoding: "utf8",
-        flag: "a",
-        mode: 0o666
-    }, function (err) {
-        if (err)
-            return console.log(err);
-    });
+    db.close();
 }
 
 function getAreas(callback) {
@@ -179,13 +173,14 @@ function generateUrl(timetable_url, year, curriculum, lectures, callback) {
     // Writing logs
     var type = timetable_url.split('/')[3];
     var course = timetable_url.split('/')[4];
-    var params = [uuid_value, type, course, year, curriculum];
-    params = [uuid_value, type, course, year, curriculum].concat(lectures);
-    writeLog(file_enrollments_logs, params);
+    var params = [uuid_value, new Date().getTime(), type, course, year, curriculum];
+
+    log_enrollment(params, lectures);
+
     console.log(url);
 
     // Shortening address
-    fetch("http://bitly.ws/create.php?url=" + encodeURIComponent(url)).then(x => x.text())
+    fetch("https://shorties.cloud/shlnk/save.php?url=" + encodeURIComponent(url)).then(x => x.text())
         .then(function (response) {
             if (response === undefined || response == '') {
                 callback(url);
@@ -202,19 +197,12 @@ function generateUrl(timetable_url, year, curriculum, lectures, callback) {
 }
 
 function checkEnrollment(uuid_value, callback) {
-    fs.readFile(file_enrollments_logs, 'utf8', (err, data) => {
-        if (err) {
-            console.error(err);
-            callback(false);
-        }
-        console.log(typeof uuid_value);
-        console.log(data.search(uuid_value));
-        if (data.search(uuid_value) >= 0) {
-            callback(true);
-        } else {
-            callback(false);
-        }
+    var db = new sqlite3.Database(db_file);
+    let query = "SELECT * FROM enrollments WHERE id = ?";
+    db.get(query, uuid_value, function (e, x) {
+        callback(x !== undefined);
     });
+    db.close();
 }
 
 function getICalendarEvents(uuid_value, timetable_url, year, curriculum, lectures, alert, callback) {
@@ -270,22 +258,28 @@ function getICalendarEvents(uuid_value, timetable_url, year, curriculum, lecture
     }
 
     // Writing logs
+    let log_hit = function (id, ua) {
+        var db = new sqlite3.Database(db_file);
+        let query = "INSERT INTO hits VALUES (?, ?, ?)";
+        db.run(query, new Date.getTime(), id, ua);
+        db.close();
+    }
     var type = timetable_url.split('/')[3];
     var course = timetable_url.split('/')[4];
     if (!(uuid_value === undefined) && !(uuid_value === null) && uuid_value != '') {
         if (uuid_value.split('-').length == 5) {
             // It means that this url was done by unibocalenadr.duckdns.org and I know all the other information looking at enrollments.csv
-            writeLog(file_iCal_logs, [uuid_value]);
+            log_hit(uuid_value, req.get('User-Agent'));
         } else {
             // It means that this url was done by Eugenio's service and I may not know anything about this request
             checkEnrollment(uuid_value, function (isAlreadyEnrolled) {
                 console.log(isAlreadyEnrolled);
                 if (isAlreadyEnrolled) {
-                    writeLog(file_iCal_logs, [uuid_value]);
+                    log_hit(uuid_value, req.get('User-Agent'));
                 } else {
                     // Adding uuid in enrollments.csv
-                    //writeLog(file_enrollments_logs, [uuid_value, type, course, year, curriculum, lectures.length].concat(lectures));
-                    writeLog(file_iCal_logs, [uuid_value]);
+                    log_enrollment([uuid_value, new Date().getTime(), type, course, year, curriculum], lectures);
+                    log_hit(uuid_value, req.get('User-Agent'));
                 }
             });
         }
