@@ -3,3 +3,4 @@ logs/*
 opendata/*
 !opendata/.gitkeep
 !logs/.gitkeep
+.vscode
