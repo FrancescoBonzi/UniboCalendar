@@ -5,6 +5,7 @@ const csv = require('csv-parser');
 const fs = require('fs');
 const iCalendar = require('./icalendar');
 const UniboEventClass = require('./UniboEventClass');
+var sqlite3 = require('sqlite3');
 
 const language = {
     "magistralecu": "orario-lezioni",
@@ -25,9 +26,10 @@ function log_enrollment(params, lectures) {
 
     let enrollment_query = "INSERT INTO enrollments VALUES(?, ?, ?, ?, ?, ?)";
     db.run(enrollment_query, params);
+console.log("AAA");
     let lectures_query = "INSERT INTO requested_lectures VALUES(?, ?)";
     for (let i = 0; i < lectures.length; i++) {
-        db.run(lectures_query, uuid_value, lectures[i]);
+        db.run(lectures_query, params[0], lectures[i]);
     }
     db.close();
 }
@@ -175,7 +177,8 @@ function generateUrl(timetable_url, year, curriculum, lectures, callback) {
     var course = timetable_url.split('/')[4];
     var params = [uuid_value, new Date().getTime(), type, course, year, curriculum];
 
-    log_enrollment(params, lectures);
+    console.log("About to log enrollment");
+log_enrollment(params, lectures);console.log("Logged enrollment");
 
     console.log(url);
 
@@ -205,7 +208,7 @@ function checkEnrollment(uuid_value, callback) {
     db.close();
 }
 
-function getICalendarEvents(uuid_value, timetable_url, year, curriculum, lectures, alert, callback) {
+function getICalendarEvents(uuid_value, timetable_url, year, curriculum, lectures, alert, ua, callback) {
     if (uuid_value === undefined || timetable_url.split('/').length > 5) {
         const start = new Date();
         const day = 864e5;
@@ -261,7 +264,7 @@ function getICalendarEvents(uuid_value, timetable_url, year, curriculum, lecture
     let log_hit = function (id, ua) {
         var db = new sqlite3.Database(db_file);
         let query = "INSERT INTO hits VALUES (?, ?, ?)";
-        db.run(query, new Date.getTime(), id, ua);
+        db.run(query, new Date().getTime(), id, ua);
         db.close();
     }
     var type = timetable_url.split('/')[3];
@@ -269,7 +272,7 @@ function getICalendarEvents(uuid_value, timetable_url, year, curriculum, lecture
     if (!(uuid_value === undefined) && !(uuid_value === null) && uuid_value != '') {
         if (uuid_value.split('-').length == 5) {
             // It means that this url was done by unibocalenadr.duckdns.org and I know all the other information looking at enrollments.csv
-            log_hit(uuid_value, req.get('User-Agent'));
+            log_hit(uuid_value, ua);
         } else {
             // It means that this url was done by Eugenio's service and I may not know anything about this request
             checkEnrollment(uuid_value, function (isAlreadyEnrolled) {
