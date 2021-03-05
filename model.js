@@ -26,7 +26,6 @@ function log_enrollment(params, lectures) {
 
     let enrollment_query = "INSERT INTO enrollments VALUES(?, ?, ?, ?, ?, ?)";
     db.run(enrollment_query, params);
-console.log("AAA");
     let lectures_query = "INSERT INTO requested_lectures VALUES(?, ?)";
     for (let i = 0; i < lectures.length; i++) {
         db.run(lectures_query, params[0], lectures[i]);
@@ -177,8 +176,7 @@ function generateUrl(timetable_url, year, curriculum, lectures, callback) {
     var course = timetable_url.split('/')[4];
     var params = [uuid_value, new Date().getTime(), type, course, year, curriculum];
 
-    console.log("About to log enrollment");
-log_enrollment(params, lectures);console.log("Logged enrollment");
+    log_enrollment(params, lectures);
 
     console.log(url);
 
