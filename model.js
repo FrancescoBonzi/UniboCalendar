@@ -276,11 +276,11 @@ function getICalendarEvents(uuid_value, timetable_url, year, curriculum, lecture
             checkEnrollment(uuid_value, function (isAlreadyEnrolled) {
                 console.log(isAlreadyEnrolled);
                 if (isAlreadyEnrolled) {
-                    log_hit(uuid_value, req.get('User-Agent'));
+                    log_hit(uuid_value, ua);
                 } else {
                     // Adding uuid in enrollments.csv
                     log_enrollment([uuid_value, new Date().getTime(), type, course, year, curriculum], lectures);
-                    log_hit(uuid_value, req.get('User-Agent'));
+                    log_hit(uuid_value, ua);
                 }
             });
         }

@@ -57,7 +57,7 @@ function get_ical(req, res, next) {
     else if (typeof lectures === 'string') {
         lectures = [lectures];
     }
-    let alert = req.query.alert === undefined ? null : parseInt(req.query.lectures);
+    let alert = req.query.alert === undefined ? null : parseInt(req.query.alert);
     model.getICalendarEvents(uuid, timetable_url, year, curriculum, lectures, alert, req.get("User-Agent"), function (unibo_cal) {
         res.type("text/calendar");
         res.send(unibo_cal);
