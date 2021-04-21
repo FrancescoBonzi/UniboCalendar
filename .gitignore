@@ -4,3 +4,4 @@ opendata/*
 !opendata/.gitkeep
 !logs/.gitkeep
 .vscode
+/fix_db/

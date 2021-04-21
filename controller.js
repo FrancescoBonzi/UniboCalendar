@@ -1,5 +1,4 @@
 const model = require('./model.js');
-const fs = require('fs');
 
 function error404(req, res, next) {
     res.status(404);

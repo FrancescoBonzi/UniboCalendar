@@ -18,7 +18,6 @@ const language = {
 
 var data_file = './opendata/corsi.csv';
 const db_file = './logs/data.db';
-const file_enrollments_logs = './logs/enrollments.csv';
 
 
 function log_enrollment(params, lectures) {
@@ -186,9 +185,9 @@ function generateUrl(timetable_url, year, curriculum, lectures, callback) {
             if (response === undefined || response == '') {
                 callback(url);
             } else {
-                var $ = cheerio.load(response);
-                var short_url = $('#clip-text b').text();
-                callback(short_url);
+                //var $ = cheerio.load(response);
+                //var short_url = $('#clip-text b').text();
+                callback(response);
             }
         })
         .catch(function (err) {
