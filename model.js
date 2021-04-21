@@ -182,11 +182,9 @@ function generateUrl(timetable_url, year, curriculum, lectures, callback) {
     // Shortening address
     fetch("https://shorties.cloud/shlnk/save.php?url=" + encodeURIComponent(url)).then(x => x.text())
         .then(function (response) {
-            if (response === undefined || response == '') {
+            if (response === undefined || response == '' || !response.startsWith('http://shlnk.eu')) {
                 callback(url);
             } else {
-                //var $ = cheerio.load(response);
-                //var short_url = $('#clip-text b').text();
                 callback(response);
             }
         })
