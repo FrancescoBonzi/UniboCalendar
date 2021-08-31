@@ -217,8 +217,8 @@ function getICalendarEvents(uuid_value, timetable_url, year, curriculum, lecture
         if (!isEnrolled || timetable_url.split('/').length > 5) {
             const start = new Date();
             const day = 864e5;
-            const end = new Date(start + day / 24);
-            const ask_for_update_event = new UniboEventClass('Aggiorna UniboCalendar!', start, end, 'unknown', 'http://unibocalendar.duckdns.org', 'unknown');
+            const end = new Date(+start + day / 24);
+            const ask_for_update_event = new UniboEventClass('Aggiorna UniboCalendar!', start, end, 'unknown', 'http://unibocalendar.it', '');
             var factory = new iCalendar(alert);
             var vcalendar = factory.ical([ask_for_update_event]);
             callback(vcalendar);
