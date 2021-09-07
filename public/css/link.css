@@ -1,0 +1,18 @@
+#info-boxes {
+    display: inline-flex;
+    padding-top: 1rem;
+}
+
+.box {
+    width: 50%;
+}
+
+@media (max-aspect-ratio: 1/1) {
+    #info-boxes {
+        display: inline-block;
+    }
+
+    .box {
+        width: 100%;
+    }
+}
