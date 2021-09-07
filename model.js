@@ -202,7 +202,7 @@ function getICalendarEvents(id, ua, callback) {
             const start = new Date();
             const day = 864e5;
             const end = new Date(+start + day / 24);
-            const ask_for_update_event = new UniboEventClass('Aggiorna UniboCalendar!', start, end, 'unknown', 'http://unibocalendar.it', '');
+            const ask_for_update_event = new UniboEventClass('Aggiorna UniboCalendar!', start, end, 'unknown', 'https://unibocalendar.it', '');
             var factory = new iCalendar(alert);
             var vcalendar = factory.ical([ask_for_update_event]);
             callback(vcalendar);
@@ -223,17 +223,11 @@ function getICalendarEvents(id, ua, callback) {
                 // Adding only the selected lectures to the request
                 console.log(link)
                 let query_lectures = "SELECT lecture_id FROM requested_lectures WHERE enrollment_id = ?";
-                db.get(query_lectures, id, function (e, lectures) {
-                    console.log(lectures)
-                    lectures = lectures["lecture_id"]
-                    if (lectures != undefined) {
-                        if (!(lectures instanceof Array)) {
-                            lectures = [lectures]
-                        }
-                        link += "&insegnamenti=" + lectures.join("&insegnamenti=")
+                db.all(query_lectures, id, function (e, lectures) {
+                    for (var i=0;i<lectures.length;i++) {
+                        link += "&insegnamenti=" + lectures[i]["lecture_id"]
                     }
                     link += '&calendar_view=';
-                    console.log(link)
                     // Sending the request and parsing the response
                     fetch(link).then(x => x.text())
                         .then(function (json) {
