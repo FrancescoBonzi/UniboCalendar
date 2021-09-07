@@ -4,13 +4,14 @@
   "description": "Servizio che consente a tutti gli studenti Unibo di aggiungere l'orario delle loro lezioni, filtrando solo quelle di interesse, al proprio calendario. Dopo aver aggiunto il link del proprio orario e l'anno di corso, il servizio permette di selezionare solo i corsi da frequentare e genera un semplice link con il quale eseguire una \"Iscrizione a Calendario\" nel proprio calendario personale.",
   "main": "index.js",
   "dependencies": {
-    "cheerio": "^1.0.0-rc.3",
-    "csv-parser": "^2.3.3",
+    "base32.js": "^0.1.0",
+    "cheerio": "^1.0.0-rc.10",
+    "csv-parser": "^2.3.5",
     "express": "^4.17.1",
-    "express-handlebars": "^5.2.0",
-    "node-fetch": "^2.6.1",
+    "express-handlebars": "^5.3.3",
+    "node-fetch": "^2.6.2",
     "sqlite3": "^5.0.2",
-    "uuid": "^8.3.1"
+    "randombytes": "^2.1.0"
   },
   "devDependencies": {},
   "repository": {

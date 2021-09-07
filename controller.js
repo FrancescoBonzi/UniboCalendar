@@ -28,6 +28,8 @@ function course_page(req, res, next) {
 
 function get_calendar_url(req, res, next) {
     const timetable_url = req.body.timetable_url;
+    const type = timetable_url.split('/')[3];
+    const course = timetable_url.split('/')[4];
     const year = req.body.year;
     const curriculum = req.body.curriculum;
     var lectures = req.body.lectures;
@@ -36,28 +38,14 @@ function get_calendar_url(req, res, next) {
     } else if (typeof lectures === 'string') {
         lectures = [lectures];
     }
-    model.generateUrl(timetable_url, year, curriculum, lectures, function (url) {
+    model.generateUrl(type, course, year, curriculum, lectures, function (url) {
         res.render('link', { 'page': 'link', 'url': url });
     });
 }
 
 function get_ical(req, res, next) {
-    const uuid = req.query.uuid;
-    const year = req.query.year;
-    const curriculum = req.query.curricula;
-    let timetable_url = req.query.timetable_url;
-    if (timetable_url.split("/").length > 5) {
-        timetable_url = timetable_url.split("/").slice(0, 5).join('/');
-    }
-    var lectures = req.query.lectures;
-    if (req.query.lectures === undefined || req.query.lectures === '') {
-        lectures = [];
-    }
-    else if (typeof lectures === 'string') {
-        lectures = [lectures];
-    }
-    let alert = req.query.alert === undefined ? null : parseInt(req.query.alert);
-    model.getICalendarEvents(uuid, timetable_url, year, curriculum, lectures, alert, req.get("User-Agent"), function (unibo_cal) {
+    const id = req.query.id;
+    model.getICalendarEvents(id, req.get("User-Agent"), function (unibo_cal) {
         res.type("text/calendar");
         res.send(unibo_cal);
     });
