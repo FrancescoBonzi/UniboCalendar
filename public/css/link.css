@@ -7,6 +7,10 @@
     width: 50%;
 }
 
+#instagram-logo {
+    width: 1.5rem;
+}
+
 @media (max-aspect-ratio: 1/1) {
     #info-boxes {
         display: inline-block;

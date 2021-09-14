@@ -9,6 +9,15 @@ footer {
     left: 10rem;
 }
 
+.footer {
+    padding-top: 1rem;
+    display: inline-flex;
+}
+
+.footer p {
+    padding-left: 0.5rem;
+}
+
 div h1 a {
     color: #212529;
     text-decoration: none;
