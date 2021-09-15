@@ -28,6 +28,8 @@ div h1 a:hover {
     text-decoration: none;
 }
 
+/*
+
 @media (max-aspect-ratio: 1/1) {
     .header h5::after {
         content: "\A Faresti molto prima con il computer...";
@@ -44,3 +46,5 @@ div h1 a:hover {
       opacity: 0;
     }
   }
+
+*/
