@@ -1,22 +1,29 @@
-#info-boxes {
-    display: inline-flex;
-    padding-top: 1rem;
+.container {
+    position: absolute;
+    width: 300px;
+    height: 200px;
+    z-index: 15;
+    top: 50%;
+    left: 50%;
+    margin: -100px 0 0 -150px;
+    display: flex;
 }
 
-.box {
-    width: 50%;
+img {
+    width: 5rem;
+    height: 5rem;
 }
 
-#instagram-logo {
-    width: 1.5rem;
+.calendar-box-left {
+    text-align: center;
+    padding-right: 2rem;
 }
 
-@media (max-aspect-ratio: 1/1) {
-    #info-boxes {
-        display: inline-block;
-    }
+.calendar-box-right {
+    text-align: center;
+    padding-left: 2rem;
+}
 
-    .box {
-        width: 100%;
-    }
+p {
+    font-weight: bold;
 }

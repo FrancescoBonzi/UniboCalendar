@@ -5,3 +5,4 @@ opendata/*
 !logs/.gitkeep
 .vscode
 /fix_db/
+tmp.html

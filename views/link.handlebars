@@ -1,42 +1,10 @@
 <div class="container">
-    <div class="header">
-        <h1><a href="/">Unibo Calendar</a></h1>
-        <h2>Configura i tuoi dispositivi e servizi</h2>
-        <h5>Segui le istruzioni per aggiungere i calendari ai tuoi dispositivi</h5></br>
-        <div class="input-group mb-3">
-            <input type="text" id="url" class="form-control" value="{{{url}}}">
-            <div class="input-group-append">
-                <button class="btn btn-primary" type="button" onclick="copy()">Copia</button>
-            </div>
-        </div>
-        <div id="info-boxes">
-            <div class="box">
-                <h3>Google Calendar</h3>
-                <ul>
-                    <li><a href="https://support.google.com/calendar/answer/37100?hl=it&co=GENIE.Platform%3DAndroid&oco=0" target="_blank">Aggiungi il Calendario da Android</a></li>
-                    <li><a href="https://support.google.com/calendar/answer/37100?hl=it&co=GENIE.Platform%3DDesktop&oco=0" target="_blank">Aggiungi il Calendario da Computer</a></li>
-                    <li><a href="https://support.google.com/calendar/answer/37100?hl=it&co=GENIE.Platform%3DiOS&oco=0" target="_blank">Aggiungi il Calendario da iPhone e iPad</a></li>
-                </ul>
-                <video width="90%" autoplay loop>
-                    <source src="media/google.mp4" type="video/mp4">
-                </video>
-            </div>
-            <div class="box">
-                <h3>iOS e macOS</h3>
-                <ul>
-                    <li><a href="https://support.apple.com/it-it/HT202361" target="_blank">Aggiungi il Calendario ad iCloud</a></li>
-                    <li><a href="https://support.apple.com/it-it/guide/ipad/ipad1b02bf5b/ipados#iPadf36f162d" target="_blank">Aggiungi il
-                            Calendario ad un dispositivo iOS</a></li>
-                    <li><a href="https://support.apple.com/it-it/guide/calendar/icl1022/mac" target="_blank">Aggiungi il Calendario a
-                            macOS</a></li>
-                </ul>
-                <video width="90%" autoplay loop>
-                    <source src="media/apple.mp4" type="video/mp4">
-                </video>
-            </div>
-        </div>
-        <div class="footer">
-            <a href="https://www.instagram.com/calendario_unibo/" target="_blank" alt="calendario_unibo"><img id="instagram-logo" src="media/instagram.png" alt="calendario_unibo"></a><p>Scrivici in direct per darci <b>feedbacks</b> o chiedere <b>supporto</b></p>
-        </div>
+    <div class="calendar-box-left">
+        <p>Aggiungi a Google</p>
+        <a href="https://calendar.google.com/calendar/u/0/r?cid={{{url}}}" target="_blank"><img src="media/google.png"></img></a>
+    </div>
+    <div class="calendar-box-right">
+        <p>Aggiungi ad Apple</p>
+        <a href="{{{url}}}" target="_blank"><img src="media/apple.png"></img></a>
     </div>
 </div>
