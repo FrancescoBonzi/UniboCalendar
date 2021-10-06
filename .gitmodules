@@ -1,0 +1,3 @@
+[submodule "tecla-clients"]
+	path = tecla-clients
+	url = https://gitlab.com/eutampieri/tecla-clients
