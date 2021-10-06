@@ -37,8 +37,8 @@ async function getTeachingIdsInCourse(type, name, year, curriculum) {
     let url = "https://corsi.unibo.it/" + type + "/" + name + "/" + language[type] + "/@@orario_reale_json?anno=" + year + "&curricula=" + curriculum;
     let apiResp = await fetch(url).then(x => x.json());
     let resp = {};
-    for (let i = 0; i < apiResp.lenght; i++) {
-        resp[apiResp[i].extCode] = apiResp[i].cod_modulo;
+    for (let i = 0; i < apiResp.length; i++) {
+        resp[apiResp[i].extCode] = "unibo.t." + apiResp[i].cod_modulo;
     }
     return resp;
 }
@@ -99,8 +99,8 @@ async function migrate() {
     await Promise.all(updates);
     console.log("\n[Requested lectures] Finished migration");
 
-    await promisify(db.run.bind(db), "ALTER TABLE enrollments DROP COLUMN type;");
-    await promisify(db.run.bind(db), "ALTER TABLE enrollments DROP COLUMN course;");
+    //await promisify(db.run.bind(db), "ALTER TABLE enrollments DROP COLUMN type;");
+    //await promisify(db.run.bind(db), "ALTER TABLE enrollments DROP COLUMN course;");
     await promisify(db.run.bind(db), "COMMIT;");
     db.close();
 }
