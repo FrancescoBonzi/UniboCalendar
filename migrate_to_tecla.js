@@ -15,7 +15,20 @@ async function getTeclaIdFromTypeAndCourse(type, name, curriculum) {
     let res = await fetch(url).then(x => x.json());
     let course_id = res[0].label.split(" - ")[0];
     if (isNaN(parseInt(course_id))) {
-        console.log(type, name, curriculum);
+        let language_lookup = {
+            "magistralecu": "insegnamenti",
+            "magistrale": "insegnamenti",
+            "laurea": "insegnamenti",
+            "singlecycle": "course-structure-diagram",
+            "1cycle": "course-structure-diagram",
+            "2cycle": "course-structure-diagram"
+        }
+
+        let course_plan_url = (
+            await fetch("https://corsi.unibo.it/" + type + "/" + name + "/" + language_lookup[type])
+                .then(x => x.text())
+        ).match(/https:\/\/corsi\.unibo\.it\/[\/a-zA-Z\-0-9].*\/piano[\/a-zA-Z\-0-9].*/gm)[0];
+        return course_plan_url.split('/')[8];
     }
     return "unibo.c." + course_id + ".p." + curriculum;
 }
