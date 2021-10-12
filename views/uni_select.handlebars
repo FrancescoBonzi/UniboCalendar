@@ -1,0 +1,15 @@
+<div class="container" id="main-container">
+    <div class="header">
+        <h1>UniCalendar</h1>
+        <h5>Vuoi inserire i tuoi appuntamenti universitari nel tuo calendario (iCloud, Google, ecc)?<br>Scegli la tua
+            università fra quelle sotto</h5>
+    </div>
+    <div class="container" id="body">
+        <ul>
+            {{#each unis}}
+            <li><a href="/choose_course?uni={{this.id}}">{{this.name}}</a></li>
+            {{/each}}
+        </ul>
+    </div>
+</div>
+</div>

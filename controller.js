@@ -14,9 +14,17 @@ function error500(err, req, res, next) {
 }
 
 async function home_page(req, res, next) {
-    var uni_id = "it.unife";
+    var uni_id = req.query.uni;
     var uni = (await unis)[uni_id];
     res.render('home', { 'page': 'home', "uni_id": uni.id, 'areas': await uni.getAreas(), "license": uni.license, "uniname": uni.name });
+}
+
+async function uni_select(req, res, next) {
+    var uni_list = [];
+    for (uni_id in (await unis)) {
+        uni_list.push((await unis)[uni_id]);
+    }
+    res.render('uni_select', { 'page': 'uni_select', "unis": uni_list });
 }
 
 async function course_page(req, res, next) {
@@ -94,7 +102,8 @@ async function get_curricula_given_course(req, res, next) {
 }
 
 exports.dispatcher = function (app) {
-    app.get('/', home_page);
+    app.get('/', uni_select);
+    app.get('/choose_course', home_page);
     app.post('/course', course_page);
     app.post('/get_calendar_url', get_calendar_url);
     app.get('/get_ical', get_ical);
