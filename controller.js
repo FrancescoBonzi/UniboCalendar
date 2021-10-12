@@ -22,9 +22,9 @@ async function home_page(req, res, next) {
 async function course_page(req, res, next) {
     const year = req.body.years;
     const curriculum = req.body.curricula;
-    let uni = req.body.uni;
-    model.getTimetable((await unis)[uni], year, curriculum, function (list) {
-        res.render('course', { 'page': 'course', 'list': list });
+    let uni = (await unis)[req.body.uni];
+    model.getTimetable(uni, year, curriculum, function (list) {
+        res.render('course', { 'page': 'course', 'list': list, "uniname": uni.name });
     });
 }
 
