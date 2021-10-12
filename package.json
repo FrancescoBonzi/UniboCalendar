@@ -10,10 +10,10 @@
     "express": "^4.17.1",
     "express-handlebars": "^5.3.3",
     "node-fetch": "^2.6.2",
+    "randombytes": "^2.1.0",
     "sqlite3": "^5.0.2",
-    "randombytes": "^2.1.0"
+    "whoiser": "^1.13.0"
   },
-  "devDependencies": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/FrancescoBonzi/UniboCalendar.git"

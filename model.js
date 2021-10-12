@@ -7,6 +7,7 @@ const UniboEventClass = require('./UniboEventClass');
 var sqlite3 = require('sqlite3');
 const rb = require("randombytes");
 const b32 = require('base32.js');
+const whoiser = require('whoiser')
 
 const language = {
     "magistralecu": "orario-lezioni",
@@ -27,10 +28,11 @@ function generateId(length) {
 }
 
 // Writing logs
-function log_hit(id, ua) {
+async function log_hit(ip, ua) {
+    let asn = (await whoiser(ip).catch(e => { return { asn: "AS0" } })).asn;
     var db = new sqlite3.Database(db_file);
-    let query = "INSERT INTO hits VALUES (?, NULL, ?)";
-    db.run(query, new Date().getTime(), ua);
+    let query = "INSERT INTO hits VALUES (?, ?, ?)";
+    db.run(query, [new Date(), asn, ua]);
     db.close();
 }
 
@@ -195,7 +197,7 @@ function checkEnrollment(uuid_value, callback) {
     }
 }
 
-function getICalendarEvents(id, ua, callback) {
+function getICalendarEvents(id, ua, ip, callback) {
     let alert = null
     checkEnrollment(id, function (isEnrolled) {
         if (!isEnrolled) {
@@ -259,7 +261,8 @@ function getICalendarEvents(id, ua, callback) {
                             console.log(err);
                             callback("An error occurred while creating the calendar.");
                         });
-                    log_hit(id, ua);
+
+                    log_hit(ip, ua);
                 });
             });
         }

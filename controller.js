@@ -45,7 +45,8 @@ function get_calendar_url(req, res, next) {
 
 function get_ical(req, res, next) {
     const id = req.query.id;
-    model.getICalendarEvents(id, req.get("User-Agent"), function (unibo_cal) {
+    let ips = (req.get("X-Forwarded-For") || req.connection.remoteAddress).split(",");
+    model.getICalendarEvents(id, req.get("User-Agent"), ips[ips.length - 1], function (unibo_cal) {
         res.type("text/calendar");
         res.send(unibo_cal);
     });
