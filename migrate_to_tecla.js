@@ -60,7 +60,6 @@ async function migrate() {
     await promisify(db.run.bind(db), "BEGIN;");
     await promisify(db.run.bind(db), "ALTER TABLE enrollments ADD COLUMN institution_id TEXT");
     await promisify(db.run.bind(db), "UPDATE enrollments SET institution_id = \"unibo\"");
-    await promisify(db.run.bind(db), "ALTER TABLE enrollments ADD COLUMN curriculum_id TEXT");
     let courses_old = await promisify(db.all.bind(db), "SELECT DISTINCT type, course, curriculum, year FROM enrollments;");
     let lectures_old = await promisify(db.all.bind(db), "SELECT enrollment_id, type, course, year, lecture_id FROM enrollments, requested_lectures WHERE enrollment_id = id;");
     let lectures_lookup = {};

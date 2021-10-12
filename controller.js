@@ -27,10 +27,8 @@ async function course_page(req, res, next) {
     });
 }
 
-function get_calendar_url(req, res, next) {
-    const timetable_url = req.body.timetable_url;
-    const type = timetable_url.split('/')[3];
-    const course = timetable_url.split('/')[4];
+async function get_calendar_url(req, res, next) {
+    const uni_id = req.body.uni_id;
     const year = req.body.year;
     const curriculum = req.body.curriculum;
     var lectures = req.body.lectures;
@@ -39,7 +37,7 @@ function get_calendar_url(req, res, next) {
     } else if (typeof lectures === 'string') {
         lectures = [lectures];
     }
-    model.generateUrl(type, course, year, curriculum, lectures, function (url) {
+    model.generateUrl(uni_id, year, curriculum, lectures, function (url) {
         res.render('link', { 'page': 'link', 'url': url });
     });
 }
