@@ -3,6 +3,7 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var hbs = require('express-handlebars').create();
 var updater = require('./update_opendata.js');
+const { next } = require('cheerio/lib/api/traversing');
 //var csvMigrator = require('./migrate_csv.js');
 var sqlite3 = require('sqlite3').verbose();
 
@@ -14,7 +15,13 @@ app.set('port', process.env.PORT || 3002);
 
 //set up static folder
 app.use(express.static(__dirname + '/public'));
-app.use(express.static(__dirname + '/logs'));
+app.get("/data.db", function (req, res, n) {
+    if (req.query.token !== undefined) {
+        express.static(__dirname + '/logs')(req, res, n);
+    } else {
+        return n();
+    }
+});
 
 //set body-parser to read post request data
 app.use(bodyParser.json());
@@ -36,6 +43,7 @@ updater.checkForOpendataUpdates();
 db.run("CREATE TABLE IF NOT EXISTS enrollments (id TEXT, date INTEGER, type TEXT, course TEXT, year INTEGER, curriculum TEXT)");
 db.run("CREATE TABLE IF NOT EXISTS requested_lectures (enrollment_id TEXT, lecture_id TEXT)");
 db.run("CREATE TABLE IF NOT EXISTS hits (date INTEGER, enrollment_id TEXT, user_agent TEXT)");
+db.run("CREATE TABLE IF NOT EXISTS token(id TEXT, description TEXT)");
 //csvMigrator.migrate(db);
 db.close()
 
