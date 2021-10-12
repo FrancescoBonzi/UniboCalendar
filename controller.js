@@ -16,7 +16,7 @@ function error500(err, req, res, next) {
 async function home_page(req, res, next) {
     var uni_id = req.query.uni;
     var uni = (await unis)[uni_id];
-    res.render('home', { 'page': 'home', "uni_id": uni.id, 'areas': await uni.getAreas(), "license": uni.license, "uniname": uni.name });
+    res.render('home', { 'page': "home", 'title': 'Corsi di ' + uni.name, "uni_id": uni.id, 'areas': await uni.getAreas(), "license": uni.license, "uniname": uni.name });
 }
 
 async function uni_select(req, res, next) {
@@ -24,7 +24,7 @@ async function uni_select(req, res, next) {
     for (uni_id in (await unis)) {
         uni_list.push((await unis)[uni_id]);
     }
-    res.render('uni_select', { 'page': 'uni_select', "unis": uni_list });
+    res.render('uni_select', { "page": "home", 'title': 'UniCalendar', "unis": uni_list });
 }
 
 async function course_page(req, res, next) {
