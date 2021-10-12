@@ -161,7 +161,7 @@ function getICalendarEvents(unis, id, ua, callback) {
             var db = new sqlite3.Database(db_file);
             let query_enrollments = "SELECT * FROM enrollments WHERE id = ?";
             db.get(query_enrollments, id, function (e, enrollments_info) {
-                console.log(enrollments_info)
+                //console.log(enrollments_info)
                 let year = enrollments_info["year"]
                 let curriculum = enrollments_info["curriculum"]
                 let uni = unis[enrollments_info["institution_id"]];

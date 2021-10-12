@@ -1,8 +1,9 @@
 <div class="container" id="main-container">
   <div class="header">
-    <h1>Unibo Calendar</h1>
+    <h1>{{uniname}} Calendar</h1>
     <h5>Vuoi inserire i tuoi appuntamenti universitari nel tuo calendario (iCloud, Google, ecc)?<br>Riempi i campi qui
       sotto per cominciare</h5>
+    <em>Dati forniti secondo la seguente licenza: {{license}}</em>
   </div>
   <div class="container" id="body">
     <form id="form_calendar" class="form-group" action="/course" method="post" onchange="checkFormValidity();">
@@ -14,6 +15,7 @@
           {{/each}}
         </select>
       </div>
+      <input type="hidden" name="uni" value="{{uni_id}}">
       <div class="row">
         <select id="courses" class="form-control" name="courses" onchange="getYearsAndCurriculaGivenCourse();">
         </select>

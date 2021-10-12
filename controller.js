@@ -14,14 +14,15 @@ function error500(err, req, res, next) {
 }
 
 async function home_page(req, res, next) {
-    var uni = "unibo";
-    res.render('home', { 'page': 'home', 'areas': await (await unis)[uni].getAreas() });
+    var uni_id = "unibo";
+    var uni = (await unis)[uni_id];
+    res.render('home', { 'page': 'home', "uni_id": uni.id, 'areas': await uni.getAreas(), "license": uni.license, "uniname": uni.name });
 }
 
 async function course_page(req, res, next) {
     const year = req.body.years;
     const curriculum = req.body.curricula;
-    let uni = "unibo";
+    let uni = req.body.uni;
     model.getTimetable((await unis)[uni], year, curriculum, function (list) {
         res.render('course', { 'page': 'course', 'list': list });
     });
