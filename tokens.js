@@ -7,5 +7,6 @@ let token_id = model.generateId(23);
 let token_desc = "Created on " + new Date();
 
 db.run("INSERT INTO token VALUES(?, ?)", [token_id, token_desc]);
+db.close();
 
 console.log("Created token with value " + token_id);

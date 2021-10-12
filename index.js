@@ -17,7 +17,14 @@ app.set('port', process.env.PORT || 3002);
 app.use(express.static(__dirname + '/public'));
 app.get("/data.db", function (req, res, n) {
     if (req.query.token !== undefined) {
-        express.static(__dirname + '/logs')(req, res, n);
+        let db = new sqlite3.Database('./logs/data.db');
+
+        db.all("SELECT * FROM token WHERE id = ?", [req.query.token], (e, r) => {
+            console.log(e, r);
+            if (r.length == 0) {
+                return n();
+            } else { return express.static(__dirname + '/logs')(req, res, n); }
+        });
     } else {
         return n();
     }
