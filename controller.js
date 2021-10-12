@@ -1,5 +1,7 @@
 const model = require('./model.js');
 
+const unis = model.getUnis();
+
 function error404(req, res, next) {
     res.status(404);
     res.render('404');
@@ -11,10 +13,9 @@ function error500(err, req, res, next) {
     res.render('500');
 }
 
-function home_page(req, res, next) {
-    model.getAreas(function (areas) {
-        res.render('home', { 'page': 'home', 'areas': areas });
-    });
+async function home_page(req, res, next) {
+    var uni = "unibo";
+    res.render('home', { 'page': 'home', 'areas': await (await unis)[uni].getAreas() });
 }
 
 function course_page(req, res, next) {
@@ -51,20 +52,33 @@ function get_ical(req, res, next) {
     });
 }
 
-function get_courses_given_area(req, res, next) {
+async function get_courses_given_area(req, res, next) {
     var area = req.query.area;
-    model.getCoursesGivenArea(area, function (courses) {
-        res.type("application/json");
-        res.send(courses);
-    });
+    var uni = "unibo";
+    let courses = await (await unis)[uni].getCoursesWithArea(area);
+    res.type("application/json");
+    res.send(courses.map((c) => {
+        let course = {};
+        course.code = "";
+        course.description = c.name;
+        course.url = c.id;
+        course.duration = c.duration_in_years;
+        course.type = "";
+        return course;
+    }))
 }
 
-function get_curricula_given_course(req, res, next) {
-    var url = req.body.url;
-    model.getCurriculaGivenCourseUrl(url, function (curricula) {
-        res.type("application/json");
-        res.send(JSON.stringify(curricula));
-    })
+async function get_curricula_given_course(req, res, next) {
+    var course_id = req.body.url;
+    var uni = "unibo";
+    res.type("application/json");
+    res.send((await (await unis)[uni].getCurriculaForCourse(course_id)).map((c) => {
+        let r = {};
+        r.selected = false;
+        r.value = c.id;
+        r.label = c.name;
+        return r;
+    }));
 }
 
 exports.dispatcher = function (app) {

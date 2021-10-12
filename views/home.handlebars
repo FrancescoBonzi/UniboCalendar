@@ -1,7 +1,8 @@
 <div class="container" id="main-container">
   <div class="header">
     <h1>Unibo Calendar</h1>
-    <h5>Vuoi inserire i tuoi appuntamenti universitari nel tuo calendario (iCloud, Google, ecc)?<br>Riempi i campi qui sotto per cominciare</h5>
+    <h5>Vuoi inserire i tuoi appuntamenti universitari nel tuo calendario (iCloud, Google, ecc)?<br>Riempi i campi qui
+      sotto per cominciare</h5>
   </div>
   <div class="container" id="body">
     <form id="form_calendar" class="form-group" action="/course" method="post" onchange="checkFormValidity();">
@@ -9,14 +10,14 @@
         <select id="areas" class="form-control" name="areas" onchange="getCoursesGivenArea();">
           <option value="">--- Seleziona Scuola ---</option>
           {{#each areas}}
-          <option value="{{this}}">{{this}}</option>
+          <option value="{{this.id}}">{{this.name}}</option>
           {{/each}}
         </select>
       </div>
       <div class="row">
         <select id="courses" class="form-control" name="courses" onchange="getYearsAndCurriculaGivenCourse();">
         </select>
-        <img id="courses-loading" src="../../loader.gif" alt="Stiamo scaricando i corsi..."/>
+        <img id="courses-loading" src="../../loader.gif" alt="Stiamo scaricando i corsi..." />
       </div>
       <div class="row">
         <select id="years" class="form-control" name="years">
@@ -25,7 +26,7 @@
       <div class="row" style="position: relative;">
         <select id="curricula" class="form-control" name="curricula">
         </select>
-        <img id="curricula-loading" src="../../loader.gif" alt="Stiamo scaricando i curricula..."/>
+        <img id="curricula-loading" src="../../loader.gif" alt="Stiamo scaricando i curricula..." />
       </div>
       <div class="row">
         <input type="submit" id="submit-form-button" class="btn btn-primary" value="Avanti" disabled>

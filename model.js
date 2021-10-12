@@ -7,6 +7,9 @@ const UniboEventClass = require('./UniboEventClass');
 var sqlite3 = require('sqlite3');
 const rb = require("randombytes");
 const b32 = require('base32.js');
+const TeclaClient = require('./tecla-clients/js/index');
+
+const tecla = new TeclaClient.Tecla("https://tecla.eutampieri.eu");
 
 const language = {
     "magistralecu": "orario-lezioni",
@@ -224,7 +227,7 @@ function getICalendarEvents(id, ua, callback) {
                 console.log(link)
                 let query_lectures = "SELECT lecture_id FROM requested_lectures WHERE enrollment_id = ?";
                 db.all(query_lectures, id, function (e, lectures) {
-                    for (var i=0;i<lectures.length;i++) {
+                    for (var i = 0; i < lectures.length; i++) {
                         link += "&insegnamenti=" + lectures[i]["lecture_id"]
                     }
                     link += '&calendar_view=';
@@ -260,8 +263,8 @@ function getICalendarEvents(id, ua, callback) {
                             callback("An error occurred while creating the calendar.");
                         });
                     log_hit(id, ua);
-                });    
-            });    
+                });
+            });
         }
     })
 }
@@ -272,3 +275,12 @@ module.exports.getCurriculaGivenCourseUrl = getCurriculaGivenCourseUrl;
 module.exports.getTimetable = getTimetable;
 module.exports.generateUrl = generateUrl;
 module.exports.getICalendarEvents = getICalendarEvents;
+module.exports.getUnis = async function () {
+    let client = new TeclaClient.Tecla("https://tecla.eutampieri.eu");
+    let unis = await client.getLearningInstitutions();
+    let res = {};
+    for (var i = 0; i < unis.length; i++) {
+        res[unis[i].id] = unis[i];
+    }
+    return res;
+};
