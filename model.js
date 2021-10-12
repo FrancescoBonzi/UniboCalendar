@@ -29,8 +29,8 @@ function generateId(length) {
 // Writing logs
 function log_hit(id, ua) {
     var db = new sqlite3.Database(db_file);
-    let query = "INSERT INTO hits VALUES (?, ?, ?)";
-    db.run(query, new Date().getTime(), id, ua);
+    let query = "INSERT INTO hits VALUES (?, NULL, ?)";
+    db.run(query, new Date().getTime(), ua);
     db.close();
 }
 
@@ -224,7 +224,7 @@ function getICalendarEvents(id, ua, callback) {
                 console.log(link)
                 let query_lectures = "SELECT lecture_id FROM requested_lectures WHERE enrollment_id = ?";
                 db.all(query_lectures, id, function (e, lectures) {
-                    for (var i=0;i<lectures.length;i++) {
+                    for (var i = 0; i < lectures.length; i++) {
                         link += "&insegnamenti=" + lectures[i]["lecture_id"]
                     }
                     link += '&calendar_view=';
@@ -260,8 +260,8 @@ function getICalendarEvents(id, ua, callback) {
                             callback("An error occurred while creating the calendar.");
                         });
                     log_hit(id, ua);
-                });    
-            });    
+                });
+            });
         }
     })
 }
