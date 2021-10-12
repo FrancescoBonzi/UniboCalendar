@@ -99,7 +99,7 @@ function getTimetable(uni, year, curriculum, callback) {
             lectures_form += '<div class="container">';
             lectures_form += '<form id="select_lectures" action="/get_calendar_url" method="post"><div class="row"><table>';
             for (i = 0; i < teachings.length; i++)
-                lectures_form += '<tr><th><input type="checkbox" class="checkbox" name="lectures" value="' + teachings[i].id + '" checked/></th><th><label>' + teachings[i].name + '</label></th></tr>';
+                lectures_form += '<tr><th><input type="checkbox" class="checkbox" name="lectures" value="' + teachings[i].id + '" id="' + teachings[i].id + '" checked/></th><th><label for="' + teachings[i].id + '">' + teachings[i].name + '</label></th></tr>';
             lectures_form += '</table></div><input type="hidden" name="uni_id" value="' + uni.id + '"/>';
             lectures_form += '<input type="hidden" name="year" value="' + year + '"/>';
             lectures_form += '<input type="hidden" name="curriculum" value="' + curriculum + '"/>';
@@ -215,3 +215,4 @@ module.exports.getUnis = async function () {
     }
     return res;
 };
+module.exports.generateId = generateId;
