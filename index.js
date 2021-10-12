@@ -3,7 +3,6 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var hbs = require('express-handlebars').create();
 var updater = require('./update_opendata.js');
-const { next } = require('cheerio/lib/api/traversing');
 //var csvMigrator = require('./migrate_csv.js');
 var sqlite3 = require('sqlite3').verbose();
 
