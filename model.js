@@ -39,8 +39,8 @@ function log_hit(id, ua) {
 // Writing logs
 function log_enrollment(params, lectures) {
     var db = new sqlite3.Database(db_file);
-    // CREATE TABLE enrollments (id TEXT, date INTEGER, type TEXT, course TEXT, year INTEGER, curriculum TEXT, institution_id TEXT)
-    let enrollment_query = "INSERT INTO enrollments VALUES(?, ?, NULL, NULL, ?, ?, ?)";
+
+    let enrollment_query = "INSERT INTO enrollments VALUES(?, ?, ?, NULL, ?, ?, ?)";
     db.run(enrollment_query, params);
     let lectures_query = "INSERT INTO requested_lectures VALUES(?, ?)";
     for (let i = 0; i < lectures.length; i++) {
@@ -120,7 +120,7 @@ function getTimetable(uni, year, curriculum, callback) {
         });
 };
 
-function generateUrl(institution_id, year, curriculum, lectures, callback) {
+function generateUrl(institution_id, year, curriculum, lectures, ua, callback) {
 
     //Creating URL to get the calendar
     const id = generateId()
@@ -128,7 +128,7 @@ function generateUrl(institution_id, year, curriculum, lectures, callback) {
     var url = "webcal://unibocalendar.it/get_ical?id=" + id
 
     // Writing logs
-    var params = [id, new Date().getTime(), year, curriculum, institution_id];
+    var params = [id, new Date().getTime(), ua, year, curriculum, institution_id];
     log_enrollment(params, lectures);
     callback(url);
 }
