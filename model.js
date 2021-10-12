@@ -146,7 +146,7 @@ function checkEnrollment(uuid_value, callback) {
     }
 }
 
-function getICalendarEvents(id, ua, callback) {
+function getICalendarEvents(unis, id, ua, callback) {
     let alert = null
     checkEnrollment(id, function (isEnrolled) {
         if (!isEnrolled) {
@@ -162,44 +162,28 @@ function getICalendarEvents(id, ua, callback) {
             let query_enrollments = "SELECT * FROM enrollments WHERE id = ?";
             db.get(query_enrollments, id, function (e, enrollments_info) {
                 console.log(enrollments_info)
-                let type = enrollments_info["type"]
-                let course = enrollments_info["course"]
                 let year = enrollments_info["year"]
                 let curriculum = enrollments_info["curriculum"]
-                var root = "https://corsi.unibo.it"
-                var link = [root, type, course, language[type], '@@orario_reale_json?anno=' + year].join("/");
-                if (curriculum !== undefined) {
-                    link += '&curricula=' + curriculum;
-                }
-                // Adding only the selected lectures to the request
-                console.log(link)
+                let uni = unis[enrollments_info["institution_id"]];
                 let query_lectures = "SELECT lecture_id FROM requested_lectures WHERE enrollment_id = ?";
                 db.all(query_lectures, id, function (e, lectures) {
-                    for (var i = 0; i < lectures.length; i++) {
-                        link += "&insegnamenti=" + lectures[i]["lecture_id"]
-                    }
-                    link += '&calendar_view=';
+                    let lectures_list = lectures.map((l) => l["lecture_id"]);
                     // Sending the request and parsing the response
-                    fetch(link).then(x => x.text())
-                        .then(function (json) {
-                            json = JSON.parse(json);
+                    uni.getTimetableWithTeaching(curriculum, lectures_list, year)
+                        .then(function (data) {
                             calendar = []
-                            for (var l of json) {
+                            for (var l of data) {
                                 const start = new Date(l.start);
                                 const end = new Date(l.end);
                                 var location = "Solo ONLINE";
-                                if (l.aule.length > 0) {
-                                    location = l.aule[0].des_risorsa + ", " + l.aule[0].des_indirizzo;
+                                if (l.venue != null) {
+                                    location = l.venue
                                 }
                                 var url = 'Non è disponibile una aula virtuale';
-                                if (!(l.teams === undefined) && !(l.teams === null)) {
-                                    url = encodeURI(l.teams);
+                                if (!(l.online_class_url === undefined) && !(l.online_class_url === null)) {
+                                    url = encodeURI(l.online_class_url);
                                 }
-                                var prof = 'Non noto';
-                                if (!(l.docente === undefined) && !(l.docente === null)) {
-                                    prof = l.docente;
-                                }
-                                const event = new UniboEventClass(l.title, start, end, location, url, prof);
+                                const event = new UniboEventClass(l.teaching.name, start, end, location, url, l.teacher);
                                 calendar.push(event);
                             }
                             var factory = new iCalendar(alert);

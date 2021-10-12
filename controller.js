@@ -42,9 +42,9 @@ async function get_calendar_url(req, res, next) {
     });
 }
 
-function get_ical(req, res, next) {
+async function get_ical(req, res, next) {
     const id = req.query.id;
-    model.getICalendarEvents(id, req.get("User-Agent"), function (unibo_cal) {
+    model.getICalendarEvents(await unis, id, req.get("User-Agent"), function (unibo_cal) {
         res.type("text/calendar");
         res.send(unibo_cal);
     });
