@@ -47,12 +47,12 @@ app.set('view engine', 'handlebars');
 /**
  * Create DB tables and migrate CSV
  */
-/*db.run("CREATE TABLE IF NOT EXISTS enrollments (id TEXT, date INTEGER, type TEXT, course TEXT, year INTEGER, curriculum TEXT)");
+db.run("CREATE TABLE IF NOT EXISTS enrollments (id TEXT, date INTEGER, type TEXT, course TEXT, year INTEGER, curriculum TEXT, institution_id TEXT)");
 db.run("CREATE TABLE IF NOT EXISTS requested_lectures (enrollment_id TEXT, lecture_id TEXT)");
 db.run("CREATE TABLE IF NOT EXISTS hits (date INTEGER, enrollment_id TEXT, user_agent TEXT)");
 db.run("CREATE TABLE IF NOT EXISTS token(id TEXT, description TEXT)");
 //csvMigrator.migrate(db);
-db.close()*/
+db.close()
 
 //start server
 app.listen(app.get('port'), '127.0.0.1', function () {
