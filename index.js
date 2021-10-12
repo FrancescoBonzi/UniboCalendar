@@ -9,25 +9,28 @@ var sqlite3 = require('sqlite3').verbose();
 var db = new sqlite3.Database('./logs/data.db');
 var app = express();
 
+function tokenMiddleware(correct) {
+    return function (req, res, n) {
+        if (req.query.token !== undefined) {
+            let db = new sqlite3.Database('./logs/data.db');
+
+            db.all("SELECT * FROM token WHERE id = ?", [req.query.token], (e, r) => {
+                if (r.length == 0) {
+                    return n();
+                } else { return correct(req, res, n); }
+            });
+        } else {
+            return n();
+        }
+    }
+}
+
 //set up port
 app.set('port', process.env.PORT || 3002);
 
 //set up static folder
 app.use(express.static(__dirname + '/public'));
-app.get("/data.db", function (req, res, n) {
-    if (req.query.token !== undefined) {
-        let db = new sqlite3.Database('./logs/data.db');
-
-        db.all("SELECT * FROM token WHERE id = ?", [req.query.token], (e, r) => {
-            console.log(e, r);
-            if (r.length == 0) {
-                return n();
-            } else { return express.static(__dirname + '/logs')(req, res, n); }
-        });
-    } else {
-        return n();
-    }
-});
+app.get("/data.db", tokenMiddleware(express.static(__dirname + '/logs')));
 
 //set body-parser to read post request data
 app.use(bodyParser.json());
