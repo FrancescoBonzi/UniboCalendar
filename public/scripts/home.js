@@ -102,7 +102,7 @@ function getCoursesGivenArea() {
         })
         for (i = 0; i < courses.length; i++) {
             node = document.createElement("option");
-            text_node = courses[i].description;
+            text_node = document.createTextNode(courses[i].description);
             node.appendChild(text_node);
             dict[courses[i].url] = {
                 "description": courses[i].description + ' - ' + courses[i].type,
