@@ -62,7 +62,7 @@ function ajaxPostRequest(xhr, uri, params, callback) {
 
 function getCoursesGivenArea() {
 
-    if(already_send_courses_req || already_send_curricula_req) {
+    if (already_send_courses_req || already_send_curricula_req) {
         window.open('/', '_self');
         return;
     }
@@ -84,7 +84,7 @@ function getCoursesGivenArea() {
     var xhr = new XMLHttpRequest();
     var list = document.getElementById('areas');
     var area = list.options[list.selectedIndex].value;
-    var uri = "/get_courses_given_area?area=" + area;
+    var uri = "/get_courses_given_area?area=" + area + "&uni=" + document.getElementById('uni').value;
     already_send_courses_req = true;
     ajaxGetRequest(xhr, uri, function (json) {
         var courses = JSON.parse(json);
@@ -122,7 +122,7 @@ function getCoursesGivenArea() {
 
 function getYearsAndCurriculaGivenCourse() {
 
-    if(already_send_courses_req || already_send_curricula_req) {
+    if (already_send_courses_req || already_send_curricula_req) {
         window.open('/', '_self');
         return;
     }
@@ -186,7 +186,7 @@ function getYearsAndCurriculaGivenCourse() {
     // Sending request for Curricula
     var xhr = new XMLHttpRequest();
     var uri = "/get_curricula_given_course";
-    var params = { "url": url };
+    var params = { "url": url, "uni": document.getElementById("uni").value };
     already_send_curricula_req = true;
     ajaxPostRequest(xhr, uri, params, function (curricula) {
         curricula = JSON.parse(curricula);

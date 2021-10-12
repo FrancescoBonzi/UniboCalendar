@@ -14,7 +14,7 @@ function error500(err, req, res, next) {
 }
 
 async function home_page(req, res, next) {
-    var uni_id = "unibo";
+    var uni_id = "it.unife";
     var uni = (await unis)[uni_id];
     res.render('home', { 'page': 'home', "uni_id": uni.id, 'areas': await uni.getAreas(), "license": uni.license, "uniname": uni.name });
 }
@@ -57,7 +57,8 @@ async function get_ical(req, res, next) {
 
 async function get_courses_given_area(req, res, next) {
     var area = req.query.area;
-    var uni = "unibo";
+    var uni = req.query.uni;
+    console.log(uni, unis);
     let courses = await (await unis)[uni].getCoursesWithArea(area);
     res.type("application/json");
     res.set({
@@ -77,7 +78,7 @@ async function get_courses_given_area(req, res, next) {
 
 async function get_curricula_given_course(req, res, next) {
     var course_id = req.body.url;
-    var uni = "unibo";
+    var uni = req.body.uni;
     res.type("application/json");
     res.set({
         'Cache-Control': 'public',
