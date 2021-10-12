@@ -3,5 +3,29 @@
         <h1><a href="/">UniCalendar - {{uniname}}</a></h1>
         <h5>Seleziona solo i corsi che intendi inserire nel tuo calendario</h5>
     </div>
-    {{{list}}}
+    <button class="btn btn-secondary" id="select_or_deselect_all" onclick="return selectOrDeselectAll();">Deseleziona
+        tutti</button>
+    <div class="container">
+        {{#unless list.error}}
+        <form id="select_lectures" action="/get_calendar_url" method="post">
+            <div class="row">
+                <table>
+                    {{#each list.teachings}}
+                    <tr>
+                        <th><input type="checkbox" class="checkbox" name="lectures" value="{{this.id}}" id="{{this.id}}"
+                                checked /></th>
+                        <th><label for="{{this.id}}">{{this.name}}</label></th>
+                    </tr>
+                    {{/each}}
+                </table>
+            </div><input type="hidden" name="uni_id" value="{{list.uni_id}}" />
+            <input type="hidden" name="year" value="{{list.year}}" />
+            <input type="hidden" name="curriculum" value="{{list.curriculum}}" />
+            <input type="submit" class="btn btn-primary" value="Ottieni Calendario" />
+        </form>
+        {{/unless}}
+        {{#if list.error}}
+        {{list.error}}
+        {{/if}}
+    </div>
 </div>
