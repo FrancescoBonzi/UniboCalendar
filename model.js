@@ -149,7 +149,7 @@ function getTimetable(unibo_url, year, curriculum, callback) {
                 lectures_form += '<div class="container">';
                 lectures_form += '<form id="select_lectures" action="/get_calendar_url" method="post"><div class="row"><table>';
                 for (i = 0; i < inputs.length; i++)
-                    lectures_form += '<tr><th><input type="checkbox" class="checkbox" name="lectures" value="' + inputs[i] + '" checked/></th><th><label>' + labels[i] + '</label></th></tr>';
+                    lectures_form += '<tr><th><input type="checkbox" class="checkbox" name="lectures" value="' + inputs[i] + '" id="' + inputs[i] + '" checked/></th><th><label for="' + inputs[i] + '">' + labels[i] + '</label></th></tr>';
                 lectures_form += '</table></div><input type="hidden" name="timetable_url" value="' + timetable_url + '"/>';
                 lectures_form += '<input type="hidden" name="year" value="' + year + '"/>';
                 lectures_form += '<input type="hidden" name="curriculum" value="' + curriculum + '"/>';
@@ -275,3 +275,4 @@ module.exports.getCurriculaGivenCourseUrl = getCurriculaGivenCourseUrl;
 module.exports.getTimetable = getTimetable;
 module.exports.generateUrl = generateUrl;
 module.exports.getICalendarEvents = getICalendarEvents;
+module.exports.generateId = generateId;

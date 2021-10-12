@@ -48,6 +48,10 @@ function get_ical(req, res, next) {
     let ips = (req.get("X-Forwarded-For") || req.connection.remoteAddress).split(",");
     model.getICalendarEvents(id, req.get("User-Agent"), ips[ips.length - 1], function (unibo_cal) {
         res.type("text/calendar");
+        res.set({
+            'Cache-Control': 'private',
+            'Cache-Control': 'max-age=86400',
+        });
         res.send(unibo_cal);
     });
 }
@@ -56,6 +60,10 @@ function get_courses_given_area(req, res, next) {
     var area = req.query.area;
     model.getCoursesGivenArea(area, function (courses) {
         res.type("application/json");
+        res.set({
+            'Cache-Control': 'public',
+            'Cache-Control': 'max-age=86400',
+        });
         res.send(courses);
     });
 }
@@ -64,6 +72,10 @@ function get_curricula_given_course(req, res, next) {
     var url = req.body.url;
     model.getCurriculaGivenCourseUrl(url, function (curricula) {
         res.type("application/json");
+        res.set({
+            'Cache-Control': 'public',
+            'Cache-Control': 'max-age=86400',
+        });
         res.send(JSON.stringify(curricula));
     })
 }
