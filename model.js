@@ -1,4 +1,3 @@
-const cheerio = require('cheerio');
 const fetch = require('node-fetch');
 const csv = require('csv-parser');
 const fs = require('fs');
@@ -93,83 +92,32 @@ function getCoursesGivenArea(area, callback) {
         });
 }
 
-// Finding "SITO DEL CORSO" from https://www.unibo.it/it/didattica/corsi-di-studio/corso/[year]/[code]
-function getTimetableUrlGivenUniboUrl(unibo_url, callback) {
-    fetch(unibo_url).then(x => x.text())
-        .then(function (html) {
-            var $ = cheerio.load(html);
-            var timetable_url = $('#u-content-preforemost .globe span a').first().attr('href');
-            callback(timetable_url);
+function getTimetable(uni, year, curriculum, callback) {
+    uni.getTeachingsForCurriculum(curriculum, year)
+        .then(function (teachings) {
+            lectures_form = '<button class="btn btn-secondary" id="select_or_deselect_all" onclick="return selectOrDeselectAll();">Deseleziona tutti</button>';
+            lectures_form += '<div class="container">';
+            lectures_form += '<form id="select_lectures" action="/get_calendar_url" method="post"><div class="row"><table>';
+            for (i = 0; i < teachings.length; i++)
+                lectures_form += '<tr><th><input type="checkbox" class="checkbox" name="lectures" value="' + teachings[i].id + '" checked/></th><th><label>' + teachings[i].name + '</label></th></tr>';
+            lectures_form += '</table></div><input type="hidden" name="uni_id" value="' + uni.id + '"/>';
+            lectures_form += '<input type="hidden" name="year" value="' + year + '"/>';
+            lectures_form += '<input type="hidden" name="curriculum" value="' + curriculum + '"/>';
+            lectures_form += '</div>';
+            lectures_form += '<input type="submit" class="btn btn-primary" value="Ottieni Calendario"/></form>';
+            /*
+            fs.writeFile("./labels.html", labels, function (err) {
+                if (err)
+                    return console.log(err);
+                console.log("labels saved!");
+            });
+            */
+            callback(lectures_form);
         })
         .catch(function (err) {
             console.log(err);
-            callback(undefined);
+            callback('<h5 style="color: #dc3545;">Errore! L\'indirizzo non è valido...</h5>');
         });
-}
-
-function getCurriculaGivenCourseUrl(unibo_url, callback) {
-    getTimetableUrlGivenUniboUrl(unibo_url, function (timetable_url) {
-        const json_err = [{
-            "selected": false,
-            "value": undefined,
-            "label": "NON SONO PRESENTI CURRICULA"
-        }];
-        if (timetable_url === undefined) {
-            callback(json_err);
-        }
-        var type = timetable_url.split('/')[3];
-        var curricula_url = timetable_url + '/' + language[type] + '/@@available_curricula';
-        // ex. https://corsi.unibo.it/laurea/clei/orario-lezioni/@@available_curricula
-        fetch(curricula_url).then(x => x.json())
-            .then(function (json) {
-                callback(json);
-            })
-            .catch(function (err) {
-                console.log(err);
-                callback(json_err);
-            });
-    })
-}
-
-function getTimetable(unibo_url, year, curriculum, callback) {
-    getTimetableUrlGivenUniboUrl(unibo_url, function (timetable_url) {
-        var type = timetable_url.split('/')[3];
-        var link = timetable_url + '/' + language[type] + '?anno=' + year + "&curricula=" + curriculum;
-        fetch(link).then(x => x.text())
-            .then(function (html) {
-                var $ = cheerio.load(html);
-                var inputs = [];
-                $('#insegnamenti-popup ul li input').each(function (index, element) {
-                    inputs.push($(element).attr('value'));
-                });
-                var labels = [];
-                $('#insegnamenti-popup ul li label').each(function (index, element) {
-                    labels.push($(element).text());
-                });
-                lectures_form = '<button class="btn btn-secondary" id="select_or_deselect_all" onclick="return selectOrDeselectAll();">Deseleziona tutti</button>';
-                lectures_form += '<div class="container">';
-                lectures_form += '<form id="select_lectures" action="/get_calendar_url" method="post"><div class="row"><table>';
-                for (i = 0; i < inputs.length; i++)
-                    lectures_form += '<tr><th><input type="checkbox" class="checkbox" name="lectures" value="' + inputs[i] + '" checked/></th><th><label>' + labels[i] + '</label></th></tr>';
-                lectures_form += '</table></div><input type="hidden" name="timetable_url" value="' + timetable_url + '"/>';
-                lectures_form += '<input type="hidden" name="year" value="' + year + '"/>';
-                lectures_form += '<input type="hidden" name="curriculum" value="' + curriculum + '"/>';
-                lectures_form += '</div>';
-                lectures_form += '<input type="submit" class="btn btn-primary" value="Ottieni Calendario"/></form>';
-                /*
-                fs.writeFile("./labels.html", labels, function (err) {
-                    if (err)
-                        return console.log(err);
-                    console.log("labels saved!");
-                });
-                */
-                callback(lectures_form);
-            })
-            .catch(function (err) {
-                console.log(err);
-                callback('<h5 style="color: #dc3545;">Errore! L\'indirizzo non è valido...</h5>');
-            });
-    })
 };
 
 function generateUrl(type, course, year, curriculum, lectures, callback) {
@@ -271,7 +219,6 @@ function getICalendarEvents(id, ua, callback) {
 
 module.exports.getAreas = getAreas;
 module.exports.getCoursesGivenArea = getCoursesGivenArea;
-module.exports.getCurriculaGivenCourseUrl = getCurriculaGivenCourseUrl;
 module.exports.getTimetable = getTimetable;
 module.exports.generateUrl = generateUrl;
 module.exports.getICalendarEvents = getICalendarEvents;

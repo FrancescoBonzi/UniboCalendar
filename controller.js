@@ -18,11 +18,11 @@ async function home_page(req, res, next) {
     res.render('home', { 'page': 'home', 'areas': await (await unis)[uni].getAreas() });
 }
 
-function course_page(req, res, next) {
-    const unibo_url = req.body.courses;
+async function course_page(req, res, next) {
     const year = req.body.years;
     const curriculum = req.body.curricula;
-    model.getTimetable(unibo_url, year, curriculum, function (list) {
+    let uni = "unibo";
+    model.getTimetable((await unis)[uni], year, curriculum, function (list) {
         res.render('course', { 'page': 'course', 'list': list });
     });
 }
