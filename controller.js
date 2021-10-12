@@ -47,6 +47,10 @@ async function get_ical(req, res, next) {
     const id = req.query.id;
     model.getICalendarEvents(await unis, id, req.get("User-Agent"), function (unibo_cal) {
         res.type("text/calendar");
+        res.set({
+            'Cache-Control': 'private',
+            'Cache-Control': 'max-age=86400',
+        });
         res.send(unibo_cal);
     });
 }
@@ -56,6 +60,10 @@ async function get_courses_given_area(req, res, next) {
     var uni = "unibo";
     let courses = await (await unis)[uni].getCoursesWithArea(area);
     res.type("application/json");
+    res.set({
+        'Cache-Control': 'public',
+        'Cache-Control': 'max-age=86400',
+    });
     res.send(courses.map((c) => {
         let course = {};
         course.code = "";
@@ -71,6 +79,10 @@ async function get_curricula_given_course(req, res, next) {
     var course_id = req.body.url;
     var uni = "unibo";
     res.type("application/json");
+    res.set({
+        'Cache-Control': 'public',
+        'Cache-Control': 'max-age=86400',
+    });
     res.send((await (await unis)[uni].getCurriculaForCourse(course_id)).map((c) => {
         let r = {};
         r.selected = false;
