@@ -45,7 +45,8 @@ function get_calendar_url(req, res, next) {
 
 function get_ical(req, res, next) {
     const id = req.query.id;
-    model.getICalendarEvents(id, req.get("User-Agent"), function (unibo_cal) {
+    let alert = req.query.alert === undefined ? null : parseInt(req.query.alert);
+    model.getICalendarEvents(id, req.get("User-Agent"), alert, function (unibo_cal) {
         res.type("text/calendar");
         res.set({
             'Cache-Control': 'private',

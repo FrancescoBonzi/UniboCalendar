@@ -1,10 +1,37 @@
 <div class="container">
-    <div class="calendar-box-left">
-        <p>Aggiungi a Google</p>
-        <a href="https://calendar.google.com/calendar/u/0/r?cid={{{url}}}" target="_blank"><img src="media/google.png"></img></a>
-    </div>
-    <div class="calendar-box-right">
-        <p>Aggiungi ad Apple</p>
-        <a href="{{{url}}}" target="_blank"><img src="media/apple.png"></img></a>
-    </div>
+    <main class="d-flex flex-column justify-content-center">
+        <section>
+            <div class="jumbotron">
+                <h1>Vuoi configurare le notifiche?</h1>
+                <p class="lead">Cliccando il pulsante sotto puoi abilitare le notifiche per il tuo calendario.</p>
+                <hr class="my-4">
+                <p>
+                    Se non fai niente, non ti verrà inviata nessuna notifica prima di ogni lezione, ma le potrai
+                    comunque visualizzare sul tuo calendario
+                </p>
+                <a class="btn btn-primary btn-lg" href="#" onclick="toggle()" role="button">Configura</a>
+                <div class="collapse mt-4" id="alertCollapse">
+                    <div class="card card-body">
+                        <div class="form-group">
+                            <label for="alert_mins">Con quanti minuti di anticipo vuoi ricevere un promemoria delle
+                                lezioni?</label>
+                            <input type="number" min="0" onchange="updateLinks(this)" class="form-control"
+                                id="alert_mins">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="d-flex flex-row justify-content-around" id="links">
+            <div class="cal-link">
+                <p>Aggiungi a Google</p>
+                <a href="https://calendar.google.com/calendar/u/0/r?cid={{{url}}}" target="_blank"><img
+                        src="media/google.png" class="d-block m-auto"></img></a>
+            </div>
+            <div class="cal-link">
+                <p>Aggiungi ad Apple</p>
+                <a href="{{{url}}}" target="_blank"><img src="media/apple.png" class="d-block m-auto"></img></a>
+            </div>
+        </section>
+    </main>
 </div>

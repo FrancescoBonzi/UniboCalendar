@@ -1,29 +1,20 @@
-.container {
-    position: absolute;
-    width: 300px;
-    height: 200px;
-    z-index: 15;
-    top: 50%;
-    left: 50%;
-    margin: -100px 0 0 -150px;
-    display: flex;
-}
-
 img {
-    width: 5rem;
-    height: 5rem;
+    width: 7rem;
+    height: 7rem;
 }
 
-.calendar-box-left {
-    text-align: center;
-    padding-right: 2rem;
-}
-
-.calendar-box-right {
-    text-align: center;
-    padding-left: 2rem;
-}
-
-p {
+div.cal-link > p {
     font-weight: bold;
+}
+main {
+    min-height: calc(100vh - 2em);
+    padding: 2em 0;
+}
+
+.collapse:not(.show) {
+    height: 0;
+}
+
+.collapse {
+    transition: ease-in-out;
 }

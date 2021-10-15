@@ -195,8 +195,7 @@ function checkEnrollment(uuid_value, callback) {
     }
 }
 
-function getICalendarEvents(id, ua, callback) {
-    let alert = null
+function getICalendarEvents(id, ua, alert, callback) {
     checkEnrollment(id, function (isEnrolled) {
         if (!isEnrolled) {
             const start = new Date();
