@@ -32,7 +32,7 @@ async function log_hit(ip, ua) {
     let asn = (await whoiser(ip).catch(e => { return { asn: "AS0" } })).asn;
     var db = new sqlite3.Database(db_file);
     let query = "INSERT INTO hits VALUES (?, ?, ?)";
-    db.run(query, [new Date(), asn, ua]);
+    db.run(query, [new Date().getTime(), asn, ua]);
     db.close();
 }
 
