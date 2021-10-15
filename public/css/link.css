@@ -10,3 +10,11 @@ main {
     min-height: calc(100vh - 2em);
     padding: 2em 0;
 }
+
+.collapse:not(.show) {
+    height: 0;
+}
+
+.collapse {
+    transition: ease-in-out;
+}

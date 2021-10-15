@@ -9,19 +9,20 @@
                     Se non fai niente, non ti verrà inviata nessuna notifica prima di ogni lezione, ma le potrai
                     comunque visualizzare sul tuo calendatio
                 </p>
-                <a class="btn btn-primary btn-lg" href="#" role="button">Configura</a>
+                <a class="btn btn-primary btn-lg" href="#" onclick="toggle()" role="button">Configura</a>
                 <div class="collapse mt-4" id="alertCollapse">
                     <div class="card card-body">
                         <div class="form-group">
                             <label for="alert_mins">Con quanti minuti di anticipo vuoi ricevere un promemoria delle
                                 lezioni?</label>
-                            <input type="number" class="form-control" id="alert_mins">
+                            <input type="number" min="0" onchange="updateLinks(this)" class="form-control"
+                                id="alert_mins">
                         </div>
                     </div>
                 </div>
             </div>
         </section>
-        <section class="d-flex flex-row justify-content-around">
+        <section class="d-flex flex-row justify-content-around" id="links">
             <div class="cal-link">
                 <p>Aggiungi a Google</p>
                 <a href="https://calendar.google.com/calendar/u/0/r?cid={{{url}}}" target="_blank"><img
