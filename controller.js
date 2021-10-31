@@ -1,5 +1,12 @@
 const model = require('./model.js');
 
+function bonk(req, res, next) {
+    res.writeHead(302, {
+      location: "https://knowyourmeme.com/photos/1916585-bonk-cheems",
+    });
+    res.end();
+}
+
 function error404(req, res, next) {
     res.status(404);
     res.render('404');
@@ -87,6 +94,7 @@ exports.dispatcher = function (app) {
     app.get('/get_ical', get_ical);
     app.get('/get_courses_given_area', get_courses_given_area);
     app.post('/get_curricula_given_course', get_curricula_given_course);
+    app.get('/bonk', bonk);
     app.use(error404); // 404 catch-all handler (middleware)
     app.use(error500); // 500 error handler (middleware)
 }
