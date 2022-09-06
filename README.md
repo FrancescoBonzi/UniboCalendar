@@ -20,5 +20,6 @@ Questo sistema è stato sviluppato quasi interamente da due persone nel corso di
 - [ ] SCALABILITÀ: vincolare l'interrogazione del sito unibo.it al massimo una volta al giorno (i calendari di Apple fanno decine di richieste al giorno inutilmente)
 - [ ] Aggiungere l'inserimento del calendario anche su Outlook Calendar
 - [ ] Aggiungere il supporto a [Grafana](https://grafana.com) per le informazioni che ora vengono solamente loggate nella cartella logs/
+- [ ] Convertire il codice da javascript ES5 a ES6
 - [ ] Creare un logo personalizzato
 - [ ] Conformare il servizio alla normativa GDPR 
