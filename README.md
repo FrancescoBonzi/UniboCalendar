@@ -17,10 +17,4 @@ Il codice è strutturato secondo il paradigma [Model-View-Controller](https://it
 ## Contribuire al progetto
 Questo sistema è stato sviluppato quasi interamente da due persone nel corso di 3 anni. Essendo un progetto portato avanti solo nel tempo libero presenta alcuni miglioramenti che sarebbero necessari, sopratutto per quanto riguarda la scalabilità, ma che risultano impegnativi da affrontare con così poche risorse. Il contributo di persone esterne è quindi molto apprezzato e anzi incoraggiato!
 
-- [ ] SCALABILITÀ: vincolare l'interrogazione del sito unibo.it al massimo una volta al giorno (i calendari di Apple fanno decine di richieste al giorno inutilmente)
-- [ ] PERFORMANCE: Passare da Sqlite3 a [MariaDB](https://mariadb.org/)
-- [ ] PERFORMANCE: Convertire il codice da javascript ES5 a ES6
-- [ ] STATISTICHE: Aggiungere il supporto a [Grafana](https://grafana.com) per le informazioni che ora vengono solamente loggate nella cartella logs/
-- [ ] STATISTICHE: Conformare il servizio alla normativa GDPR
-- [ ] NUOVE FUNZIONI: Creare un logo personalizzato
-- [ ] NUOVE FUNZIONI: Aggiungere l'inserimento del calendario anche su Outlook Calendar
+Nella sezione delle Issues sono aperti diversi ticket, ai quali è possibile rispondere chiedendo informazioni, dando suggerimenti o proponendo Pull Request per migliorare il sistema.
