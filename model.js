@@ -211,40 +211,9 @@ async function getICalendarEvents(id, ua, alert) {
         return vcalendar;
     } else {
         var db = new sqlite3.Database(db_file);
-        let query_enrollments = "SELECT * FROM enrollments WHERE id = ?";
-        let enrollment_promise = new Promise((res, rej) =>
-            db.get(query_enrollments, id, function (e, enrollments_info) {
-                console.log(enrollments_info);
-                res(enrollments_info);
-            })
-        );
-        let enrollments_info = await enrollment_promise;
-        let type = enrollments_info["type"]
-        let course = enrollments_info["course"]
-        let year = enrollments_info["year"]
-        let curriculum = enrollments_info["curriculum"]
-        var root = "https://corsi.unibo.it"
-        var link = [root, type, course, LANGUAGE[type], '@@orario_reale_json?anno=' + year].join("/");
-        if (curriculum !== undefined) {
-            link += '&curricula=' + curriculum;
-        }
-        // Adding only the selected lectures to the request
-        console.log(link)
-        let query_lectures = "SELECT lecture_id FROM requested_lectures WHERE enrollment_id = ?";
-        let lectures_promise = new Promise((res, rej) => db.all(query_lectures, id, (e, lectures) => { res(lectures) }));
-        let lectures = await lectures_promise;
-        for (var i = 0; i < lectures.length; i++) {
-            link += "&insegnamenti=" + lectures[i]["lecture_id"]
-        }
-        link += '&calendar_view=';
-        // Sending the request and parsing the response
-        await new Promise((res, rej) =>
-            db.run("DELETE FROM cache WHERE expiration < strftime('%s', 'now')", id, function (e, _) {
-                res(true);
-            })
-        );
+        db.run("DELETE FROM cache WHERE expiration < strftime('%s', 'now')");
         let cache_check_promise = new Promise((res, rej) =>
-            db.get("SELECT value FROM cache WHERE url = ?", url, function (e, result) {
+            db.get("SELECT value FROM cache WHERE id = ?", id, function (e, result) {
                 if (result === undefined) {
                     res(false);
                 } else {
@@ -254,13 +223,40 @@ async function getICalendarEvents(id, ua, alert) {
         );
         let json = await cache_check_promise;
         if (json === false) {
+            let query_enrollments = "SELECT * FROM enrollments WHERE id = ?";
+            let enrollment_promise = new Promise((res, rej) =>
+                db.get(query_enrollments, id, function (e, enrollments_info) {
+                    console.log(enrollments_info);
+                    res(enrollments_info);
+                })
+            );
+            let enrollments_info = await enrollment_promise;
+            let type = enrollments_info["type"]
+            let course = enrollments_info["course"]
+            let year = enrollments_info["year"]
+            let curriculum = enrollments_info["curriculum"]
+            var root = "https://corsi.unibo.it"
+            var link = [root, type, course, LANGUAGE[type], '@@orario_reale_json?anno=' + year].join("/");
+            if (curriculum !== undefined) {
+                link += '&curricula=' + curriculum;
+            }
+            // Adding only the selected lectures to the request
+            console.log(link)
+            let query_lectures = "SELECT lecture_id FROM requested_lectures WHERE enrollment_id = ?";
+            let lectures_promise = new Promise((res, rej) => db.all(query_lectures, id, (e, lectures) => { res(lectures) }));
+            let lectures = await lectures_promise;
+            for (var i = 0; i < lectures.length; i++) {
+                link += "&insegnamenti=" + lectures[i]["lecture_id"]
+            }
+            link += '&calendar_view=';
+            // Sending the request and parsing the response
             json = await fetch(link).then(x => x.json()).catch(function (err) {
                 console.log(err);
                 return "An error occurred while creating the calendar.";
             });
-            db.run(`INSERT INTO cache VALUES(?, ?, strftime('%s', 'now') + ${ONE_UNIX_DAY})`, url, json)
+            db.run(`INSERT INTO cache VALUES(?, ?, strftime('%s', 'now') + ${ONE_UNIX_DAY})`, id, json)
         }
-        calendar = []
+        let calendar = []
         for (var l of json) {
             const start = new Date(l.start);
             const end = new Date(l.end);
@@ -281,8 +277,8 @@ async function getICalendarEvents(id, ua, alert) {
         }
         var factory = new iCalendar(alert);
         var vcalendar = factory.ical(calendar);
-        return vcalendar;
         log_hit(id, ua);
+        return vcalendar;
     }
 }
 
