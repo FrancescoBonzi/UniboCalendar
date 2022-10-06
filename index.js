@@ -1,4 +1,4 @@
-import { dispatcher } from './controller.js';
+import { router } from './controller.js';
 import express, { json, urlencoded } from 'express';
 import 'express-handlebars';
 import { checkForOpendataUpdates } from './update_opendata.js';
@@ -37,8 +37,8 @@ app.get("/data.db", tokenMiddleware(express.static(__dirname + '/logs')));
 app.use(json);
 app.use(urlencoded({ extended: true }));
 
-//set up dispatcher
-dispatcher(app);
+//set up router
+app.use("/", router);
 
 //set up handlebars
 app.engine('handlebars', hbs.engine);
