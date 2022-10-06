@@ -8,7 +8,7 @@ var sqlite3 = require('sqlite3');
 const rb = require("randombytes");
 const b32 = require('base32.js');
 
-const language = {
+const LANGUAGE = {
     "magistralecu": "orario-lezioni",
     "magistrale": "orario-lezioni",
     "laurea": "orario-lezioni",
@@ -16,6 +16,7 @@ const language = {
     "1cycle": "timetable",
     "2cycle": "timetable"
 }
+const ONE_UNIX_DAY = 24 * 3600;
 
 
 var data_file = './opendata/corsi.csv';
@@ -120,7 +121,7 @@ async function getCurriculaGivenCourseUrl(unibo_url) {
         return json_err;
     }
     var type = timetable_url.split('/')[3];
-    var curricula_url = timetable_url + '/' + language[type] + '/@@available_curricula';
+    var curricula_url = timetable_url + '/' + LANGUAGE[type] + '/@@available_curricula';
     // ex. https://corsi.unibo.it/laurea/clei/orario-lezioni/@@available_curricula
     return await fetch(curricula_url).then(x => x.json())
         .catch(function (err) {
@@ -132,7 +133,7 @@ async function getCurriculaGivenCourseUrl(unibo_url) {
 async function getTimetable(unibo_url, year, curriculum) {
     let timetable_url = await getTimetableUrlGivenUniboUrl(unibo_url);
     var type = timetable_url.split('/')[3];
-    var link = timetable_url + '/' + language[type] + '?anno=' + year + "&curricula=" + curriculum;
+    var link = timetable_url + '/' + LANGUAGE[type] + '?anno=' + year + "&curricula=" + curriculum;
     return fetch(link).then(x => x.text())
         .then(function (html) {
             var $ = cheerio.load(html);
@@ -223,7 +224,7 @@ async function getICalendarEvents(id, ua, alert) {
         let year = enrollments_info["year"]
         let curriculum = enrollments_info["curriculum"]
         var root = "https://corsi.unibo.it"
-        var link = [root, type, course, language[type], '@@orario_reale_json?anno=' + year].join("/");
+        var link = [root, type, course, LANGUAGE[type], '@@orario_reale_json?anno=' + year].join("/");
         if (curriculum !== undefined) {
             link += '&curricula=' + curriculum;
         }
@@ -237,10 +238,28 @@ async function getICalendarEvents(id, ua, alert) {
         }
         link += '&calendar_view=';
         // Sending the request and parsing the response
-        let json = await fetch(link).then(x => x.json()).catch(function (err) {
-            console.log(err);
-            return "An error occurred while creating the calendar.";
-        });
+        await new Promise((res, rej) =>
+            db.run("DELETE FROM cache WHERE expiration < strftime('%s', 'now')", id, function (e, _) {
+                res(true);
+            })
+        );
+        let cache_check_promise = new Promise((res, rej) =>
+            db.get("SELECT value FROM cache WHERE url = ?", url, function (e, result) {
+                if (result === undefined) {
+                    res(false);
+                } else {
+                    res(result["value"]);
+                }
+            })
+        );
+        let json = await cache_check_promise;
+        if (json === false) {
+            json = await fetch(link).then(x => x.json()).catch(function (err) {
+                console.log(err);
+                return "An error occurred while creating the calendar.";
+            });
+            db.run(`INSERT INTO cache VALUES(?, ?, strftime('%s', 'now') + ${ONE_UNIX_DAY})`, url, json)
+        }
         calendar = []
         for (var l of json) {
             const start = new Date(l.start);
