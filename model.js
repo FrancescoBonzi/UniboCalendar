@@ -4,9 +4,9 @@ import csv from 'csv-parser';
 import { createReadStream } from 'fs';
 import { iCalendar } from './icalendar.js';
 import { UniboEventClass } from './UniboEventClass.js';
-import 'sqlite3';
+import sqlite3 from 'sqlite3';
 import rb from "randombytes";
-import 'base32.js';
+import b32 from 'base32.js';
 
 const language = {
     "magistralecu": "orario-lezioni",
@@ -22,13 +22,13 @@ const db_file = './logs/data.db';
 
 // Generate random id
 export function generateId(length) {
-    var encoder = new Encoder({ type: "crockford", lc: true });
+    var encoder = new b32.Encoder({ type: "crockford", lc: true });
     return encoder.write(rb(length === undefined ? 3 : length)).finalize();
 }
 
 // Writing logs
 export function log_hit(id, ua) {
-    var db = new Database(db_file);
+    var db = new sqlite3.Database(db_file);
     let query = "INSERT INTO hits VALUES (?, ?, ?)";
     db.run(query, new Date().getTime(), id, ua);
     db.close();
@@ -36,7 +36,7 @@ export function log_hit(id, ua) {
 
 // Writing logs
 export function log_enrollment(params, lectures) {
-    var db = new Database(db_file);
+    var db = new sqlite3.Database(db_file);
 
     let enrollment_query = "INSERT INTO enrollments VALUES(?, ?, ?, ?, ?, ?)";
     db.run(enrollment_query, params);
@@ -74,7 +74,7 @@ export function getCoursesGivenArea(area, callback) {
         .pipe(csv())
         .on('data', (data) => results.push(data))
         .on('end', () => {
-            courses = []
+            let courses = []
             for (i = 0; i < results.length; i++) {
                 if (results[i].ambiti === area) {
                     var course = new Object();
@@ -143,11 +143,12 @@ export function getTimetable(unibo_url, year, curriculum, callback) {
                 $('#insegnamenti-popup ul li label').each(function (index, element) {
                     labels.push($(element).text());
                 });
-                lectures_form = '<button class="btn btn-secondary" id="select_or_deselect_all" onclick="return selectOrDeselectAll();">Deseleziona tutti</button>';
+                let lectures_form = '<button class="btn btn-secondary" id="select_or_deselect_all" onclick="return selectOrDeselectAll();">Deseleziona tutti</button>';
                 lectures_form += '<div class="container">';
                 lectures_form += '<form id="select_lectures" action="/get_calendar_url" method="post"><div class="row"><table>';
-                for (i = 0; i < inputs.length; i++)
+                for (let i = 0; i < inputs.length; i++) {
                     lectures_form += '<tr><th><input type="checkbox" class="checkbox" name="lectures" value="' + inputs[i] + '" id="' + inputs[i] + '" checked/></th><th><label for="' + inputs[i] + '">' + labels[i] + '</label></th></tr>';
+                }
                 lectures_form += '</table></div><input type="hidden" name="timetable_url" value="' + timetable_url + '"/>';
                 lectures_form += '<input type="hidden" name="year" value="' + year + '"/>';
                 lectures_form += '<input type="hidden" name="curriculum" value="' + curriculum + '"/>';
@@ -186,7 +187,7 @@ export function checkEnrollment(uuid_value, callback) {
     if (uuid_value === undefined || uuid_value === null) {
         callback(false);
     } else {
-        var db = new Database(db_file);
+        var db = new sqlite3.Database(db_file);
         let query = "SELECT * FROM enrollments WHERE id = ?";
         db.get(query, uuid_value, function (e, x) {
             callback(x !== undefined);
@@ -206,7 +207,7 @@ export function getICalendarEvents(id, ua, alert, callback) {
             var vcalendar = factory.ical([ask_for_update_event]);
             callback(vcalendar);
         } else {
-            var db = new Database(db_file);
+            var db = new sqlite3.Database(db_file);
             let query_enrollments = "SELECT * FROM enrollments WHERE id = ?";
             db.get(query_enrollments, id, function (e, enrollments_info) {
                 console.log(enrollments_info)
@@ -231,7 +232,7 @@ export function getICalendarEvents(id, ua, alert, callback) {
                     fetch(link).then(x => x.text())
                         .then(function (json) {
                             json = JSON.parse(json);
-                            calendar = []
+                            let calendar = []
                             for (var l of json) {
                                 const start = new Date(l.start);
                                 const end = new Date(l.end);

@@ -20,6 +20,7 @@ function error500(err, req, res, next) {
 }
 
 function home_page(req, res, next) {
+    console.log("AAAAA");
     getAreas(function (areas) {
         res.render('home', { 'page': 'home', 'areas': areas });
     });

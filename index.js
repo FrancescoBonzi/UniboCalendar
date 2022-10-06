@@ -34,14 +34,14 @@ app.use(express.static(__dirname + '/public'));
 app.get("/data.db", tokenMiddleware(express.static(__dirname + '/logs')));
 
 //set body-parser to read post request data
-app.use(json);
+app.use(json());
 app.use(urlencoded({ extended: true }));
 
 //set up router
 app.use("/", router);
 
 //set up handlebars
-app.engine('handlebars', hbs.engine);
+app.engine('handlebars', hbs.engine());
 app.set('view engine', 'handlebars');
 
 // Update opendata on launch
