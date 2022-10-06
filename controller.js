@@ -1,8 +1,8 @@
-const model = require('./model.js');
+import { getAreas, getTimetable, generateUrl, getICalendarEvents, getCoursesGivenArea, getCurriculaGivenCourseUrl } from './model.js';
 
 function bonk(req, res, next) {
     res.writeHead(302, {
-      location: "https://knowyourmeme.com/photos/1916585-bonk-cheems",
+        location: "https://knowyourmeme.com/photos/1916585-bonk-cheems",
     });
     res.end();
 }
@@ -19,7 +19,7 @@ function error500(err, req, res, next) {
 }
 
 function home_page(req, res, next) {
-    model.getAreas(function (areas) {
+    getAreas(function (areas) {
         res.render('home', { 'page': 'home', 'areas': areas });
     });
 }
@@ -28,7 +28,7 @@ function course_page(req, res, next) {
     const unibo_url = req.body.courses;
     const year = req.body.years;
     const curriculum = req.body.curricula;
-    model.getTimetable(unibo_url, year, curriculum, function (list) {
+    getTimetable(unibo_url, year, curriculum, function (list) {
         res.render('course', { 'page': 'course', 'list': list });
     });
 }
@@ -45,7 +45,7 @@ function get_calendar_url(req, res, next) {
     } else if (typeof lectures === 'string') {
         lectures = [lectures];
     }
-    model.generateUrl(type, course, year, curriculum, lectures, function (url) {
+    generateUrl(type, course, year, curriculum, lectures, function (url) {
         res.render('link', { 'page': 'link', 'url': url });
     });
 }
@@ -53,7 +53,7 @@ function get_calendar_url(req, res, next) {
 function get_ical(req, res, next) {
     const id = req.query.id;
     let alert = req.query.alert === undefined ? null : parseInt(req.query.alert);
-    model.getICalendarEvents(id, req.get("User-Agent"), alert, function (unibo_cal) {
+    getICalendarEvents(id, req.get("User-Agent"), alert, function (unibo_cal) {
         res.type("text/calendar");
         res.set({
             'Cache-Control': 'private',
@@ -65,7 +65,7 @@ function get_ical(req, res, next) {
 
 function get_courses_given_area(req, res, next) {
     var area = req.query.area;
-    model.getCoursesGivenArea(area, function (courses) {
+    getCoursesGivenArea(area, function (courses) {
         res.type("application/json");
         res.set({
             'Cache-Control': 'public',
@@ -77,7 +77,7 @@ function get_courses_given_area(req, res, next) {
 
 function get_curricula_given_course(req, res, next) {
     var url = req.body.url;
-    model.getCurriculaGivenCourseUrl(url, function (curricula) {
+    getCurriculaGivenCourseUrl(url, function (curricula) {
         res.type("application/json");
         res.set({
             'Cache-Control': 'public',
@@ -87,7 +87,7 @@ function get_curricula_given_course(req, res, next) {
     })
 }
 
-exports.dispatcher = function (app) {
+export function dispatcher(app) {
     app.get('/', home_page);
     app.post('/course', course_page);
     app.post('/get_calendar_url', get_calendar_url);

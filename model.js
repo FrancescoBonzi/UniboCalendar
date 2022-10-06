@@ -1,12 +1,12 @@
-const cheerio = require('cheerio');
-const fetch = require('node-fetch');
-const csv = require('csv-parser');
-const fs = require('fs');
-const iCalendar = require('./icalendar');
-const UniboEventClass = require('./UniboEventClass');
-var sqlite3 = require('sqlite3');
-const rb = require("randombytes");
-const b32 = require('base32.js');
+import { load } from 'cheerio';
+import fetch from 'node-fetch';
+import csv from 'csv-parser';
+import { createReadStream } from 'fs';
+import { iCalendar } from './icalendar.js';
+import { UniboEventClass } from './UniboEventClass.js';
+import 'sqlite3';
+import rb from "randombytes";
+import 'base32.js';
 
 const language = {
     "magistralecu": "orario-lezioni",
@@ -21,22 +21,22 @@ var data_file = './opendata/corsi.csv';
 const db_file = './logs/data.db';
 
 // Generate random id
-function generateId(length) {
-    var encoder = new b32.Encoder({ type: "crockford", lc: true });
+export function generateId(length) {
+    var encoder = new Encoder({ type: "crockford", lc: true });
     return encoder.write(rb(length === undefined ? 3 : length)).finalize();
 }
 
 // Writing logs
-function log_hit(id, ua) {
-    var db = new sqlite3.Database(db_file);
+export function log_hit(id, ua) {
+    var db = new Database(db_file);
     let query = "INSERT INTO hits VALUES (?, ?, ?)";
     db.run(query, new Date().getTime(), id, ua);
     db.close();
 }
 
 // Writing logs
-function log_enrollment(params, lectures) {
-    var db = new sqlite3.Database(db_file);
+export function log_enrollment(params, lectures) {
+    var db = new Database(db_file);
 
     let enrollment_query = "INSERT INTO enrollments VALUES(?, ?, ?, ?, ?, ?)";
     db.run(enrollment_query, params);
@@ -47,10 +47,10 @@ function log_enrollment(params, lectures) {
     db.close();
 }
 
-function getAreas(callback) {
+export function getAreas(callback) {
     //Reading csv file and building an array of unique values
     var results = [];
-    fs.createReadStream(data_file)
+    createReadStream(data_file)
         .pipe(csv())
         .on('data', (data) => {
             if (data.ambiti != '') {
@@ -68,9 +68,9 @@ function getAreas(callback) {
         });
 }
 
-function getCoursesGivenArea(area, callback) {
+export function getCoursesGivenArea(area, callback) {
     var results = [];
-    fs.createReadStream(data_file)
+    createReadStream(data_file)
         .pipe(csv())
         .on('data', (data) => results.push(data))
         .on('end', () => {
@@ -91,10 +91,10 @@ function getCoursesGivenArea(area, callback) {
 }
 
 // Finding "SITO DEL CORSO" from https://www.unibo.it/it/didattica/corsi-di-studio/corso/[year]/[code]
-function getTimetableUrlGivenUniboUrl(unibo_url, callback) {
+export function getTimetableUrlGivenUniboUrl(unibo_url, callback) {
     fetch(unibo_url).then(x => x.text())
         .then(function (html) {
-            var $ = cheerio.load(html);
+            var $ = load(html);
             var timetable_url = $('#u-content-preforemost .globe span a').first().attr('href');
             callback(timetable_url);
         })
@@ -104,7 +104,7 @@ function getTimetableUrlGivenUniboUrl(unibo_url, callback) {
         });
 }
 
-function getCurriculaGivenCourseUrl(unibo_url, callback) {
+export function getCurriculaGivenCourseUrl(unibo_url, callback) {
     getTimetableUrlGivenUniboUrl(unibo_url, function (timetable_url) {
         const json_err = [{
             "selected": false,
@@ -128,13 +128,13 @@ function getCurriculaGivenCourseUrl(unibo_url, callback) {
     })
 }
 
-function getTimetable(unibo_url, year, curriculum, callback) {
+export function getTimetable(unibo_url, year, curriculum, callback) {
     getTimetableUrlGivenUniboUrl(unibo_url, function (timetable_url) {
         var type = timetable_url.split('/')[3];
         var link = timetable_url + '/' + language[type] + '?anno=' + year + "&curricula=" + curriculum;
         fetch(link).then(x => x.text())
             .then(function (html) {
-                var $ = cheerio.load(html);
+                var $ = load(html);
                 var inputs = [];
                 $('#insegnamenti-popup ul li input').each(function (index, element) {
                     inputs.push($(element).attr('value'));
@@ -169,7 +169,7 @@ function getTimetable(unibo_url, year, curriculum, callback) {
     })
 };
 
-function generateUrl(type, course, year, curriculum, lectures, callback) {
+export function generateUrl(type, course, year, curriculum, lectures, callback) {
 
     //Creating URL to get the calendar
     const id = generateId()
@@ -182,11 +182,11 @@ function generateUrl(type, course, year, curriculum, lectures, callback) {
     callback(url);
 }
 
-function checkEnrollment(uuid_value, callback) {
+export function checkEnrollment(uuid_value, callback) {
     if (uuid_value === undefined || uuid_value === null) {
         callback(false);
     } else {
-        var db = new sqlite3.Database(db_file);
+        var db = new Database(db_file);
         let query = "SELECT * FROM enrollments WHERE id = ?";
         db.get(query, uuid_value, function (e, x) {
             callback(x !== undefined);
@@ -195,7 +195,7 @@ function checkEnrollment(uuid_value, callback) {
     }
 }
 
-function getICalendarEvents(id, ua, alert, callback) {
+export function getICalendarEvents(id, ua, alert, callback) {
     checkEnrollment(id, function (isEnrolled) {
         if (!isEnrolled) {
             const start = new Date();
@@ -206,7 +206,7 @@ function getICalendarEvents(id, ua, alert, callback) {
             var vcalendar = factory.ical([ask_for_update_event]);
             callback(vcalendar);
         } else {
-            var db = new sqlite3.Database(db_file);
+            var db = new Database(db_file);
             let query_enrollments = "SELECT * FROM enrollments WHERE id = ?";
             db.get(query_enrollments, id, function (e, enrollments_info) {
                 console.log(enrollments_info)
@@ -264,11 +264,3 @@ function getICalendarEvents(id, ua, alert, callback) {
         }
     })
 }
-
-module.exports.getAreas = getAreas;
-module.exports.getCoursesGivenArea = getCoursesGivenArea;
-module.exports.getCurriculaGivenCourseUrl = getCurriculaGivenCourseUrl;
-module.exports.getTimetable = getTimetable;
-module.exports.generateUrl = generateUrl;
-module.exports.getICalendarEvents = getICalendarEvents;
-module.exports.generateId = generateId;

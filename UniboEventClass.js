@@ -1,4 +1,4 @@
-class UniboEventClass {
+export class UniboEventClass {
     constructor(title, start, end, location, url, docente) {
         this.title = title;
         this.start = start;
@@ -8,5 +8,3 @@ class UniboEventClass {
         this.organizer = { name: docente, email: docente.toLowerCase().replace(/\s/g, '.') + "@unibo.it" };
     }
 }
-
-module.exports = UniboEventClass;
