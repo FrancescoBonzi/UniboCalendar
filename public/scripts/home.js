@@ -98,7 +98,7 @@ function getCoursesGivenArea() {
 
         // Setting Courses
         courses.sort((a, b) => {
-            return a.description > b.description;
+            return a.type === b.type ? (a.description > b.description ? 1 : -1) : (a.type > b.type ? 1 : -1);
         })
         for (i = 0; i < courses.length; i++) {
             node = document.createElement("option");
