@@ -221,8 +221,8 @@ async function getICalendarEvents(id, ua, alert) {
                 }
             })
         );
-        let json = await cache_check_promise;
-        if (json === false) {
+        let vcalendar = await cache_check_promise;
+        if (vcalendar === false) {
             let query_enrollments = "SELECT * FROM enrollments WHERE id = ?";
             let enrollment_promise = new Promise((res, rej) =>
                 db.get(query_enrollments, id, function (e, enrollments_info) {
@@ -250,33 +250,34 @@ async function getICalendarEvents(id, ua, alert) {
             }
             link += '&calendar_view=';
             // Sending the request and parsing the response
-            json = await fetch(link).then(x => x.json()).catch(function (err) {
+            let json = await fetch(link).then(x => x.json()).catch(function (err) {
                 console.log(err);
                 return "An error occurred while creating the calendar.";
             });
-            db.run(`INSERT INTO cache VALUES(?, ?, strftime('%s', 'now') + ${ONE_UNIX_DAY})`, id, json)
+            let calendar = []
+            for (var l of json) {
+                const start = new Date(l.start);
+                const end = new Date(l.end);
+                var location = "Solo ONLINE";
+                if (l.aule.length > 0) {
+                    location = l.aule[0].des_risorsa + ", " + l.aule[0].des_indirizzo;
+                }
+                var url = 'Non è disponibile una aula virtuale';
+                if (!(l.teams === undefined) && !(l.teams === null)) {
+                    url = encodeURI(l.teams);
+                }
+                var prof = 'Non noto';
+                if (!(l.docente === undefined) && !(l.docente === null)) {
+                    prof = l.docente;
+                }
+                const event = new UniboEventClass(l.title, start, end, location, url, prof);
+                calendar.push(event);
+            }
+            var factory = new iCalendar(alert);
+            vcalendar = factory.ical(calendar);
+            db.run(`INSERT INTO cache VALUES(?, ?, strftime('%s', 'now') + ${ONE_UNIX_DAY})`, id, vcalendar)
+
         }
-        let calendar = []
-        for (var l of json) {
-            const start = new Date(l.start);
-            const end = new Date(l.end);
-            var location = "Solo ONLINE";
-            if (l.aule.length > 0) {
-                location = l.aule[0].des_risorsa + ", " + l.aule[0].des_indirizzo;
-            }
-            var url = 'Non è disponibile una aula virtuale';
-            if (!(l.teams === undefined) && !(l.teams === null)) {
-                url = encodeURI(l.teams);
-            }
-            var prof = 'Non noto';
-            if (!(l.docente === undefined) && !(l.docente === null)) {
-                prof = l.docente;
-            }
-            const event = new UniboEventClass(l.title, start, end, location, url, prof);
-            calendar.push(event);
-        }
-        var factory = new iCalendar(alert);
-        var vcalendar = factory.ical(calendar);
         log_hit(id, ua);
         return vcalendar;
     }
