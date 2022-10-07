@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getAreas, getTimetable, generateUrl, getICalendarEvents, getCoursesGivenArea, getCurriculaGivenCourseUrl } from './model.js';
+import * as model from './model.js';
 
 function bonk(req, res, next) {
     res.writeHead(302, {
@@ -20,8 +20,7 @@ function error500(err, req, res, next) {
 }
 
 function home_page(req, res, next) {
-    console.log("AAAAA");
-    getAreas(function (areas) {
+    model.getAreas(function (areas) {
         res.render('home', { 'page': 'home', 'areas': areas });
     });
 }
@@ -30,7 +29,7 @@ function course_page(req, res, next) {
     const unibo_url = req.body.courses;
     const year = req.body.years;
     const curriculum = req.body.curricula;
-    getTimetable(unibo_url, year, curriculum, function (list) {
+    model.getTimetable(unibo_url, year, curriculum, function (list) {
         res.render('course', { 'page': 'course', 'list': list });
     });
 }
@@ -47,7 +46,7 @@ function get_calendar_url(req, res, next) {
     } else if (typeof lectures === 'string') {
         lectures = [lectures];
     }
-    generateUrl(type, course, year, curriculum, lectures, function (url) {
+    model.generateUrl(type, course, year, curriculum, lectures, function (url) {
         res.render('link', { 'page': 'link', 'url': url });
     });
 }
@@ -55,7 +54,7 @@ function get_calendar_url(req, res, next) {
 function get_ical(req, res, next) {
     const id = req.query.id;
     let alert = req.query.alert === undefined ? null : parseInt(req.query.alert);
-    getICalendarEvents(id, req.get("User-Agent"), alert, function (unibo_cal) {
+    model.getICalendarEvents(id, req.get("User-Agent"), alert, function (unibo_cal) {
         res.type("text/calendar");
         res.set({
             'Cache-Control': 'private',
@@ -67,7 +66,7 @@ function get_ical(req, res, next) {
 
 function get_courses_given_area(req, res, next) {
     var area = req.query.area;
-    getCoursesGivenArea(area, function (courses) {
+    model.getCoursesGivenArea(area, function (courses) {
         res.type("application/json");
         res.set({
             'Cache-Control': 'public',
@@ -79,7 +78,7 @@ function get_courses_given_area(req, res, next) {
 
 function get_curricula_given_course(req, res, next) {
     var url = req.body.url;
-    getCurriculaGivenCourseUrl(url, function (curricula) {
+    model.getCurriculaGivenCourseUrl(url, function (curricula) {
         res.type("application/json");
         res.set({
             'Cache-Control': 'public',
