@@ -1,7 +1,7 @@
 import * as cheerio from 'cheerio';
 import fetch from 'node-fetch';
 import csv from 'csv-parser';
-import { createReadStream } from 'fs';
+import * as fs from 'fs';
 import { iCalendar } from './icalendar.js';
 import { UniboEventClass } from './UniboEventClass.js';
 import sqlite3 from 'sqlite3';
@@ -50,7 +50,7 @@ export function log_enrollment(params, lectures) {
 export function getAreas(callback) {
     //Reading csv file and building an array of unique values
     var results = [];
-    createReadStream(data_file)
+    fs.createReadStream(data_file)
         .pipe(csv())
         .on('data', (data) => {
             if (data.ambiti != '') {
@@ -70,7 +70,7 @@ export function getAreas(callback) {
 
 export function getCoursesGivenArea(area, callback) {
     var results = [];
-    createReadStream(data_file)
+    fs.createReadStream(data_file)
         .pipe(csv())
         .on('data', (data) => results.push(data))
         .on('end', () => {
