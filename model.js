@@ -1,4 +1,4 @@
-import { load } from 'cheerio';
+import * as cheerio from 'cheerio';
 import fetch from 'node-fetch';
 import csv from 'csv-parser';
 import { createReadStream } from 'fs';
@@ -94,7 +94,7 @@ export function getCoursesGivenArea(area, callback) {
 export function getTimetableUrlGivenUniboUrl(unibo_url, callback) {
     fetch(unibo_url).then(x => x.text())
         .then(function (html) {
-            var $ = load(html);
+            var $ = cheerio.load(html);
             var timetable_url = $('#u-content-preforemost .globe span a').first().attr('href');
             callback(timetable_url);
         })
