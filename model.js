@@ -75,7 +75,7 @@ export function getCoursesGivenArea(area, callback) {
         .on('data', (data) => results.push(data))
         .on('end', () => {
             let courses = []
-            for (i = 0; i < results.length; i++) {
+            for (let i = 0; i < results.length; i++) {
                 if (results[i].ambiti === area) {
                     var course = new Object();
                     course.code = results[i].corso_codice;
@@ -134,7 +134,7 @@ export function getTimetable(unibo_url, year, curriculum, callback) {
         var link = timetable_url + '/' + language[type] + '?anno=' + year + "&curricula=" + curriculum;
         fetch(link).then(x => x.text())
             .then(function (html) {
-                var $ = load(html);
+                var $ = cheerio.load(html);
                 var inputs = [];
                 $('#insegnamenti-popup ul li input').each(function (index, element) {
                     inputs.push($(element).attr('value'));
