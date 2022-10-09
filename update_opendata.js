@@ -1,77 +1,72 @@
-import { load } from 'cheerio';
+import * as cheerio from 'cheerio';
 import fetch from 'node-fetch';
-import { existsSync, readFile, writeFile } from 'fs';
+import * as fs from 'fs/promises';
 
-const root_unibo = 'https://dati.unibo.it/dataset/degree-programmes/';
-var data_file = './opendata/corsi.csv';
-var version_file = './opendata/version.json';
+const ROOT_UNIBO = 'https://dati.unibo.it/dataset/degree-programmes/';
+const DATA_FILE = './opendata/corsi.csv';
+const VERSION_FILE = './opendata/version.json';
 
-export function checkIfOpendataFileIsUpToDate(callback) {
-    fetch(root_unibo).then(x => x.text())
-        .then(function (html) {
-            var $ = load(html);
-            const relative_path = $('#dataset-resources ul li a').filter('.heading').first().attr('href');
-            console.log('relative_path = ' + relative_path);
-            let latest_version = relative_path.split('/')[relative_path.split('/').length - 1];
-            // Check if the file exists in the current directory.
-            var up_to_date = false;
-            if (!existsSync(version_file)) {
-                callback(latest_version, up_to_date);
-                return;
-            }
-            readFile(version_file, (err, json) => {
-                var version = JSON.parse(json);
-                if (!err && version.name == latest_version) {
-                    up_to_date = true;
-                }
-                callback(latest_version, up_to_date);
-            });
-        })
-        .catch(function (err) {
-            console.log(err);
-            return;
-        });
-}
-
-export function downloadUpToDateOpendataFile(latest_version, callback) {
-    var path_to_download_csv = root_unibo + 'resource/' + latest_version + '/download/' + latest_version + '.csv';
-    console.log(path_to_download_csv);
-    fetch(path_to_download_csv).then(x => x.text())
-        .then(function (csv) {
-            //Saving file in opendata folder
-            writeFile(data_file, csv, function (err) {
-                if (err) {
-                    console.log(err);
-                    return;
-                };
-                let json = JSON.stringify({ "name": latest_version + ".csv" });
-                writeFile(version_file, json, function (err) {
-                    if (err) {
-                        console.log(err);
-                        return;
-                    };
-                    callback(true);
-                });
-            });
-        })
-        .catch(function (err) {
-            console.log(err);
-            console.log('Failed to download ' + latest_version + ' from: ' + path);
-            return;
-        });
-}
-
-export function checkForOpendataUpdates() {
-    checkIfOpendataFileIsUpToDate(function (latest_version, up_to_date) {
-        if (!up_to_date) {
-            downloadUpToDateOpendataFile(latest_version, function (downloaded_and_saved) {
-                if (!downloaded_and_saved) {
-                    console.log('Error in downloading and saving of opendata file in opendata folder.');
-                    return;
-                } else {
-                    console.log('New opendata saved in ' + data_file + '.');
-                }
-            });
-        }
+async function checkIfOpendataFileIsUpToDate() {
+    let html = await fetch(ROOT_UNIBO).then(x => x.text()).catch(function (err) {
+        console.log(err);
+        return null;
     });
+
+    var $ = cheerio.load(html);
+    const relative_path = $('#dataset-resources ul li a').filter('.heading').first().attr('href');
+    console.log('relative_path = ' + relative_path);
+    let latest_version = relative_path.split('/')[relative_path.split('/').length - 1];
+    // Check if the file exists in the current directory.
+    var up_to_date = false;
+    if (!await fs.stat(VERSION_FILE).then((_) => true).catch((_) => false)) {
+        return [latest_version, up_to_date];
+    }
+    let json = await fs.readFile(VERSION_FILE).catch((_) => false);
+    let err = json === false;
+    if (!err) {
+        let version = JSON.parse(json);
+        if (version.name == latest_version) {
+            up_to_date = true;
+        }
+    }
+    return [latest_version, up_to_date];
+}
+
+async function downloadUpToDateOpendataFile(latest_version) {
+    var path_to_download_csv = ROOT_UNIBO + 'resource/' + latest_version + '/download/' + latest_version + '.csv';
+    console.log(path_to_download_csv);
+    let csv = await fetch(path_to_download_csv).then(x => x.text()).catch(function (err) {
+        console.log(err);
+        console.log('Failed to download ' + latest_version + ' from: ' + path);
+        return false;
+    });
+    if (csv === false) {
+        console.log("AAAA CSV");
+        return false;
+    }
+    //Saving file in opendata folder
+    let res = await fs.writeFile(DATA_FILE, csv).catch((err) => {
+        console.log(err);
+        return false;
+    }).then((_) => true);
+    if (!res) { return false; }
+    let json = JSON.stringify({ "name": latest_version + ".csv" });
+    return await fs.writeFile(VERSION_FILE, json)
+        .catch((_) => false)
+        .then((x) => true);
+}
+
+export async function checkForOpendataUpdates() {
+    let response = await checkIfOpendataFileIsUpToDate();
+    let latest_version = response[0];
+    let up_to_date = response[1];
+    if (!up_to_date) {
+        let downloaded_and_saved = await downloadUpToDateOpendataFile(latest_version);
+        if (!downloaded_and_saved) {
+            console.log('Error in downloading and saving of opendata file in opendata folder.');
+            return;
+        } else {
+            console.log('New opendata saved in ' + DATA_FILE + '.');
+        }
+    }
 }
