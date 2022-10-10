@@ -1,12 +1,12 @@
-const cheerio = require('cheerio');
-const fetch = require('node-fetch');
-const csv = require('csv-parser');
-const fs = require('fs');
-const iCalendar = require('./icalendar');
-const UniboEventClass = require('./UniboEventClass');
-var sqlite3 = require('sqlite3');
-const rb = require("randombytes");
-const b32 = require('base32.js');
+import * as cheerio from 'cheerio';
+import fetch from 'node-fetch';
+import csv from 'csv-parser';
+import * as fs from 'fs';
+import { iCalendar } from './icalendar.js';
+import { UniboEventClass } from './UniboEventClass.js';
+import sqlite3 from 'sqlite3';
+import rb from "randombytes";
+import b32 from 'base32.js';
 
 const language = {
     "magistralecu": "orario-lezioni",
@@ -22,13 +22,13 @@ var data_file = './opendata/corsi.csv';
 const db_file = './logs/data.db';
 
 // Generate random id
-function generateId(length) {
+export function generateId(length) {
     var encoder = new b32.Encoder({ type: "crockford", lc: true });
     return encoder.write(rb(length === undefined ? 3 : length)).finalize();
 }
 
 // Writing logs
-function log_hit(id, ua) {
+export function log_hit(id, ua) {
     var db = new sqlite3.Database(db_file);
     let query = "INSERT INTO hits VALUES (?, ?, ?)";
     db.run(query, new Date().getTime(), id, ua);
@@ -36,7 +36,7 @@ function log_hit(id, ua) {
 }
 
 // Writing logs
-function log_enrollment(params, lectures) {
+export function log_enrollment(params, lectures) {
     var db = new sqlite3.Database(db_file);
 
     let enrollment_query = "INSERT INTO enrollments VALUES(?, ?, ?, ?, ?, ?)";
@@ -48,7 +48,7 @@ function log_enrollment(params, lectures) {
     db.close();
 }
 
-function getAreas() {
+export function getAreas() {
     //Reading csv file and building an array of unique values
     var results = [];
     return new Promise((res, rej) => {
@@ -71,15 +71,15 @@ function getAreas() {
     });
 }
 
-function getCoursesGivenArea(area,) {
+export function getCoursesGivenArea(area) {
     var results = [];
     return new Promise((res, rej) => {
         fs.createReadStream(data_file)
             .pipe(csv())
             .on('data', (data) => results.push(data))
             .on('end', () => {
-                courses = []
-                for (i = 0; i < results.length; i++) {
+                let courses = []
+                for (let i = 0; i < results.length; i++) {
                     if (results[i].ambiti === area) {
                         var course = new Object();
                         course.code = results[i].corso_codice;
@@ -96,7 +96,7 @@ function getCoursesGivenArea(area,) {
 }
 
 // Finding "SITO DEL CORSO" from https://www.unibo.it/it/didattica/corsi-di-studio/corso/[year]/[code]
-async function getTimetableUrlGivenUniboUrl(unibo_url, callback) {
+export async function getTimetableUrlGivenUniboUrl(unibo_url, callback) {
     return await fetch(unibo_url).then(x => x.text())
         .then(function (html) {
             var $ = cheerio.load(html);
@@ -109,7 +109,7 @@ async function getTimetableUrlGivenUniboUrl(unibo_url, callback) {
         });
 }
 
-async function getCurriculaGivenCourseUrl(unibo_url) {
+export async function getCurriculaGivenCourseUrl(unibo_url) {
     let timetable_url = await getTimetableUrlGivenUniboUrl(unibo_url);
     const json_err = [{
         "selected": false,
@@ -129,7 +129,7 @@ async function getCurriculaGivenCourseUrl(unibo_url) {
         });
 }
 
-async function getTimetable(unibo_url, year, curriculum) {
+export async function getTimetable(unibo_url, year, curriculum) {
     let timetable_url = await getTimetableUrlGivenUniboUrl(unibo_url);
     var type = timetable_url.split('/')[3];
     var link = timetable_url + '/' + language[type] + '?anno=' + year + "&curricula=" + curriculum;
@@ -144,10 +144,10 @@ async function getTimetable(unibo_url, year, curriculum) {
             $('#insegnamenti-popup ul li label').each(function (_index, element) {
                 labels.push($(element).text());
             });
-            lectures_form = '<button class="btn btn-secondary" id="select_or_deselect_all" onclick="return selectOrDeselectAll();">Deseleziona tutti</button>';
+            let lectures_form = '<button class="btn btn-secondary" id="select_or_deselect_all" onclick="return selectOrDeselectAll();">Deseleziona tutti</button>';
             lectures_form += '<div class="container">';
             lectures_form += '<form id="select_lectures" action="/get_calendar_url" method="post"><div class="row"><table>';
-            for (i = 0; i < inputs.length; i++)
+            for (let i = 0; i < inputs.length; i++)
                 lectures_form += '<tr><th><input type="checkbox" class="checkbox" name="lectures" value="' + inputs[i] + '" id="' + inputs[i] + '" checked/></th><th><label for="' + inputs[i] + '">' + labels[i] + '</label></th></tr>';
             lectures_form += '</table></div><input type="hidden" name="timetable_url" value="' + timetable_url + '"/>';
             lectures_form += '<input type="hidden" name="year" value="' + year + '"/>';
@@ -169,7 +169,7 @@ async function getTimetable(unibo_url, year, curriculum) {
         });
 };
 
-function generateUrl(type, course, year, curriculum, lectures) {
+export function generateUrl(type, course, year, curriculum, lectures) {
 
     //Creating URL to get the calendar
     const id = generateId()
@@ -182,7 +182,7 @@ function generateUrl(type, course, year, curriculum, lectures) {
     return url;
 }
 
-function checkEnrollment(uuid_value, callback) {
+export function checkEnrollment(uuid_value, callback) {
     if (uuid_value === undefined || uuid_value === null) {
         return new Promise((res, _) => res(false));
     } else {
@@ -198,7 +198,7 @@ function checkEnrollment(uuid_value, callback) {
     }
 }
 
-async function getICalendarEvents(id, ua, alert) {
+export async function getICalendarEvents(id, ua, alert) {
     let isEnrolled = await checkEnrollment(id);
     if (!isEnrolled) {
         const start = new Date();
@@ -241,7 +241,7 @@ async function getICalendarEvents(id, ua, alert) {
             console.log(err);
             return "An error occurred while creating the calendar.";
         });
-        calendar = []
+        let calendar = []
         for (var l of json) {
             const start = new Date(l.start);
             const end = new Date(l.end);
@@ -266,11 +266,3 @@ async function getICalendarEvents(id, ua, alert) {
         log_hit(id, ua);
     }
 }
-
-module.exports.getAreas = getAreas;
-module.exports.getCoursesGivenArea = getCoursesGivenArea;
-module.exports.getCurriculaGivenCourseUrl = getCurriculaGivenCourseUrl;
-module.exports.getTimetable = getTimetable;
-module.exports.generateUrl = generateUrl;
-module.exports.getICalendarEvents = getICalendarEvents;
-module.exports.generateId = generateId;

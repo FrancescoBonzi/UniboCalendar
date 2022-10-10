@@ -1,6 +1,6 @@
-const cheerio = require('cheerio');
-const fetch = require('node-fetch');
-const fs = require('fs/promises');
+import * as cheerio from 'cheerio';
+import fetch from 'node-fetch';
+import * as fs from 'fs/promises';
 
 const ROOT_UNIBO = 'https://dati.unibo.it/dataset/degree-programmes/';
 const DATA_FILE = './opendata/corsi.csv';
@@ -15,7 +15,7 @@ async function checkIfOpendataFileIsUpToDate() {
     var $ = cheerio.load(html);
     const relative_path = $('#dataset-resources ul li a').filter('.heading').first().attr('href');
     console.log('relative_path = ' + relative_path);
-    latest_version = relative_path.split('/')[relative_path.split('/').length - 1];
+    let latest_version = relative_path.split('/')[relative_path.split('/').length - 1];
     // Check if the file exists in the current directory.
     var up_to_date = false;
     if (!await fs.stat(VERSION_FILE).then((_) => true).catch((_) => false)) {
@@ -56,7 +56,7 @@ async function downloadUpToDateOpendataFile(latest_version) {
         .then((x) => true);
 }
 
-async function checkForOpendataUpdates() {
+export async function checkForOpendataUpdates() {
     let response = await checkIfOpendataFileIsUpToDate();
     let latest_version = response[0];
     let up_to_date = response[1];
@@ -70,5 +70,3 @@ async function checkForOpendataUpdates() {
         }
     }
 }
-
-module.exports.checkForOpendataUpdates = checkForOpendataUpdates;

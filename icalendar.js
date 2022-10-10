@@ -1,4 +1,4 @@
-class iCalendar {
+export class iCalendar {
     constructor(alarm) {
         this.secsAlarm = alarm;
         this.pid = "-//ETSoftware//JSiCal//IT";
@@ -82,4 +82,3 @@ class iCalendar {
         return vcal;
     }
 }
-module.exports = iCalendar;

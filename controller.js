@@ -1,4 +1,5 @@
-const model = require('./model.js');
+import { Router } from 'express';
+import * as model from './model.js';
 
 function bonk(req, res, next) {
     res.writeHead(302, {
@@ -81,14 +82,16 @@ async function get_curricula_given_course(req, res, next) {
     res.send(JSON.stringify(curricula));
 }
 
-exports.dispatcher = function (app) {
-    app.get('/', home_page);
-    app.post('/course', course_page);
-    app.post('/get_calendar_url', get_calendar_url);
-    app.get('/get_ical', get_ical);
-    app.get('/get_courses_given_area', get_courses_given_area);
-    app.post('/get_curricula_given_course', get_curricula_given_course);
-    app.get('/bonk', bonk);
-    app.use(error404); // 404 catch-all handler (middleware)
-    app.use(error500); // 500 error handler (middleware)
-}
+export const router = (() => {
+    const r = Router();
+    r.get('/', home_page);
+    r.post('/course', course_page);
+    r.post('/get_calendar_url', get_calendar_url);
+    r.get('/get_ical', get_ical);
+    r.get('/get_courses_given_area', get_courses_given_area);
+    r.post('/get_curricula_given_course', get_curricula_given_course);
+    r.get('/bonk', bonk);
+    r.use(error404); // 404 catch-all handler (middleware)
+    r.use(error500); // 500 error handler (middleware)
+    return r;
+})();
