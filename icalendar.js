@@ -1,11 +1,14 @@
 export class iCalendar {
+
     constructor(alarm) {
         this.secsAlarm = alarm;
         this.pid = "-//ETSoftware//JSiCal//IT";
     }
+
     dt(epoch) {
         return epoch.toISOString().replace(/-/g, '').replace(/:/g, '').split(".")[0] + "Z";
     }
+
     id(event) {
         var id = event.start.getTime().toString(16);
         id = id + ((event.end.getTime() - event.start.getTime()) % 4095).toString(16).padStart(4, '0');
@@ -17,6 +20,7 @@ export class iCalendar {
         id = id + crc.toString(16).padStart(3, "0");
         return id;
     }
+
     interval(secs) {
         var s = secs % 60;
         secs = parseInt((secs / 60).toString());
@@ -38,9 +42,11 @@ export class iCalendar {
         res = res + s.toString() + "S";
         return res;
     }
+
     escape(t) {
         return t.replace(/\\/g, "\\\\").replace(/;/g, "\\,").replace(/:/g, "\\:").replace(/,/g, "\\,").replace(/"/g, "\\'");
     }
+
     wrapLine(l, o, e) {
         if (e === undefined) {
             l = this.escape(l);
@@ -54,6 +60,7 @@ export class iCalendar {
         }
         return l;
     }
+
     event(e) {
         var event = "BEGIN:VEVENT\r\nDTSTAMP:" + this.dt(new Date());
         event = event + "\r\nORGANIZER;" + this.wrapLine("CN=" + e.organizer.name + ":MAILTO:" + e.organizer.email, 10).replace(/\\:/g, ":");
@@ -72,6 +79,7 @@ export class iCalendar {
         event = event + "\r\nEND:VEVENT\r\n";
         return event;
     }
+
     ical(events) {
         var vcal = "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:" + this.pid + "\r\n";
         vcal = vcal + "CALSCALE:GREGORIAN\r\nMETHOD:PUBLISH\r\n";

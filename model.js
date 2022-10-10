@@ -3,12 +3,11 @@ import fetch from 'node-fetch';
 import csv from 'csv-parser';
 import * as fs from 'fs';
 import { iCalendar } from './icalendar.js';
-import { UniboEventClass } from './UniboEventClass.js';
 import sqlite3 from 'sqlite3';
 import rb from "randombytes";
 import b32 from 'base32.js';
 
-const language = {
+const LANGUAGE = {
     "magistralecu": "orario-lezioni",
     "magistrale": "orario-lezioni",
     "laurea": "orario-lezioni",
@@ -16,6 +15,18 @@ const language = {
     "1cycle": "timetable",
     "2cycle": "timetable"
 }
+
+class UniboEventClass {
+    constructor(title, start, end, location, url, docente) {
+        this.title = title;
+        this.start = start;
+        this.end = end;
+        this.location = location;
+        this.url = url;
+        this.organizer = { name: docente, email: docente.toLowerCase().replace(/\s/g, '.') + "@unibo.it" };
+    }
+}
+
 
 
 var data_file = './opendata/corsi.csv';
@@ -120,7 +131,7 @@ export async function getCurriculaGivenCourseUrl(unibo_url) {
         return json_err;
     }
     var type = timetable_url.split('/')[3];
-    var curricula_url = timetable_url + '/' + language[type] + '/@@available_curricula';
+    var curricula_url = timetable_url + '/' + LANGUAGE[type] + '/@@available_curricula';
     // ex. https://corsi.unibo.it/laurea/clei/orario-lezioni/@@available_curricula
     return await fetch(curricula_url).then(x => x.json())
         .catch(function (err) {
@@ -132,7 +143,7 @@ export async function getCurriculaGivenCourseUrl(unibo_url) {
 export async function getTimetable(unibo_url, year, curriculum) {
     let timetable_url = await getTimetableUrlGivenUniboUrl(unibo_url);
     var type = timetable_url.split('/')[3];
-    var link = timetable_url + '/' + language[type] + '?anno=' + year + "&curricula=" + curriculum;
+    var link = timetable_url + '/' + LANGUAGE[type] + '?anno=' + year + "&curricula=" + curriculum;
     return fetch(link).then(x => x.text())
         .then(function (html) {
             var $ = cheerio.load(html);
@@ -223,7 +234,7 @@ export async function getICalendarEvents(id, ua, alert) {
         let year = enrollments_info["year"]
         let curriculum = enrollments_info["curriculum"]
         var root = "https://corsi.unibo.it"
-        var link = [root, type, course, language[type], '@@orario_reale_json?anno=' + year].join("/");
+        var link = [root, type, course, LANGUAGE[type], '@@orario_reale_json?anno=' + year].join("/");
         if (curriculum !== undefined) {
             link += '&curricula=' + curriculum;
         }
@@ -262,7 +273,8 @@ export async function getICalendarEvents(id, ua, alert) {
         }
         var factory = new iCalendar(alert);
         var vcalendar = factory.ical(calendar);
+        //log_hit(id, ua);
+        
         return vcalendar;
-        log_hit(id, ua);
     }
 }

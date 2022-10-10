@@ -92,6 +92,7 @@ function getCoursesGivenArea() {
         // Adding Select Course
         var node = document.createElement("option");
         var text_node = document.createTextNode("--- Seleziona Corso ---");
+        text_node.disabled = true
         node.appendChild(text_node);
         node.setAttribute('value', '');
         document.getElementById('courses').appendChild(node);
@@ -141,6 +142,7 @@ function getYearsAndCurriculaGivenCourse() {
     // Adding Select Year
     node = document.createElement("option");
     text_node = document.createTextNode("--- Seleziona Anno ---");
+    text_node.disabled = true
     node.appendChild(text_node);
     node.setAttribute('value', '');
     document.getElementById('years').appendChild(node);
@@ -148,6 +150,7 @@ function getYearsAndCurriculaGivenCourse() {
     // Adding Select Curriculum
     node = document.createElement("option");
     text_node = document.createTextNode("--- Seleziona Curriculum ---");
+    text_node.disabled = true
     node.appendChild(text_node);
     node.setAttribute('value', '');
     document.getElementById('curricula').appendChild(node);
