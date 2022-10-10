@@ -54,6 +54,7 @@ db.run("CREATE TABLE IF NOT EXISTS enrollments (id TEXT, date INTEGER, type TEXT
 db.run("CREATE TABLE IF NOT EXISTS requested_lectures (enrollment_id TEXT, lecture_id TEXT)");
 db.run("CREATE TABLE IF NOT EXISTS hits (date INTEGER, enrollment_id TEXT, user_agent TEXT)");
 db.run("CREATE TABLE IF NOT EXISTS token(id TEXT, description TEXT)");
+db.run("CREATE TABLE IF NOT EXISTS cache(id TEXT, value TEXT, expiration INTEGER)");
 //csvMigrator.migrate(db);
 db.close()
 
