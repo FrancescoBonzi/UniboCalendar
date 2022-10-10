@@ -1,18 +1,19 @@
-var controller = require('./controller.js');
-var express = require('express');
-var bodyParser = require('body-parser');
-var hbs = require('express-handlebars').create();
-var updater = require('./update_opendata.js');
-//var csvMigrator = require('./migrate_csv.js');
-var sqlite3 = require('sqlite3').verbose();
+import { router } from "./controller.js";
+import express, { json, urlencoded } from "express";
+import "express-handlebars";
+import { checkForOpendataUpdates } from "./update_opendata.js";
+//var csvMigrator = require("./migrate_csv.js");
+import sqlite3 from "sqlite3";
+import { __dirname } from "./utils.js";
+import * as hbs from "express-handlebars";
 
-var db = new sqlite3.Database('./logs/data.db');
+var db = new sqlite3.Database("./logs/data.db");
 var app = express();
 
 function tokenMiddleware(correct) {
     return function (req, res, n) {
         if (req.query.token !== undefined) {
-            let db = new sqlite3.Database('./logs/data.db');
+            let db = new sqlite3.Database("./logs/data.db");
 
             db.all("SELECT * FROM token WHERE id = ?", [req.query.token], (e, r) => {
                 if (r.length == 0) {
@@ -26,25 +27,25 @@ function tokenMiddleware(correct) {
 }
 
 //set up port
-app.set('port', process.env.PORT || 3002);
+app.set("port", process.env.PORT || 3002);
 
 //set up static folder
-app.use(express.static(__dirname + '/public'));
-app.get("/data.db", tokenMiddleware(express.static(__dirname + '/logs')));
+app.use(express.static(__dirname + "/public"));
+app.get("/data.db", tokenMiddleware(express.static(__dirname + "/logs")));
 
 //set body-parser to read post request data
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(json());
+app.use(urlencoded({ extended: true }));
 
-//set up dispatcher
-controller.dispatcher(app);
+//set up router
+app.use("/", router);
 
 //set up handlebars
-app.engine('handlebars', hbs.engine);
-app.set('view engine', 'handlebars');
+app.engine("handlebars", hbs.engine());
+app.set("view engine", "handlebars");
 
 // Update opendata on launch
-updater.checkForOpendataUpdates();
+checkForOpendataUpdates();
 
 /**
  * Create DB tables and migrate CSV
@@ -57,8 +58,8 @@ db.run("CREATE TABLE IF NOT EXISTS cache(id TEXT, value TEXT, expiration INTEGER
 //csvMigrator.migrate(db);
 db.close()
 
+app.get("/", (r, res, n) => { console.log("AADF"); res.send("AAA") })
 //start server
-app.listen(app.get('port'), '127.0.0.1', function () {
-    console.log('UniboClendar started on http://127.0.0.1:' +
-        app.get('port') + '; press Ctrl-C to terminate.');
+app.listen(app.get("port"), "127.0.0.1", function () {
+    console.log(`UniboClendar started on http://127.0.0.1:${app.get("port")}; press Ctrl-C to terminate.`);
 });

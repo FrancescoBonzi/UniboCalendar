@@ -8,9 +8,9 @@
     "cheerio": "^1.0.0-rc.10",
     "csv-parser": "^2.3.5",
     "express": "^4.17.1",
-    "express-handlebars": "^5.3.3",
-    "node-fetch": "^2.6.2",
-    "sqlite3": "^5.0.2",
+    "express-handlebars": "^6.0.0",
+    "node-fetch": "^3.0.0",
+    "sqlite3": "^5.1.2",
     "randombytes": "^2.1.0"
   },
   "devDependencies": {},
@@ -23,5 +23,6 @@
   "bugs": {
     "url": "https://github.com/FrancescoBonzi/UniboCalendar/issues"
   },
-  "homepage": "https://github.com/FrancescoBonzi/UniboCalendar#readme"
+  "homepage": "https://github.com/FrancescoBonzi/UniboCalendar#readme",
+  "type": "module"
 }

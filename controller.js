@@ -1,4 +1,5 @@
-const model = require('./model.js');
+import { Router } from "express";
+import * as model from "./model.js";
 
 function bonk(req, res, next) {
     res.writeHead(302, {
@@ -9,18 +10,18 @@ function bonk(req, res, next) {
 
 function error404(req, res, next) {
     res.status(404);
-    res.render('404');
+    res.render("404");
 }
 
 function error500(err, req, res, next) {
     console.error(err)
     res.status(500);
-    res.render('500');
+    res.render("500");
 }
 
 async function home_page(req, res, next) {
     let areas = await model.getAreas();
-    res.render('home', { 'page': 'home', 'areas': areas });
+    res.render("home", { "page": "home", "areas": areas });
 }
 
 async function course_page(req, res, next) {
@@ -28,23 +29,23 @@ async function course_page(req, res, next) {
     const year = req.body.years;
     const curriculum = req.body.curricula;
     let list = await model.getTimetable(unibo_url, year, curriculum);
-    res.render('course', { 'page': 'course', 'list': list });
+    res.render("course", { "page": "course", "list": list });
 }
 
 async function get_calendar_url(req, res, next) {
     const timetable_url = req.body.timetable_url;
-    const type = timetable_url.split('/')[3];
-    const course = timetable_url.split('/')[4];
+    const type = timetable_url.split("/")[3];
+    const course = timetable_url.split("/")[4];
     const year = req.body.year;
     const curriculum = req.body.curriculum;
     var lectures = req.body.lectures;
-    if (typeof lectures === undefined || lectures === '') {
+    if (typeof lectures === undefined || lectures === "") {
         lectures = [];
-    } else if (typeof lectures === 'string') {
+    } else if (typeof lectures === "string") {
         lectures = [lectures];
     }
-    let url = await model.generateUrl(type, course, year, curriculum, lectures);
-    res.render('link', { 'page': 'link', 'url': url });
+    let url = model.generateUrl(type, course, year, curriculum, lectures);
+    res.render("link", { "page": "link", "url": url });
 }
 
 async function get_ical(req, res, next) {
@@ -52,10 +53,6 @@ async function get_ical(req, res, next) {
     let alert = req.query.alert === undefined ? null : parseInt(req.query.alert);
     let unibo_cal = await model.getICalendarEvents(id, req.get("User-Agent"), alert);
     res.type("text/calendar");
-    res.set({
-        'Cache-Control': 'private',
-        'Cache-Control': 'max-age=86400',
-    });
     res.send(unibo_cal);
 }
 
@@ -63,10 +60,6 @@ async function get_courses_given_area(req, res, next) {
     var area = req.query.area;
     let courses = await model.getCoursesGivenArea(area);
     res.type("application/json");
-    res.set({
-        'Cache-Control': 'public',
-        'Cache-Control': 'max-age=86400',
-    });
     res.send(courses);
 }
 
@@ -74,21 +67,19 @@ async function get_curricula_given_course(req, res, next) {
     var url = req.body.url;
     let curricula = await model.getCurriculaGivenCourseUrl(url);
     res.type("application/json");
-    res.set({
-        'Cache-Control': 'public',
-        'Cache-Control': 'max-age=86400',
-    });
     res.send(JSON.stringify(curricula));
 }
 
-exports.dispatcher = function (app) {
-    app.get('/', home_page);
-    app.post('/course', course_page);
-    app.post('/get_calendar_url', get_calendar_url);
-    app.get('/get_ical', get_ical);
-    app.get('/get_courses_given_area', get_courses_given_area);
-    app.post('/get_curricula_given_course', get_curricula_given_course);
-    app.get('/bonk', bonk);
-    app.use(error404); // 404 catch-all handler (middleware)
-    app.use(error500); // 500 error handler (middleware)
-}
+export const router = (() => {
+    const r = Router();
+    r.get("/", home_page);
+    r.post("/course", course_page);
+    r.post("/get_calendar_url", get_calendar_url);
+    r.get("/get_ical", get_ical);
+    r.get("/get_courses_given_area", get_courses_given_area);
+    r.post("/get_curricula_given_course", get_curricula_given_course);
+    r.get("/bonk", bonk);
+    r.use(error404); // 404 catch-all handler (middleware)
+    r.use(error500); // 500 error handler (middleware)
+    return r;
+})();
