@@ -234,7 +234,7 @@ export async function getICalendarEvents(id, ua, alert) {
             let query_enrollments = "SELECT * FROM enrollments WHERE id = ?";
             let enrollment_promise = new Promise((res, rej) =>
                 db.get(query_enrollments, id, function (e, enrollments_info) {
-                    console.log(enrollments_info);
+                    //console.log(enrollments_info);
                     res(enrollments_info);
                 })
             );
@@ -249,7 +249,7 @@ export async function getICalendarEvents(id, ua, alert) {
                 link += "&curricula=" + curriculum;
             }
             // Adding only the selected lectures to the request
-            console.log(link)
+            //console.log(link)
             let query_lectures = "SELECT lecture_id FROM requested_lectures WHERE enrollment_id = ?";
             let lectures_promise = new Promise((res, rej) => db.all(query_lectures, id, (e, lectures) => { res(lectures) }));
             let lectures = await lectures_promise;

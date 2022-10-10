@@ -58,7 +58,6 @@ db.run("CREATE TABLE IF NOT EXISTS cache(id TEXT, value TEXT, expiration INTEGER
 //csvMigrator.migrate(db);
 db.close()
 
-app.get("/", (r, res, n) => { console.log("AADF"); res.send("AAA") })
 //start server
 app.listen(app.get("port"), "127.0.0.1", function () {
     console.log(`UniboClendar started on http://127.0.0.1:${app.get("port")}; press Ctrl-C to terminate.`);
