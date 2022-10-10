@@ -1,10 +1,10 @@
-import * as cheerio from 'cheerio';
-import fetch from 'node-fetch';
-import * as fs from 'fs/promises';
+import * as cheerio from "cheerio";
+import fetch from "node-fetch";
+import * as fs from "fs/promises";
 
-const ROOT_UNIBO = 'https://dati.unibo.it/dataset/degree-programmes/';
-const DATA_FILE = './opendata/corsi.csv';
-const VERSION_FILE = './opendata/version.json';
+const ROOT_UNIBO = "https://dati.unibo.it/dataset/degree-programmes/";
+const DATA_FILE = "./opendata/corsi.csv";
+const VERSION_FILE = "./opendata/version.json";
 
 async function checkIfOpendataFileIsUpToDate() {
     let html = await fetch(ROOT_UNIBO).then(x => x.text()).catch(function (err) {
@@ -13,9 +13,8 @@ async function checkIfOpendataFileIsUpToDate() {
     });
 
     var $ = cheerio.load(html);
-    const relative_path = $('#dataset-resources ul li a').filter('.heading').first().attr('href');
-    console.log('relative_path = ' + relative_path);
-    let latest_version = relative_path.split('/')[relative_path.split('/').length - 1];
+    const relative_path = $("#dataset-resources ul li a").filter(".heading").first().attr("href");
+    let latest_version = relative_path.split("/")[relative_path.split("/").length - 1];
     // Check if the file exists in the current directory.
     var up_to_date = false;
     if (!await fs.stat(VERSION_FILE).then((_) => true).catch((_) => false)) {
@@ -33,15 +32,15 @@ async function checkIfOpendataFileIsUpToDate() {
 }
 
 async function downloadUpToDateOpendataFile(latest_version) {
-    var path_to_download_csv = ROOT_UNIBO + 'resource/' + latest_version + '/download/' + latest_version + '.csv';
+    var path_to_download_csv = ROOT_UNIBO + "resource/" + latest_version + "/download/" + latest_version + ".csv";
     console.log(path_to_download_csv);
     let csv = await fetch(path_to_download_csv).then(x => x.text()).catch(function (err) {
         console.log(err);
-        console.log('Failed to download ' + latest_version + ' from: ' + path);
+        console.log("Failed to download " + latest_version + " from: " + path);
         return false;
     });
     if (csv === false) {
-        console.log("AAAA CSV");
+        console.log("Corrupted csv");
         return false;
     }
     //Saving file in opendata folder
@@ -63,10 +62,10 @@ export async function checkForOpendataUpdates() {
     if (!up_to_date) {
         let downloaded_and_saved = await downloadUpToDateOpendataFile(latest_version);
         if (!downloaded_and_saved) {
-            console.log('Error in downloading and saving of opendata file in opendata folder.');
+            console.log("Error in downloading and saving of opendata file in opendata folder.");
             return;
         } else {
-            console.log('New opendata saved in ' + DATA_FILE + '.');
+            console.log("New opendata saved in " + DATA_FILE + ".");
         }
     }
 }

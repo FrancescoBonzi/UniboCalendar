@@ -17,7 +17,6 @@ function updateLinks(input) {
     let thisQuery = qry;
     let startsWith = "&";
     if (links[i].href.startsWith("http")) {
-      console.log(links[i].href);
       thisQuery = encodeURIComponent(thisQuery);
       startsWith = encodeURIComponent(startsWith);
     }

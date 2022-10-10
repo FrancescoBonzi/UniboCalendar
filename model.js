@@ -1,11 +1,11 @@
-import * as cheerio from 'cheerio';
-import fetch from 'node-fetch';
-import csv from 'csv-parser';
-import * as fs from 'fs';
-import { iCalendar } from './icalendar.js';
-import sqlite3 from 'sqlite3';
+import * as cheerio from "cheerio";
+import fetch from "node-fetch";
+import csv from "csv-parser";
+import * as fs from "fs";
+import { iCalendar } from "./icalendar.js";
+import sqlite3 from "sqlite3";
 import rb from "randombytes";
-import b32 from 'base32.js';
+import b32 from "base32.js";
 
 const LANGUAGE = {
     "magistralecu": "orario-lezioni",
@@ -15,6 +15,8 @@ const LANGUAGE = {
     "1cycle": "timetable",
     "2cycle": "timetable"
 }
+const DATA_FILE = "./opendata/corsi.csv";
+const DB_FILE = "./logs/data.db";
 
 class UniboEventClass {
     constructor(title, start, end, location, url, docente) {
@@ -23,14 +25,9 @@ class UniboEventClass {
         this.end = end;
         this.location = location;
         this.url = url;
-        this.organizer = { name: docente, email: docente.toLowerCase().replace(/\s/g, '.') + "@unibo.it" };
+        this.organizer = { name: docente, email: docente.toLowerCase().replace(/\s/g, ".") + "@unibo.it" };
     }
 }
-
-
-
-var data_file = './opendata/corsi.csv';
-const db_file = './logs/data.db';
 
 // Generate random id
 export function generateId(length) {
@@ -40,7 +37,7 @@ export function generateId(length) {
 
 // Writing logs
 export function log_hit(id, ua) {
-    var db = new sqlite3.Database(db_file);
+    var db = new sqlite3.Database(DB_FILE);
     let query = "INSERT INTO hits VALUES (?, ?, ?)";
     db.run(query, new Date().getTime(), id, ua);
     db.close();
@@ -48,7 +45,7 @@ export function log_hit(id, ua) {
 
 // Writing logs
 export function log_enrollment(params, lectures) {
-    var db = new sqlite3.Database(db_file);
+    var db = new sqlite3.Database(DB_FILE);
 
     let enrollment_query = "INSERT INTO enrollments VALUES(?, ?, ?, ?, ?, ?)";
     db.run(enrollment_query, params);
@@ -63,14 +60,14 @@ export function getAreas() {
     //Reading csv file and building an array of unique values
     var results = [];
     return new Promise((res, rej) => {
-        fs.createReadStream(data_file)
+        fs.createReadStream(DATA_FILE)
             .pipe(csv())
-            .on('data', (data) => {
-                if (data.ambiti != '') {
+            .on("data", (data) => {
+                if (data.ambiti != "") {
                     results.push(data)
                 }
             })
-            .on('end', () => {
+            .on("end", () => {
                 var areas = results.map(
                     function ({ ambiti }) {
                         return ambiti;
@@ -85,10 +82,10 @@ export function getAreas() {
 export function getCoursesGivenArea(area) {
     var results = [];
     return new Promise((res, rej) => {
-        fs.createReadStream(data_file)
+        fs.createReadStream(DATA_FILE)
             .pipe(csv())
-            .on('data', (data) => results.push(data))
-            .on('end', () => {
+            .on("data", (data) => results.push(data))
+            .on("end", () => {
                 let courses = []
                 for (let i = 0; i < results.length; i++) {
                     if (results[i].ambiti === area) {
@@ -111,7 +108,7 @@ export async function getTimetableUrlGivenUniboUrl(unibo_url, callback) {
     return await fetch(unibo_url).then(x => x.text())
         .then(function (html) {
             var $ = cheerio.load(html);
-            var timetable_url = $('#u-content-preforemost .globe span a').first().attr('href');
+            var timetable_url = $("#u-content-preforemost .globe span a").first().attr("href");
             return timetable_url;
         })
         .catch(function (err) {
@@ -130,8 +127,8 @@ export async function getCurriculaGivenCourseUrl(unibo_url) {
     if (timetable_url === undefined) {
         return json_err;
     }
-    var type = timetable_url.split('/')[3];
-    var curricula_url = timetable_url + '/' + LANGUAGE[type] + '/@@available_curricula';
+    var type = timetable_url.split("/")[3];
+    var curricula_url = timetable_url + "/" + LANGUAGE[type] + "/@@available_curricula";
     // ex. https://corsi.unibo.it/laurea/clei/orario-lezioni/@@available_curricula
     return await fetch(curricula_url).then(x => x.json())
         .catch(function (err) {
@@ -142,17 +139,17 @@ export async function getCurriculaGivenCourseUrl(unibo_url) {
 
 export async function getTimetable(unibo_url, year, curriculum) {
     let timetable_url = await getTimetableUrlGivenUniboUrl(unibo_url);
-    var type = timetable_url.split('/')[3];
-    var link = timetable_url + '/' + LANGUAGE[type] + '?anno=' + year + "&curricula=" + curriculum;
+    var type = timetable_url.split("/")[3];
+    var link = timetable_url + "/" + LANGUAGE[type] + "?anno=" + year + "&curricula=" + curriculum;
     return fetch(link).then(x => x.text())
         .then(function (html) {
             var $ = cheerio.load(html);
             var inputs = [];
-            $('#insegnamenti-popup ul li input').each(function (_index, element) {
-                inputs.push($(element).attr('value'));
+            $("#insegnamenti-popup ul li input").each(function (_index, element) {
+                inputs.push($(element).attr("value"));
             });
             var labels = [];
-            $('#insegnamenti-popup ul li label').each(function (_index, element) {
+            $("#insegnamenti-popup ul li label").each(function (_index, element) {
                 labels.push($(element).text());
             });
             let lectures_form = '<button class="btn btn-secondary" id="select_or_deselect_all" onclick="return selectOrDeselectAll();">Deseleziona tutti</button>';
@@ -197,7 +194,7 @@ export function checkEnrollment(uuid_value, callback) {
     if (uuid_value === undefined || uuid_value === null) {
         return new Promise((res, _) => res(false));
     } else {
-        var db = new sqlite3.Database(db_file);
+        var db = new sqlite3.Database(DB_FILE);
         let query = "SELECT * FROM enrollments WHERE id = ?";
         let res = new Promise((res, _) => {
             db.get(query, uuid_value, function (e, x) {
@@ -215,16 +212,16 @@ export async function getICalendarEvents(id, ua, alert) {
         const start = new Date();
         const day = 864e5;
         const end = new Date(+start + day / 24);
-        const ask_for_update_event = new UniboEventClass('Aggiorna UniboCalendar!', start, end, 'unknown', 'https://unibocalendar.it', '');
+        const ask_for_update_event = new UniboEventClass("Aggiorna UniboCalendar!", start, end, "unknown", "https://unibocalendar.it", "");
         var factory = new iCalendar(alert);
         var vcalendar = factory.ical([ask_for_update_event]);
         return vcalendar;
     } else {
-        var db = new sqlite3.Database(db_file);
+        var db = new sqlite3.Database(DB_FILE);
         let query_enrollments = "SELECT * FROM enrollments WHERE id = ?";
         let enrollment_promise = new Promise((res, rej) =>
             db.get(query_enrollments, id, function (e, enrollments_info) {
-                console.log(enrollments_info);
+                //console.log(enrollments_info);
                 res(enrollments_info);
             })
         );
@@ -234,19 +231,19 @@ export async function getICalendarEvents(id, ua, alert) {
         let year = enrollments_info["year"]
         let curriculum = enrollments_info["curriculum"]
         var root = "https://corsi.unibo.it"
-        var link = [root, type, course, LANGUAGE[type], '@@orario_reale_json?anno=' + year].join("/");
+        var link = [root, type, course, LANGUAGE[type], "@@orario_reale_json?anno=" + year].join("/");
         if (curriculum !== undefined) {
-            link += '&curricula=' + curriculum;
+            link += "&curricula=" + curriculum;
         }
         // Adding only the selected lectures to the request
-        console.log(link)
+        //console.log(link)
         let query_lectures = "SELECT lecture_id FROM requested_lectures WHERE enrollment_id = ?";
         let lectures_promise = new Promise((res, rej) => db.all(query_lectures, id, (e, lectures) => { res(lectures) }));
         let lectures = await lectures_promise;
         for (var i = 0; i < lectures.length; i++) {
             link += "&insegnamenti=" + lectures[i]["lecture_id"]
         }
-        link += '&calendar_view=';
+        link += "&calendar_view=";
         // Sending the request and parsing the response
         let json = await fetch(link).then(x => x.json()).catch(function (err) {
             console.log(err);
@@ -260,11 +257,11 @@ export async function getICalendarEvents(id, ua, alert) {
             if (l.aule.length > 0) {
                 location = l.aule[0].des_risorsa + ", " + l.aule[0].des_indirizzo;
             }
-            var url = 'Non è disponibile una aula virtuale';
+            var url = "Non è disponibile una aula virtuale";
             if (!(l.teams === undefined) && !(l.teams === null)) {
                 url = encodeURI(l.teams);
             }
-            var prof = 'Non noto';
+            var prof = "Non noto";
             if (!(l.docente === undefined) && !(l.docente === null)) {
                 prof = l.docente;
             }
@@ -274,7 +271,7 @@ export async function getICalendarEvents(id, ua, alert) {
         var factory = new iCalendar(alert);
         var vcalendar = factory.ical(calendar);
         //log_hit(id, ua);
-        
+
         return vcalendar;
     }
 }
