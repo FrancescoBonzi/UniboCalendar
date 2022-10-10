@@ -218,8 +218,8 @@ export async function getICalendarEvents(id, ua, alert) {
         var vcalendar = factory.ical([ask_for_update_event]);
         return vcalendar;
     } else {
-        var db = new sqlite3.Database(db_file);
-        db.run("DELETE FROM cache WHERE expiration < strftime("%s", "now")");
+        var db = new sqlite3.Database(DB_FILE);
+        db.run("DELETE FROM cache WHERE expiration < strftime('%s', 'now')");
         let cache_check_promise = new Promise((res, rej) =>
             db.get("SELECT value FROM cache WHERE id = ?", id, function (e, result) {
                 if (result === undefined) {
@@ -284,7 +284,6 @@ export async function getICalendarEvents(id, ua, alert) {
             var factory = new iCalendar(alert);
             vcalendar = factory.ical(calendar);
             db.run(`INSERT INTO cache VALUES(?, ?, strftime("%s", "now") + ${ONE_UNIX_DAY})`, id, vcalendar)
-
         }
         log_hit(id, ua);
         return vcalendar;
