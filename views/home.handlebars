@@ -7,7 +7,7 @@
     <form id="form_calendar" class="form-group" action="/course" method="post" onchange="checkFormValidity();">
       <div class="row">
         <select id="areas" class="form-control" name="areas" onchange="getCoursesGivenArea();">
-          <option value="" disabled>--- Seleziona Scuola ---</option>
+          <option value="">--- Seleziona Scuola ---</option>
           {{#each areas}}
           <option value="{{this}}">{{this}}</option>
           {{/each}}
