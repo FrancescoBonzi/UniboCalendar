@@ -1,11 +1,10 @@
-import { router } from "./controller.js";
-import express, { json, urlencoded } from "express";
-import "express-handlebars";
-import { checkForOpendataUpdates } from "./update_opendata.js";
-//var csvMigrator = require("./migrate_csv.js");
-import sqlite3 from "sqlite3";
-import { __dirname } from "./utils.js";
-import * as hbs from "express-handlebars";
+import express, { json, urlencoded } from "express"
+import "express-handlebars"
+import * as hbs from "express-handlebars"
+import sqlite3 from "sqlite3"
+import { router } from "./controller.js"
+import { checkForOpendataUpdates } from "./update_opendata.js"
+import { __dirname } from "./utils.js"
 
 var db = new sqlite3.Database("./logs/data.db");
 var app = express();
@@ -14,7 +13,6 @@ function tokenMiddleware(correct) {
     return function (req, res, n) {
         if (req.query.token !== undefined) {
             let db = new sqlite3.Database("./logs/data.db");
-
             db.all("SELECT * FROM token WHERE id = ?", [req.query.token], (e, r) => {
                 if (r.length == 0) {
                     return n();
@@ -55,10 +53,9 @@ db.run("CREATE TABLE IF NOT EXISTS requested_lectures (enrollment_id TEXT, lectu
 db.run("CREATE TABLE IF NOT EXISTS hits (date INTEGER, enrollment_id TEXT, user_agent TEXT)");
 db.run("CREATE TABLE IF NOT EXISTS token(id TEXT, description TEXT)");
 db.run("CREATE TABLE IF NOT EXISTS cache(id TEXT, value TEXT, expiration INTEGER)");
-//csvMigrator.migrate(db);
 db.close()
 
 //start server
-app.listen(app.get("port"), "127.0.0.1", function () {
-    console.log(`UniboClendar started on http://127.0.0.1:${app.get("port")}; press Ctrl-C to terminate.`);
+app.listen(app.get("port"), "0.0.0.0", () => {
+    console.log(`UniboClendar started on http://0.0.0.0:${app.get("port")}`);
 });
