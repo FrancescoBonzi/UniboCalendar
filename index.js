@@ -27,6 +27,9 @@ function tokenMiddleware(correct) {
 //set up port
 app.set("port", process.env.PORT || 3002);
 
+//set up listen ip
+app.set("listen-ip", process.env.LISTEN_IP || "localhost");
+
 //set up static folder
 app.use(express.static(__dirname + "/public"));
 app.get("/data.db", tokenMiddleware(express.static(__dirname + "/logs")));
@@ -56,6 +59,6 @@ db.run("CREATE TABLE IF NOT EXISTS cache(id TEXT, value TEXT, expiration INTEGER
 db.close()
 
 //start server
-app.listen(app.get("port"), "0.0.0.0", () => {
-    console.log(`UniboClendar started on http://0.0.0.0:${app.get("port")}`);
+app.listen(app.get("port"), app.get("listen-ip"), () => {
+    console.log(`UniboClendar started on http://${app.get("listen-ip")}:${app.get("port")}`);
 });
