@@ -8,7 +8,7 @@ online qui: https://unibocalendar.it
 
 ## Attivazione del servizio
 
-### npm
+#### npm
 
 ```
 git clone https://github.com/FrancescoBonzi/UniboCalendar
@@ -16,7 +16,7 @@ cd UniboCalendar
 npm start
 ```
 
-### docker
+#### docker
 
 ```
 docker pull ghcr.io/francescobonzi/unibocalendar:latest
