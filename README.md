@@ -10,14 +10,18 @@ online qui: https://unibocalendar.it
 
 ### npm
 
-`git clone https://github.com/FrancescoBonzi/UniboCalendar`
-`cd UniboCalendar`
-`npm start`
+`
+git clone https://github.com/FrancescoBonzi/UniboCalendar
+cd UniboCalendar
+npm start
+`
 
 ### docker
 
-`docker pull ghcr.io/francescobonzi/unibocalendar:latest`
-`docker run -p 3002:3000 -v $(pwd)/logs:/app/logs francescobonzi/unibocalendar:latest`
+`
+docker pull ghcr.io/francescobonzi/unibocalendar:latest
+docker run -p 3002:3000 -v $(pwd)/logs:/app/logs francescobonzi/unibocalendar:latest
+`
 
 ## Specifiche tecniche
 L'applicativo è formato da due parti, il client e il server. Il server genera il link per iscriversi al calendario e fornisce le lezioni tramite un file .ical, comprensibile a tutte le applicazioni dei calendari, come Apple Calendar, Google Calendar, Outlook Calendar, ecc. Il client è la pagina web che permette di interfacciarsi in maniera facile ed intuitiva con la logica del servizio.
