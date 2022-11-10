@@ -1,6 +1,8 @@
 node_modules
 logs/*
 opendata/*
+data
+db
 !opendata/.gitkeep
 !logs/.gitkeep
 .vscode

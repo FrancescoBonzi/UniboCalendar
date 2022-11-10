@@ -1,0 +1,12 @@
+---
+version: "3"
+services:
+  unibocalendar:
+    container_name: "unibocalendar"
+    image: "unibocalendar"
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - "./db:/app/logs"
+      - "./data:/app/opendata"
