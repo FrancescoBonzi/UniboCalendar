@@ -1,10 +1,10 @@
 node_modules
-logs/*
-opendata/*
+src/logs/*
+src/opendata/*
 data
 db
-!opendata/.gitkeep
-!logs/.gitkeep
+!src/opendata/.gitkeep
+!src/logs/.gitkeep
 .vscode
-/fix_db/
+fix_db/
 tmp.html
