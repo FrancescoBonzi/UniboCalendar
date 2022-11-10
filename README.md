@@ -6,8 +6,21 @@ online qui: https://unibocalendar.it
 
 ![unibocalendar_screenshots](https://user-images.githubusercontent.com/35273715/188617075-59af9148-33d6-425b-a1e9-21d81ba64d87.png)
 
+## Attivazione del servizio
+
+### npm
+
+`git clone https://github.com/FrancescoBonzi/UniboCalendar`
+`cd UniboCalendar`
+`npm start`
+
+### docker
+
+`docker pull ghcr.io/francescobonzi/unibocalendar:latest`
+`docker run -p 3002:3000 -v $(pwd)/logs:/app/logs francescobonzi/unibocalendar:latest`
+
 ## Specifiche tecniche
-L'applicativo è formato da due parti, il client e il server. Il client è il sito web che genera il link per iscriversi al calendario, mentre il server dato il link di iscrizione fornisce le lezioni tramite un file .ical, comprensibile a tutte le applicazioni dei calendari, come Apple Calendar, Google Calendar, Outlook Calendar, ecc.
+L'applicativo è formato da due parti, il client e il server. Il server genera il link per iscriversi al calendario e fornisce le lezioni tramite un file .ical, comprensibile a tutte le applicazioni dei calendari, come Apple Calendar, Google Calendar, Outlook Calendar, ecc. Il client è la pagina web che permette di interfacciarsi in maniera facile ed intuitiva con la logica del servizio.
 
 Il server è realizzato con [Node.js](https://nodejs.dev/en/), utilizzando la libreria [Express](https://expressjs.com/it/). Il database relazionale è basato su [Sqlite3](https://www.npmjs.com/package/sqlite3).
 Il client è in html e javascript ed utilizza [Bootstrap](https://getbootstrap.com) per i fogli di stile.
