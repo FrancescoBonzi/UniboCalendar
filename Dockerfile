@@ -12,6 +12,6 @@ COPY package.json .
 COPY package-lock.json .
 RUN npm ci
 
-COPY . .
+COPY src/ .
 
 CMD ["index.js"]
