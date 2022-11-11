@@ -20,7 +20,7 @@ npm start
 
 ```
 docker pull ghcr.io/francescobonzi/unibocalendar:latest
-docker run -p 3002:3000 -v $(pwd)/logs:/app/logs francescobonzi/unibocalendar:latest
+docker run -p 3002:3000 -v $(pwd)/src/logs:/app/logs francescobonzi/unibocalendar:latest
 ```
 
 ## Specifiche tecniche
