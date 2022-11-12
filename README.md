@@ -21,6 +21,7 @@ npm start
 ```
 docker pull ghcr.io/francescobonzi/unibocalendar:latest
 docker run -p 3002:3000 -v $(pwd)/src/logs:/app/logs ghcr.io/francescobonzi/unibocalendar:latest
+# surf to localhost:3002
 ```
 
 ## Specifiche tecniche
