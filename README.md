@@ -13,7 +13,7 @@ online qui: https://unibocalendar.it
 ```
 git clone https://github.com/FrancescoBonzi/UniboCalendar
 cd UniboCalendar
-npm i
+npm install
 npm start
 # surf to localhost:3002
 ```
