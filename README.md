@@ -6,14 +6,16 @@ online qui: https://unibocalendar.it
 
 ![unibocalendar_screenshots](https://user-images.githubusercontent.com/35273715/188617075-59af9148-33d6-425b-a1e9-21d81ba64d87.png)
 
-## Attivazione del servizio
+## Attivazione
 
 #### npm
 
 ```
 git clone https://github.com/FrancescoBonzi/UniboCalendar
 cd UniboCalendar
+npm i
 npm start
+# surf to localhost:3002
 ```
 
 #### docker
