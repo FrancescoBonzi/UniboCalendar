@@ -1,5 +1,5 @@
-import "sqlite3";
-import { generateId } from "./model";
+import sqlite3 from "sqlite3";
+import { generateId } from "./model.js";
 
 var db = new sqlite3.Database("./logs/data.db");
 
