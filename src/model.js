@@ -267,7 +267,7 @@ export async function getICalendarEvents(id, ua, alert) {
                 const start = new Date(l.start);
                 const end = new Date(l.end);
                 var location = "Solo ONLINE";
-                if (l.aule.length > 0) {
+                if (l.aule && Array.isArray(l.aule) && l.aule.length > 0) {
                     location = l.aule[0].des_risorsa + ", " + l.aule[0].des_indirizzo;
                 }
                 var url = "Non è disponibile una aula virtuale";

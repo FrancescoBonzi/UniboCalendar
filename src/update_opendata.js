@@ -12,7 +12,12 @@ async function checkIfOpendataFileIsUpToDate() {
         return null;
     });
 
-    var $ = cheerio.load(html);
+    try {
+        var $ = cheerio.load(html);
+    } catch(err) {
+        console.log(err);
+        return null;
+    }
     const relative_path = $("#dataset-resources ul li a").filter(".heading").first().attr("href");
     let latest_version = relative_path.split("/")[relative_path.split("/").length - 1];
     // Check if the file exists in the current directory.
@@ -57,15 +62,19 @@ async function downloadUpToDateOpendataFile(latest_version) {
 
 export async function checkForOpendataUpdates() {
     let response = await checkIfOpendataFileIsUpToDate();
-    let latest_version = response[0];
-    let up_to_date = response[1];
-    if (!up_to_date) {
-        let downloaded_and_saved = await downloadUpToDateOpendataFile(latest_version);
-        if (!downloaded_and_saved) {
-            console.log("Error in downloading and saving of opendata file in opendata folder.");
-            return;
-        } else {
-            console.log("New opendata saved in " + DATA_FILE + ".");
+    if (response == null) {
+        console.log("Opendata are not available! We consider they are up to date.");
+    } else {
+        let latest_version = response[0];
+        let up_to_date = response[1];
+        if (!up_to_date) {
+            let downloaded_and_saved = await downloadUpToDateOpendataFile(latest_version);
+            if (!downloaded_and_saved) {
+                console.log("Error in downloading and saving of opendata file in opendata folder.");
+                return;
+            } else {
+                console.log("New opendata saved in " + DATA_FILE + ".");
+            }
         }
     }
 }
