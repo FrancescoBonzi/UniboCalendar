@@ -61,6 +61,7 @@ async function downloadUpToDateOpendataFile(latest_version) {
 }
 
 export async function checkForOpendataUpdates() {
+    return;
     let response = await checkIfOpendataFileIsUpToDate();
     if (response == null) {
         console.log("Opendata are not available! We consider they are up to date.");
