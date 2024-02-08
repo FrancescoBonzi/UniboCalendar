@@ -1,43 +1,29 @@
 let dict = {};
 let timeout;
-let already_send_curricula_req = false;
-let already_send_courses_req = false;
+let alreadySendCurriculaReq = false;
+let alreadySendCoursesReq = false;
 
 function checkFormValidity() {
     var areas = document.getElementById('areas');
-    var areas_checked = areas.options[areas.selectedIndex].value;
+    var areasChecked = areas.options[areas.selectedIndex].value;
 
     var courses = document.getElementById('courses');
-    var courses_checked = courses.options[courses.selectedIndex].value;
+    var coursesChecked = courses.options[courses.selectedIndex].value;
 
     var years = document.getElementById('years');
-    var years_checked = years.options[years.selectedIndex].value;
+    var yearsChecked = years.options[years.selectedIndex].value;
 
     var curricula = document.getElementById('curricula');
-    var curricula_checked = curricula.options[curricula.selectedIndex].value;
+    var curriculaChecked = curricula.options[curricula.selectedIndex].value;
 
-    if (areas_checked != '' && courses_checked != '' && years_checked != '' && curricula_checked != '' && curricula_checked != 'undefined') {
-        document.getElementById('submit-form-button').disabled = false;
-    } else {
-        document.getElementById('submit-form-button').disabled = true;
-    }
+    var submitButton = document.getElementById('submit-form-button');
+    submitButton.disabled = !(areasChecked !== '' && coursesChecked !== '' && yearsChecked !== '' && curriculaChecked !== '' && curriculaChecked !== 'undefined');
 }
 
 function ajaxCallback(xhr, callback) {
-    //check state
-    if (xhr.readyState === 2) {
-        // theElement.innerHTML = "send request...";
-    }
-    else if (xhr.readyState === 3) {
-        // theElement.innerHTML = "receiving response...";
-    }
-    else if (xhr.readyState === 4) {
-        //check server response
-        if (xhr.status === 200) {
-            //success
-            if (xhr.responseText) {
-                callback(xhr.responseText);
-            }
+    if (xhr.readyState === 4 && xhr.status === 200) {
+        if (xhr.responseText) {
+            callback(xhr.responseText);
         }
     }
 }
@@ -61,8 +47,7 @@ function ajaxPostRequest(xhr, uri, params, callback) {
 }
 
 function getCoursesGivenArea() {
-
-    if(already_send_courses_req || already_send_curricula_req) {
+    if (alreadySendCoursesReq || alreadySendCurriculaReq) {
         window.open('/', '_self');
         return;
     }
@@ -73,12 +58,8 @@ function getCoursesGivenArea() {
     document.getElementById('curricula').innerHTML = "";
 
     // Show loading gif
-    var height = getComputedStyle(document.getElementById('courses')).height;
-    var width = getComputedStyle(document.getElementById('years')).width; // I take the value of a field that never changes
-    var margin_left_loader = eval(height.split('px')[0] / 6);
-    var new_width = eval(width.split('px')[0] - height.split('px')[0] - margin_left_loader);
-    document.getElementById('courses').style = 'width: ' + new_width + 'px; float: left;';
-    document.getElementById('courses-loading').style = 'opacity: 1; margin-left: ' + margin_left_loader + 'px; left: ' + new_width + 'px;';
+    document.getElementById('courses').classList.add('custom-select-visible');
+    document.getElementById('courses-loading').classList.add('loading-image-visible');
 
     //sending request for Courses given an Area
     var xhr = new XMLHttpRequest();
@@ -114,16 +95,17 @@ function getCoursesGivenArea() {
         }
 
         // Hide loading gif
-        document.getElementById('courses').style = 'width: 100%;';
-        document.getElementById('courses-loading').style = 'opacity: 1';
+        document.getElementById('courses').classList.remove('custom-select-visible');
+        document.getElementById('courses-loading').classList.remove('loading-image-visible');
+        document.getElementById('courses').classList.add('custom-select-invisible');
+        document.getElementById('courses-loading').classList.add('loading-image-invisible');
 
-        already_send_courses_req = false;
+        alreadySendCoursesReq = false;
     });
 }
 
 function getYearsAndCurriculaGivenCourse() {
-
-    if(already_send_courses_req || already_send_curricula_req) {
+    if (alreadySendCoursesReq || alreadySendCurriculaReq) {
         window.open('/', '_self');
         return;
     }
@@ -165,12 +147,8 @@ function getYearsAndCurriculaGivenCourse() {
     }
 
     // Show loading gif
-    var height = getComputedStyle(document.getElementById('curricula')).height;
-    var width = getComputedStyle(document.getElementById('years')).width;  // I take the value of a field that never changes
-    var margin_left_loader = eval(height.split('px')[0] / 6);
-    var new_width = eval(width.split('px')[0] - height.split('px')[0] - margin_left_loader);
-    document.getElementById('curricula').style = 'width: ' + new_width + 'px; float: left;';
-    document.getElementById('curricula-loading').style = 'opacity: 1; margin-left: ' + margin_left_loader + 'px; left: ' + new_width + 'px;';
+    document.getElementById('curricula').classList.add('custom-select-visible');
+    document.getElementById('curricula-loading').classList.add('loading-image-visible');
 
     // Start Timeout for Low Internet Connection
     timeout = setTimeout(function () {
@@ -221,12 +199,14 @@ function getYearsAndCurriculaGivenCourse() {
 
         // Stop Timeout and Hide message
         clearTimeout(timeout);
-        document.getElementById('low-connection').style = 'opacity: 0;';
+        document.getElementById('low-connection').style.opacity = 0;
 
         // Hide loading gif
-        document.getElementById('curricula').style = 'width: 100%;';
-        document.getElementById('curricula-loading').style = 'opacity: 0;';
+        document.getElementById('curricula').classList.remove('custom-select-visible');
+        document.getElementById('curricula-loading').classList.remove('loading-image-visible');
+        document.getElementById('curricula').classList.add('custom-select-invisible');
+        document.getElementById('curricula-loading').classList.add('loading-image-invisible');
 
-        already_send_curricula_req = false;
+        alreadySendCurriculaReq = false;
     });
 }

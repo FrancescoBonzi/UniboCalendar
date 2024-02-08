@@ -6,6 +6,7 @@ img {
 div.cal-link > p {
     font-weight: bold;
 }
+
 main {
     min-height: calc(100vh - 2em);
     padding: 2em 0;

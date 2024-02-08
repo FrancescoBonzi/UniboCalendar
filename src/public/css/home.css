@@ -1,50 +1,33 @@
-#url-label {
-    padding-right: 1%;
-}
-
-#year-label {
-    padding-right: 1%;
-}
-
-.row {
-    margin-bottom: 1%;
-}
-
-.btn {
-    margin-top: 1%;
-}
-
-input[type="text"] {
-    border-radius: 4px;
-    border: 1px solid lightgray;
-    text-indent: 5px;
-}
-
-#courses {
-    transition: width 0.3s;
-    transition-delay: 1s;
-}
-
-#courses-loading {
+#low-connection {
+    color: red;
     display: none;
 }
 
-#curricula {
-    transition: width 0.3s;
+#courses-container {
+    display: flex;
+    align-items: center; /* Regola l'allineamento verticale se necessario */
+}
+  
+#curricula-container {
+    display: flex;
+    align-items: center; /* Regola l'allineamento verticale se necessario */
+}
+  
+.custom-select-invisible {
+    width: 100%;
 }
 
-#curricula-loading {
-    opacity: 0;
-    transition: left 0.3s;
-    position: absolute;
-    top: 0;
-    left: 100%;
-    height: 100%;
-    width: auto;
+.loading-image-invisible {
+    display: none;
 }
 
-#low-connection {
-    opacity: 0;
-    color: #dc3545;
-    transition: opacity 1s;
+.custom-select-visible {
+    width: calc(100% - 40px);
 }
+
+.loading-image-visible {
+    display: inline-block; /* Rendi visibile l'immagine di caricamento e rendilo inline-block */
+    margin-left: 8px; /* Personalizza il margine a sinistra se necessario */
+    height: 30px;
+}
+

@@ -1,36 +1,36 @@
 <div class="container" id="main-container">
-  <div class="header">
+  <div class="mt-5">
     <h1>Unibo Calendar</h1>
-    <h5>Vuoi inserire i tuoi appuntamenti universitari nel tuo calendario (iCloud, Google, ecc)?<br>Riempi i campi qui sotto per cominciare</h5>
+    <h6>Vuoi inserire i tuoi appuntamenti universitari nel tuo calendario (iCloud, Google, ecc)?<br>Riempi i campi qui sotto per cominciare</h6>
   </div>
-  <div class="container" id="body">
+  <div class="mt-3" id="box">
     <form id="form_calendar" class="form-group" action="/course" method="post" onchange="checkFormValidity();">
-      <div class="row">
-        <select id="areas" class="form-control" name="areas" onchange="getCoursesGivenArea();">
+      <div class="mb-3">
+        <select id="areas" class="form-select" name="areas" onchange="getCoursesGivenArea();">
           <option value="">--- Seleziona Scuola ---</option>
           {{#each areas}}
           <option value="{{this}}">{{this}}</option>
           {{/each}}
         </select>
       </div>
-      <div class="row">
-        <select id="courses" class="form-control" name="courses" onchange="getYearsAndCurriculaGivenCourse();">
+      <div id="courses-container" class="mb-3">
+        <select id="courses" class="form-select" name="courses" onchange="getYearsAndCurriculaGivenCourse();">
         </select>
-        <img id="courses-loading" src="../../loader.gif" alt="Stiamo scaricando i corsi..."/>
+        <img id="courses-loading" src="../../loader.gif" alt="Stiamo scaricando i corsi..." class="loading-image-invisible"/>
       </div>
-      <div class="row">
-        <select id="years" class="form-control" name="years">
+      <div class="mb-3">
+        <select id="years" class="form-select" name="years">
         </select>
       </div>
-      <div class="row" style="position: relative;">
-        <select id="curricula" class="form-control" name="curricula">
+      <div id="curricula-container" class="mb-3">
+        <select id="curricula" class="form-select" name="curricula">
         </select>
-        <img id="curricula-loading" src="../../loader.gif" alt="Stiamo scaricando i curricula..."/>
+        <img id="curricula-loading" src="../../loader.gif" alt="Stiamo scaricando i curricula..." class="loading-image-invisible"/>
       </div>
-      <div class="row">
-        <input type="submit" id="submit-form-button" class="btn btn-primary" value="Avanti" disabled>
+      <div>
+        <input type="submit" id="submit-form-button" class="btn btn-primary d-inline" value="Avanti" disabled>
       </div>
+      <div id="low-connection">Connessione debole...</div>
     </form>
   </div>
-  <div id="low-connection">Connessione debole...</div>
 </div>

@@ -1,6 +1,11 @@
-<div class="container">
-    <main class="d-flex flex-column justify-content-center">
-        <section>
+<div class="container" id="main-container">
+        <div class="mt-5">
+            <h1>Unibo Calendar</h1>
+            <h6>Clicca sul calendario che vuoi utilizzare e in un attimo hai finito</h6>
+        </div>
+        <!--
+        <main class="d-flex flex-column justify-content-center mt-3">
+        <section id="box">
             <div class="jumbotron">
                 <h1>Vuoi configurare le notifiche?</h1>
                 <p class="lead">Cliccando il pulsante sotto puoi abilitare le notifiche per il tuo calendario.</p>
@@ -22,7 +27,9 @@
                 </div>
             </div>
         </section>
-        <section class="d-flex flex-row justify-content-around" id="links">
+        </main>
+        -->
+        <section class="d-flex flex-row justify-content-around mt-3" id="box">
             <div class="cal-link">
                 <p>Aggiungi a Google</p>
                 <a href="https://calendar.google.com/calendar/u/0/r?cid={{{url}}}" target="_blank"><img
@@ -33,5 +40,4 @@
                 <a href="{{{url}}}" target="_blank"><img src="media/apple.png" class="d-block m-auto"></img></a>
             </div>
         </section>
-    </main>
 </div>
