@@ -9,14 +9,14 @@ const VERSION_FILE = "./opendata/version.json";
 async function checkIfOpendataFileIsUpToDate() {
     let html = await fetch(ROOT_UNIBO).then(x => x.text()).catch(function (err) {
         console.log(err);
-        return null;
+        throw err;
     });
 
     try {
         var $ = cheerio.load(html);
     } catch(err) {
         console.log(err);
-        return null;
+        throw err;
     }
     const relative_path = $("#dataset-resources ul li a").filter(".heading").first().attr("href");
     let latest_version = relative_path.split("/")[relative_path.split("/").length - 1];
@@ -25,13 +25,10 @@ async function checkIfOpendataFileIsUpToDate() {
     if (!await fs.stat(VERSION_FILE).then((_) => true).catch((_) => false)) {
         return [latest_version, up_to_date];
     }
-    let json = await fs.readFile(VERSION_FILE).catch((_) => false);
-    let err = json === false;
-    if (!err) {
-        let version = JSON.parse(json);
-        if (version.name == latest_version) {
-            up_to_date = true;
-        }
+    let json = await fs.readFile(VERSION_FILE)
+    let version = JSON.parse(json);
+    if (version.name == latest_version) {
+        up_to_date = true;
     }
     return [latest_version, up_to_date];
 }
@@ -42,41 +39,37 @@ async function downloadUpToDateOpendataFile(latest_version) {
     let csv = await fetch(path_to_download_csv).then(x => x.text()).catch(function (err) {
         console.log(err);
         console.log("Failed to download " + latest_version + " from: " + path);
-        return false;
+        throw err;
     });
-    if (csv === false) {
-        console.log("Corrupted csv");
-        return false;
-    }
     //Saving file in opendata folder
     let res = await fs.writeFile(DATA_FILE, csv).catch((err) => {
         console.log(err);
-        return false;
+        throw err;
     }).then((_) => true);
-    if (!res) { return false; }
     let json = JSON.stringify({ "name": latest_version + ".csv" });
     return await fs.writeFile(VERSION_FILE, json)
-        .catch((_) => false)
         .then((x) => true);
 }
 
 export async function checkForOpendataUpdates() {
-    console.log("Skipping OpenData update due to HTTP 500 error");
-    return;
-    let response = await checkIfOpendataFileIsUpToDate();
-    if (response == null) {
-        console.log("Opendata are not available! We consider they are up to date.");
-    } else {
-        let latest_version = response[0];
-        let up_to_date = response[1];
-        if (!up_to_date) {
-            let downloaded_and_saved = await downloadUpToDateOpendataFile(latest_version);
-            if (!downloaded_and_saved) {
-                console.log("Error in downloading and saving of opendata file in opendata folder.");
-                return;
-            } else {
-                console.log("New opendata saved in " + DATA_FILE + ".");
+    try {
+        let response = await checkIfOpendataFileIsUpToDate();
+        if (response == null) {
+            console.log("Opendata are not available! We consider they are up to date.");
+        } else {
+            let latest_version = response[0];
+            let up_to_date = response[1];
+            if (!up_to_date) {
+                let downloaded_and_saved = await downloadUpToDateOpendataFile(latest_version);
+                if (!downloaded_and_saved) {
+                    console.log("Error in downloading and saving of opendata file in opendata folder.");
+                    return;
+                } else {
+                    console.log("New opendata saved in " + DATA_FILE + ".");
+                }
             }
         }
+    } catch(e) {
+        console.log("Skipping OpenData update due to " + e);
     }
 }

@@ -9,29 +9,27 @@ div h1 a:hover {
 }
 
 #box {
-    background-color: #ffffff; /* Imposta il colore di sfondo del form a bianco */
-    padding: 20px; /* Aggiunge uno spazio di riempimento al form */
-    border-radius: 10px; /* Aggiunge un bordo arrotondato al form se desiderato */
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1); /* Aggiunge una leggera ombra per evidenziare il form */
+    /*background-color: #ffffff;*/
+    padding: 20px;
+    border-radius: 10px;
 }
 
-/*
-
-@media (max-aspect-ratio: 1/1) {
-    .header h5::after {
-        content: "\A Faresti molto prima con il computer...";
-        white-space: pre;
-        color: #dc3545;
-        font-size: initial;
-        font-weight: initial;
-        animation: blinker 2s linear infinite;
+@media (prefers-color-scheme: dark) {
+    #box {
+        background-color: #212529;
+        box-shadow: 0 0 5px rgba(255, 255, 255, 0.1);
+    }
+    body {
+        background-color: #111;
     }
 }
 
-@keyframes blinker {
-    50% {
-      opacity: 0;
+@media (prefers-color-scheme: light) {
+    #box {
+        background-color: #fff;
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
     }
-  }
-
-*/
+    body {
+        background-color: #f8f9fa;
+    }
+}
