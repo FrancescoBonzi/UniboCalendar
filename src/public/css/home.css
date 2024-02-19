@@ -26,8 +26,9 @@
 }
 
 .loading-image-visible {
-    display: inline-block; /* Rendi visibile l'immagine di caricamento e rendilo inline-block */
-    margin-left: 8px; /* Personalizza il margine a sinistra se necessario */
+    display: block;
+    width: 30px;
     height: 30px;
+    margin-left: 10px;
 }
 

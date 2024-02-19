@@ -16,7 +16,7 @@
       <div id="courses-container" class="mb-3">
         <select id="courses" class="form-select" name="courses" onchange="getYearsAndCurriculaGivenCourse();">
         </select>
-        <img id="courses-loading" src="../../loader.gif" alt="Stiamo scaricando i corsi..." class="loading-image-invisible"/>
+        <div class="spinner-border loading-image-invisible" id="courses-loading" role="status"></div>
       </div>
       <div class="mb-3">
         <select id="years" class="form-select" name="years">
@@ -25,7 +25,7 @@
       <div id="curricula-container" class="mb-3">
         <select id="curricula" class="form-select" name="curricula">
         </select>
-        <img id="curricula-loading" src="../../loader.gif" alt="Stiamo scaricando i curricula..." class="loading-image-invisible"/>
+        <div class="spinner-border loading-image-invisible" id="curricula-loading" role="status"></div>
       </div>
       <div>
         <input type="submit" id="submit-form-button" class="btn btn-primary d-inline" value="Avanti" disabled>
