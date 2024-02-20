@@ -60,5 +60,5 @@ db.close()
 
 //start server
 app.listen(app.get("port"), app.get("bind-addr"), () => {
-    console.log(`UniboClendar started on http://${app.get("bind-addr")}:${app.get("port")}`);
+    console.log(`BeeCal started on http://${app.get("bind-addr")}:${app.get("port")}`);
 });

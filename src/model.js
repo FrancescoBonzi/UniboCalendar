@@ -240,7 +240,7 @@ export async function getICalendarEvents(id, ua, alert) {
             const start = new Date();
             const day = 864e5;
             const end = new Date(+start + day / 24);
-            const ask_for_update_event = new UniboEventClass("Aggiorna UniboCalendar!", start, end, "unknown", "https://unibocalendar.it", "");
+            const ask_for_update_event = new UniboEventClass("Aggiorna BeeCal!", start, end, "unknown", "https://unibocalendar.it", "");
             var factory = new iCalendar(alert);
             return factory.ical([ask_for_update_event]);
         } else {
