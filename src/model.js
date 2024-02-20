@@ -298,7 +298,7 @@ export async function getICalendarEvents(id, ua, alert) {
                     if (l.aule && Array.isArray(l.aule) && l.aule.length > 0) {
                         location = l.aule[0].des_risorsa + ", " + l.aule[0].des_indirizzo;
                     }
-                    var url = "Non è disponibile una aula virtuale";
+                    var url = null;
                     if (!(l.teams === undefined) && !(l.teams === null)) {
                         url = encodeURI(l.teams);
                     }
