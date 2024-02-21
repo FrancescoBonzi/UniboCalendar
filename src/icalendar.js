@@ -68,7 +68,9 @@ export class iCalendar {
         event = event + "SEQUENCE:0\r\n";
         event = event + "DTSTART:" + this.dt(e.start) + "\r\n";
         event = event + "SUMMARY:" + this.wrapLine(e.title, 8);
-        event = event + "\r\nURL:" + this.wrapLine(e.url, 5, false).replace("\\:", ":");
+        if(url !== null) {
+            event = event + "\r\nURL:" + this.wrapLine(e.url, 5, false).replace("\\:", ":");
+        }
         event = event + "\r\nLOCATION:" + this.wrapLine(e.location, 11);
         event = event + "\r\nDTEND:" + this.dt(e.end);
         if (this.secsAlarm !== null) {
