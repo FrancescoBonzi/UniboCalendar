@@ -21,7 +21,7 @@ function error500(err, req, res, next) {
 }
 
 async function home_page(req, res, next) {
-    let unis = await tecla.Tecla("http://127.0.0.1:8080").getLearningInstitutions();
+    let unis = await tecla.Tecla.getLearningInstitutions();
     res.render("home", { "page": "home", "unis": unis });
 }
 
@@ -58,24 +58,38 @@ async function get_ical(req, res, next) {
 }
 
 async function get_areas_given_uni(req, res, next) {
-    var area = req.query.area;
-    let courses = await model.getCoursesGivenArea(area);
+    var uni = req.query.uni;
     res.type("application/json");
-    res.send(courses);
+    try {
+        let areas = await tecla.Tecla.getUniversityById(uni).getAreas();
+        res.send(areas);
+    } catch (_) {
+        res.send([]);
+    }
 }
 
 async function get_courses_given_area(req, res, next) {
     var area = req.query.area;
-    let courses = await model.getCoursesGivenArea(area);
+    var uni = req.query.uni;
     res.type("application/json");
-    res.send(courses);
+    try {
+        let courses = await tecla.Tecla.getUniversityById(uni).getCoursesWithArea(area);
+        res.send(courses);
+    } catch (_) {
+        res.send([]);
+    }
 }
 
 async function get_curricula_given_course(req, res, next) {
-    var url = req.body.url;
-    let curricula = await model.getCurriculaGivenCourseUrl(url);
-    res.type("application/json");
-    res.send(JSON.stringify(curricula));
+    var course = req.body.course;
+    var uni = req.body.uni;
+    try {
+        let curricula = await tecla.Tecla.getUniversityById(uni).getCurriculaForCourse(course);
+        res.send(curricula);
+    } catch (e) {
+        console.error(e);
+        res.send([]);
+    }
 }
 
 export const router = (() => {

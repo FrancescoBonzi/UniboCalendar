@@ -3,16 +3,12 @@
     display: none;
 }
 
-#courses-container {
+.spinner-container {
     display: flex;
-    align-items: center; /* Regola l'allineamento verticale se necessario */
+    align-items: center;
+    /* Regola l'allineamento verticale se necessario */
 }
-  
-#curricula-container {
-    display: flex;
-    align-items: center; /* Regola l'allineamento verticale se necessario */
-}
-  
+
 .custom-select-invisible {
     width: 100%;
 }
@@ -31,4 +27,3 @@
     height: 30px;
     margin-left: 10px;
 }
-

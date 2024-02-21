@@ -1,11 +1,10 @@
 import fetch from "node-fetch";
 
 
-export class Tecla {
-    constructor(baseUrl) {
-        this.baseUrl = baseUrl
-    }
-    async getLearningInstitutions() {
+export let Tecla = {
+
+    baseUrl: process.env.TECLA_URL,
+    getLearningInstitutions: async function () {
         let unis = await fetch(this.baseUrl + "/unis").then(r => r.json());
         let baseUrl = this.baseUrl;
         return unis.map(function (el) {
@@ -16,6 +15,15 @@ export class Tecla {
                 el.id
             );
         });
+    },
+    getUniversityById: function (id) {
+        let baseUrl = this.baseUrl;
+        return new TeclaUniversity(
+            "",
+            "",
+            baseUrl + "/unis/" + id,
+            id
+        );
     }
 }
 

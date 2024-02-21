@@ -5,16 +5,16 @@ let alreadySendCoursesReq = false;
 
 function checkFormValidity() {
     var areas = document.getElementById('areas');
-    var areasChecked = areas.options[areas.selectedIndex].value;
+    var areasChecked = areas.value;
 
     var courses = document.getElementById('courses');
-    var coursesChecked = courses.options[courses.selectedIndex].value;
+    var coursesChecked = courses.value;
 
     var years = document.getElementById('years');
-    var yearsChecked = years.options[years.selectedIndex].value;
+    var yearsChecked = years.value;
 
     var curricula = document.getElementById('curricula');
-    var curriculaChecked = curricula.options[curricula.selectedIndex].value;
+    var curriculaChecked = curricula.value;
 
     var submitButton = document.getElementById('submit-form-button');
     submitButton.disabled = !(areasChecked !== '' && coursesChecked !== '' && yearsChecked !== '' && curriculaChecked !== '' && curriculaChecked !== 'undefined');
@@ -59,8 +59,8 @@ function getAreasGivenUni() {
     document.getElementById('curricula').innerHTML = "";
 
     // Show loading gif
-    document.getElementById('courses').classList.add('custom-select-visible');
-    document.getElementById('courses-loading').classList.add('loading-image-visible');
+    document.getElementById('areas').classList.add('custom-select-visible');
+    document.getElementById('areas-loading').classList.add('loading-image-visible');
 
     //sending request for Areas given an Uni
     var xhr = new XMLHttpRequest();
@@ -81,25 +81,21 @@ function getAreasGivenUni() {
 
         // Setting Courses
         areas.sort((a, b) => {
-            return a.type === b.type ? (a.description > b.description ? 1 : -1) : (a.type > b.type ? 1 : -1);
+            return (a.name > b.name ? 1 : -1);
         })
-        for (i = 0; i < courses.length; i++) {
+        for (i = 0; i < areas.length; i++) {
             node = document.createElement("option");
-            text_node = document.createTextNode(courses[i].code + ' - ' + courses[i].description + ' - ' + courses[i].type);
+            text_node = document.createTextNode(areas[i].name);
             node.appendChild(text_node);
-            dict[courses[i].url] = {
-                "description": courses[i].description + ' - ' + courses[i].type,
-                "duration": courses[i].duration
-            }
-            node.setAttribute('value', courses[i].url);
-            document.getElementById('courses').appendChild(node);
+            node.setAttribute('value', areas[i].id);
+            document.getElementById('areas').appendChild(node);
         }
 
         // Hide loading gif
-        document.getElementById('courses').classList.remove('custom-select-visible');
-        document.getElementById('courses-loading').classList.remove('loading-image-visible');
-        document.getElementById('courses').classList.add('custom-select-invisible');
-        document.getElementById('courses-loading').classList.add('loading-image-invisible');
+        document.getElementById('areas').classList.remove('custom-select-visible');
+        document.getElementById('areas-loading').classList.remove('loading-image-visible');
+        document.getElementById('areas').classList.add('custom-select-invisible');
+        document.getElementById('areas-loading').classList.add('loading-image-invisible');
 
         //alreadySendCoursesReq = false;
     });
@@ -123,8 +119,9 @@ function getCoursesGivenArea() {
     //sending request for Courses given an Area
     var xhr = new XMLHttpRequest();
     var list = document.getElementById('areas');
-    var area = list.options[list.selectedIndex].value;
-    var uri = "/get_courses_given_area?area=" + area;
+    var area = list.value;
+    var uni = document.getElementById('unis').value;
+    var uri = "/get_courses_given_area?area=" + area + "&uni=" + uni;
     already_send_courses_req = true;
     ajaxGetRequest(xhr, uri, function (json) {
         var courses = JSON.parse(json);
@@ -139,17 +136,18 @@ function getCoursesGivenArea() {
 
         // Setting Courses
         courses.sort((a, b) => {
-            return a.type === b.type ? (a.description > b.description ? 1 : -1) : (a.type > b.type ? 1 : -1);
+            return a.name > b.name ? 1 : -1;
         })
         for (i = 0; i < courses.length; i++) {
             node = document.createElement("option");
-            text_node = document.createTextNode(courses[i].code + ' - ' + courses[i].description + ' - ' + courses[i].type);
+            let id_pieces = courses[i].id.split('.');
+            text_node = document.createTextNode(id_pieces[id_pieces.length - 1] + ' - ' + courses[i].name);
             node.appendChild(text_node);
-            dict[courses[i].url] = {
-                "description": courses[i].description + ' - ' + courses[i].type,
-                "duration": courses[i].duration
+            dict[courses[i].id] = {
+                "description": courses[i].name,
+                "duration": courses[i].duration_in_years
             }
-            node.setAttribute('value', courses[i].url);
+            node.setAttribute('value', courses[i].id);
             document.getElementById('courses').appendChild(node);
         }
 
@@ -173,7 +171,7 @@ function getYearsAndCurriculaGivenCourse() {
 
     // Setting Duration
     var list = document.getElementById('courses');
-    var url = list.options[list.selectedIndex].value;
+    var url = list.value;
     var duration = dict[url]["duration"];
 
     // Cleaning Years and Curricula
@@ -226,7 +224,7 @@ function getYearsAndCurriculaGivenCourse() {
     // Sending request for Curricula
     var xhr = new XMLHttpRequest();
     var uri = "/get_curricula_given_course";
-    var params = { "url": url };
+    var params = { "course": url, "uni": document.getElementById("unis").value };
     already_send_curricula_req = true;
     ajaxPostRequest(xhr, uri, params, function (curricula) {
         curricula = JSON.parse(curricula);
@@ -240,15 +238,15 @@ function getYearsAndCurriculaGivenCourse() {
         } else {
             for (i = 0; i < curricula.length; i++) {
                 node = document.createElement("option");
-                text_node = document.createTextNode(curricula[i].label);
+                text_node = document.createTextNode(curricula[i].name);
                 node.appendChild(text_node);
-                node.setAttribute('value', curricula[i].value);
+                node.setAttribute('value', curricula[i].id);
                 document.getElementById('curricula').appendChild(node);
             }
             if (curricula.length == 1) {
                 var list = document.getElementById('curricula');
                 list.options.selectedIndex = 1;
-                if (curricula[0].value === undefined) {
+                if (curricula[0].id === undefined) {
                     alert("Siamo spiacenti, ma Unibo non ha reso disponibile l'orario per questo corso di studi.\nNon è possibile continuare...");
                 } else {
                     checkFormValidity();
