@@ -1,5 +1,6 @@
 import { Router } from "express";
 import * as model from "./model.js";
+import * as tecla from "./tecla.js";
 
 function bonk(req, res, next) {
     res.writeHead(302, {
@@ -20,8 +21,8 @@ function error500(err, req, res, next) {
 }
 
 async function home_page(req, res, next) {
-    let areas = await model.getAreas();
-    res.render("home", { "page": "home", "areas": areas });
+    let unis = await tecla.Tecla("http://127.0.0.1:8080").getLearningInstitutions();
+    res.render("home", { "page": "home", "unis": unis });
 }
 
 async function course_page(req, res, next) {
@@ -56,6 +57,13 @@ async function get_ical(req, res, next) {
     res.send(unibo_cal);
 }
 
+async function get_areas_given_uni(req, res, next) {
+    var area = req.query.area;
+    let courses = await model.getCoursesGivenArea(area);
+    res.type("application/json");
+    res.send(courses);
+}
+
 async function get_courses_given_area(req, res, next) {
     var area = req.query.area;
     let courses = await model.getCoursesGivenArea(area);
@@ -76,6 +84,7 @@ export const router = (() => {
     r.post("/course", course_page);
     r.post("/get_calendar_url", get_calendar_url);
     r.get("/get_ical", get_ical);
+    r.get("/get_areas_given_uni", get_areas_given_uni);
     r.get("/get_courses_given_area", get_courses_given_area);
     r.post("/get_curricula_given_course", get_curricula_given_course);
     r.get("/bonk", bonk);

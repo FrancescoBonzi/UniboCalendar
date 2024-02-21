@@ -1,16 +1,22 @@
 <div class="container" id="main-container">
   <div class="mt-5">
     <h1>🐝 BeeCal</h1>
-    <h6>Vuoi inserire i tuoi appuntamenti universitari nel tuo calendario (iCloud, Google, ecc)?<br>Riempi i campi qui sotto per cominciare</h6>
+    <h6>Vuoi inserire i tuoi appuntamenti universitari nel tuo calendario (iCloud, Google, ecc)?<br>Riempi i campi qui
+      sotto per cominciare</h6>
   </div>
   <div class="mt-3" id="box">
     <form id="form_calendar" class="form-group" action="/course" method="post" onchange="checkFormValidity();">
       <div class="mb-3">
+        <select id="unis" class="form-select" name="areas" onchange="getAreasGivenUni();">
+          <option value="">--- Seleziona Scuola ---</option>
+          {{#each unis}}
+          <option value="{{this.id}}">{{this.name}}</option>
+          {{/each}}
+        </select>
+      </div>
+      <div class="mb-3">
         <select id="areas" class="form-select" name="areas" onchange="getCoursesGivenArea();">
           <option value="">--- Seleziona Scuola ---</option>
-          {{#each areas}}
-          <option value="{{this}}">{{this}}</option>
-          {{/each}}
         </select>
       </div>
       <div id="courses-container" class="mb-3">

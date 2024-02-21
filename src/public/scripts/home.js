@@ -46,6 +46,65 @@ function ajaxPostRequest(xhr, uri, params, callback) {
     xhr.send(json);
 }
 
+function getAreasGivenUni() {
+    if (alreadySendCoursesReq || alreadySendCurriculaReq) {
+        window.open('/', '_self');
+        return;
+    }
+
+    // Cleaning Courses, Years and Curricula
+    document.getElementById('areas').innerHTML = "";
+    document.getElementById('courses').innerHTML = "";
+    document.getElementById('years').innerHTML = "";
+    document.getElementById('curricula').innerHTML = "";
+
+    // Show loading gif
+    document.getElementById('courses').classList.add('custom-select-visible');
+    document.getElementById('courses-loading').classList.add('loading-image-visible');
+
+    //sending request for Areas given an Uni
+    var xhr = new XMLHttpRequest();
+    var list = document.getElementById('unis');
+    var uni = list.value;
+    var uri = "/get_areas_given_uni?uni=" + uni;
+    already_send_courses_req = true;
+    ajaxGetRequest(xhr, uri, function (json) {
+        var areas = JSON.parse(json);
+
+        // Adding Select Course
+        var node = document.createElement("option");
+        var text_node = document.createTextNode("--- Seleziona Area ---");
+        //node.disabled = true
+        node.appendChild(text_node);
+        node.setAttribute('value', '');
+        document.getElementById('areas').appendChild(node);
+
+        // Setting Courses
+        areas.sort((a, b) => {
+            return a.type === b.type ? (a.description > b.description ? 1 : -1) : (a.type > b.type ? 1 : -1);
+        })
+        for (i = 0; i < courses.length; i++) {
+            node = document.createElement("option");
+            text_node = document.createTextNode(courses[i].code + ' - ' + courses[i].description + ' - ' + courses[i].type);
+            node.appendChild(text_node);
+            dict[courses[i].url] = {
+                "description": courses[i].description + ' - ' + courses[i].type,
+                "duration": courses[i].duration
+            }
+            node.setAttribute('value', courses[i].url);
+            document.getElementById('courses').appendChild(node);
+        }
+
+        // Hide loading gif
+        document.getElementById('courses').classList.remove('custom-select-visible');
+        document.getElementById('courses-loading').classList.remove('loading-image-visible');
+        document.getElementById('courses').classList.add('custom-select-invisible');
+        document.getElementById('courses-loading').classList.add('loading-image-invisible');
+
+        //alreadySendCoursesReq = false;
+    });
+}
+
 function getCoursesGivenArea() {
     if (alreadySendCoursesReq || alreadySendCurriculaReq) {
         window.open('/', '_self');
