@@ -53,7 +53,7 @@ export class TeclaUniversity {
             qryStr = qryStr + "teachings=" + encodeURIComponent(teachings[i]) + "&";
         }
         qryStr = qryStr.slice(0, -1)
-        return await fetch(this.url + "/curricula/" + curriculumId + "/timetable/" + year.toString() + qryStr).then(r => r.json());
+        return await fetch(this.url + "/curricula/" + curriculumId + "/timetables/" + year.toString() + qryStr).then(r => r.json());
     }
 }
 

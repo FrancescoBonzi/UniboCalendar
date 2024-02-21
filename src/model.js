@@ -33,7 +33,7 @@ class UniboEventClass {
         this.end = end;
         this.location = location;
         this.url = url;
-        this.organizer = { name: docente, email: docente.toLowerCase().replace(/\s/g, ".") + "@unibo.it" };
+        this.organizer = docente;
     }
 }
 
@@ -250,48 +250,27 @@ export async function getICalendarEvents(id, ua, alert) {
                     })
                 );
                 let enrollments_info = await enrollment_promise;
-                let type = enrollments_info["type"];
+                let university = enrollments_info["type"];
                 let course = enrollments_info["course"];
                 let year = enrollments_info["year"];
                 let curriculum = enrollments_info["curriculum"];
-                var root = "https://corsi.unibo.it";
-                var link = [root, type, course, LANGUAGE[type], '@@orario_reale_json?anno=' + year].join("/");
 
-                if (curriculum !== undefined) {
-                    link += "&curricula=" + curriculum;
-                }
+                let tecla = Tecla.getUniversityById(university);
 
                 let query_lectures = "SELECT lecture_id FROM requested_lectures WHERE enrollment_id = ?";
                 let lectures = await new Promise((res, rej) => db.all(query_lectures, id, (e, lectures) => { res(lectures) }));
 
-                for (var i = 0; i < lectures.length; i++) {
-                    link += "&insegnamenti=" + lectures[i]["lecture_id"];
-                }
-
-                link += "&calendar_view=";
-
-                let json = await fetch(link).then(x => x.json()).catch(function (err) {
-                    console.error(err);
-                    return "An error occurred while creating the calendar.";
-                });
+                let timetable = await tecla.getTimetableWithTeaching(curriculum, lectures.map((x) => x["lecture_id"]), year)
 
                 let calendar = [];
-                for (var l of json) {
+                console.log(timetable);
+                for (var l of timetable) {
                     const start = new Date(l.start);
                     const end = new Date(l.end);
-                    var location = "Solo ONLINE";
-                    if (l.aule && Array.isArray(l.aule) && l.aule.length > 0) {
-                        location = l.aule[0].des_risorsa + ", " + l.aule[0].des_indirizzo;
-                    }
-                    var url = "Non è disponibile una aula virtuale";
-                    if (!(l.teams === undefined) && !(l.teams === null)) {
-                        url = encodeURI(l.teams);
-                    }
-                    var prof = "Non noto";
-                    if (!(l.docente === undefined) && !(l.docente === null)) {
-                        prof = l.docente;
-                    }
-                    const event = new UniboEventClass(l.title, start, end, location, url, prof);
+                    var location = l.venue;
+                    var url = l.online_class_url;
+                    var prof = l.teacher;
+                    const event = new UniboEventClass(l.teaching.name, start, end, location, url, prof);
                     calendar.push(event);
                 }
 
