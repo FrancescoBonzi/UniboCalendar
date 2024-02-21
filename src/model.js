@@ -268,7 +268,7 @@ export async function getICalendarEvents(id, ua, alert) {
                     const start = new Date(l.start);
                     const end = new Date(l.end);
                     var location = l.venue;
-                    var url = l.online_class_url;
+                    var url = l.online_class_url || null;
                     var prof = l.teacher;
                     const event = new UniboEventClass(l.teaching.name, start, end, location, url, prof);
                     calendar.push(event);
