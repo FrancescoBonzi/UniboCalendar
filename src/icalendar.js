@@ -44,7 +44,7 @@ export class iCalendar {
     }
 
     escape(t) {
-        return t.replace(/\\/g, "\\\\").replace(/;/g, "\\,").replace(/:/g, "\\:").replace(/,/g, "\\,").replace(/"/g, "\\'");
+        return t.replace(/\\/g, "\\\\").replace(/;/g, "\\,").replace(/:/g, "\\:").replace(/,/g, "\\,").replace(/"/g, "\\\"");
     }
 
     wrapLine(l, o, e) {
