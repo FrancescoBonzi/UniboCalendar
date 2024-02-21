@@ -217,7 +217,7 @@ export function generateUrl(type, course, year, curriculum, lectures) {
     //Creating URL to get the calendar
     const id = generateId()
     //unibocalendar.duckdns.org
-    var url = "webcal://localhost:3002/get_ical?id=" + id
+    var url = "webcal://unibocalendar.it/get_ical?id=" + id
 
     // Writing logs
     var params = [id, new Date().getTime(), type, course, year, curriculum];
