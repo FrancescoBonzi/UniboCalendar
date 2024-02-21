@@ -32,7 +32,11 @@ class UniboEventClass {
         this.end = end;
         this.location = location;
         this.url = url;
-        this.organizer = { name: docente, email: docente.toLowerCase().replace(/\s/g, ".") + "@unibo.it" };
+        if(docente !== null) {
+            this.organizer = { name: docente, email: docente.toLowerCase().replace(/\s/g, ".") + "@unibo.it" };
+        } else {
+            this.organizer = null
+        }
     }
 }
 
@@ -134,10 +138,11 @@ export function getCoursesGivenArea(area) {
 
 // Finding "SITO DEL CORSO" from https://www.unibo.it/it/didattica/corsi-di-studio/corso/[year]/[code]
 export async function getTimetableUrlGivenUniboUrl(unibo_url, callback) {
+    console.log(unibo_url);
     return await fetch(unibo_url).then(x => x.text())
         .then(function (html) {
             var $ = cheerio.load(html);
-            var timetable_url = $("#u-content-preforemost .globe span a").first().attr("href");
+            var timetable_url = $(".social-contact ul li ul li p a").first().attr("href");
             return timetable_url;
         })
         .catch(function (err) {
@@ -158,6 +163,7 @@ export async function getCurriculaGivenCourseUrl(unibo_url) {
     }
     var type = timetable_url.split("/")[3];
     var curricula_url = timetable_url + "/" + LANGUAGE[type] + "/@@available_curricula";
+    console.log(curricula_url);
     // ex. https://corsi.unibo.it/laurea/clei/orario-lezioni/@@available_curricula
     return await fetch(curricula_url).then(x => x.json())
         .catch(function (err) {
@@ -211,7 +217,7 @@ export function generateUrl(type, course, year, curriculum, lectures) {
     //Creating URL to get the calendar
     const id = generateId()
     //unibocalendar.duckdns.org
-    var url = "webcal://unibocalendar.it/get_ical?id=" + id
+    var url = "webcal://localhost:3002/get_ical?id=" + id
 
     // Writing logs
     var params = [id, new Date().getTime(), type, course, year, curriculum];
@@ -294,15 +300,15 @@ export async function getICalendarEvents(id, ua, alert) {
                 for (var l of json) {
                     const start = new Date(l.start);
                     const end = new Date(l.end);
-                    var location = "Solo ONLINE";
+                    var location = null;
                     if (l.aule && Array.isArray(l.aule) && l.aule.length > 0) {
                         location = l.aule[0].des_risorsa + ", " + l.aule[0].des_indirizzo;
                     }
-                    var url = "Non è disponibile una aula virtuale";
+                    var url = null;
                     if (!(l.teams === undefined) && !(l.teams === null)) {
                         url = encodeURI(l.teams);
                     }
-                    var prof = "Non noto";
+                    var prof = null;
                     if (!(l.docente === undefined) && !(l.docente === null)) {
                         prof = l.docente;
                     }
