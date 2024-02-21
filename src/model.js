@@ -191,7 +191,7 @@ export async function getTimetable(universityId, curriculum, year) {
         });
 };
 
-export function generateUrl(type, course, year, curriculum, lectures) {
+export function generateUrl(universityId, curriculum, year, lectures) {
 
     //Creating URL to get the calendar
     const id = generateId()
@@ -199,7 +199,7 @@ export function generateUrl(type, course, year, curriculum, lectures) {
     var url = "webcal://unibocalendar.it/get_ical?id=" + id
 
     // Writing logs
-    var params = [id, new Date().getTime(), type, course, year, curriculum];
+    var params = [id, new Date().getTime(), universityId, "course", year, curriculum];
     log_enrollment(params, lectures);
     return url;
 }
