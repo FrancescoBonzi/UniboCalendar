@@ -6,6 +6,7 @@ import { iCalendar } from "./icalendar.js";
 import sqlite3 from "sqlite3";
 import rb from "randombytes";
 import b32 from "base32.js";
+import { Tecla } from "./tecla.js";
 
 const LANGUAGE = {
     "magistralecu": "orario-lezioni",
@@ -166,38 +167,22 @@ export async function getCurriculaGivenCourseUrl(unibo_url) {
         });
 }
 
-export async function getTimetable(unibo_url, year, curriculum) {
-    let timetable_url = await getTimetableUrlGivenUniboUrl(unibo_url);
-    var type = timetable_url.split("/")[3];
-    var link = timetable_url + "/" + LANGUAGE[type] + "?anno=" + year + "&curricula=" + curriculum;
-    return fetch(link).then(x => x.text())
-        .then(function (html) {
-            var $ = cheerio.load(html);
-            var inputs = [];
-            $("#insegnamenti-popup ul li input").each(function (_index, element) {
-                inputs.push($(element).attr("value"));
-            });
-            var labels = [];
-            $("#insegnamenti-popup ul li label").each(function (_index, element) {
-                labels.push($(element).text());
-            });
+export async function getTimetable(universityId, curriculum, year) {
+    let university = Tecla.getUniversityById(universityId);
+    return university.getTeachingsForCurriculum(curriculum, year)
+        .then(function (teachings) {
+
             let lectures_form = '<button class="btn btn-secondary" id="select_or_deselect_all" onclick="return selectOrDeselectAll();">Deseleziona tutti</button>';
             lectures_form += '<div class="container">';
             lectures_form += '<form id="select_lectures" action="/get_calendar_url" method="post"><div class="row"><table>';
-            for (let i = 0; i < inputs.length; i++)
-                lectures_form += '<tr><th><input type="checkbox" class="checkbox" name="lectures" value="' + inputs[i] + '" id="' + inputs[i] + '" checked/></th><th><label for="' + inputs[i] + '">' + labels[i] + '</label></th></tr>';
-            lectures_form += '</table></div><input type="hidden" name="timetable_url" value="' + timetable_url + '"/>';
+            for (let i = 0; i < teachings.length; i++) {
+                lectures_form += '<tr><th><input type="checkbox" class="checkbox" name="lectures" value="' + teachings[i].id + '" id="' + teachings[i].id + '" checked/></th><th><label for="' + teachings[i].id + '">' + teachings[i].name + '</label></th></tr>';
+            }
+            lectures_form += '</table></div><input type="hidden" name="universityId" value="' + universityId + '"/>';
             lectures_form += '<input type="hidden" name="year" value="' + year + '"/>';
             lectures_form += '<input type="hidden" name="curriculum" value="' + curriculum + '"/>';
             lectures_form += '</div>';
             lectures_form += '<input type="submit" class="btn btn-primary" value="Ottieni Calendario"/></form>';
-            /*
-            fs.writeFile("./labels.html", labels, function (err) {
-                if (err)
-                    return console.log(err);
-                console.log("labels saved!");
-            });
-            */
             return lectures_form
         })
         .catch(function (err) {

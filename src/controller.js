@@ -26,10 +26,10 @@ async function home_page(req, res, next) {
 }
 
 async function course_page(req, res, next) {
-    const unibo_url = req.body.courses;
-    const year = req.body.years;
-    const curriculum = req.body.curricula;
-    let list = await model.getTimetable(unibo_url, year, curriculum);
+    const uni = req.body.uni;
+    const year = req.body.year;
+    const curriculum = req.body.curriculum;
+    let list = await model.getTimetable(uni, curriculum, year);
     res.render("course", { "page": "course", "list": list });
 }
 
