@@ -1,5 +1,5 @@
 # UniboCalendar
-Questo servizio gratuito consente a tutti gli studenti Unibo di aggiungere l'orario delle proprie lezioni, filtrando solo quelle di interesse, al proprio calendario. Oltre a fornire in modo facile e immediato tutte le informazioni disponibili sui corsi, mantiene la sincronizzazione attiva per rilevare cambiamenti nell'orario e aggiornarsi da solo.
+Servizio gratuito che consente a tutti gli studenti Unibo di aggiungere l'orario delle lezioni al proprio calendario, filtrando solo quelle di interesse. Oltre a fornire in modo facile e immediato tutte le informazioni disponibili sui corsi, mantiene la sincronizzazione attiva per rilevare cambiamenti nell'orario e aggiornarsi da solo.
 
 Questo sito è 
 online qui: https://unibocalendar.it
