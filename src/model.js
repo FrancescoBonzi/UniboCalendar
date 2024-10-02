@@ -324,6 +324,7 @@ export async function getICalendarEvents(id, ua, alert) {
                     const end = new Date(+start + day / 24);
                     const apologise = new UniboEventClass("Non ho trovato lezioni, riprova più tardi!", start, end, "unknown", "https://unibocalendar.it/get_ical?id=" + id, "");
                     calendar.push(apologise);
+                    console.error(`The calendar at ${link} was empty!`);
                 } else {
                     cache = true;
                 }
