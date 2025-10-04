@@ -409,9 +409,9 @@ export async function getTotalEnrollments() {
 }
 
 export async function getActiveEnrollments() {
-    let query = "SELECT enrollment_id, enrollments.course AS course, counter FROM (SELECT enrollment_id, count(*) AS counter FROM hits GROUP BY enrollment_id) INNER JOIN enrollments ON enrollment_id=enrollments.id WHERE counter > 1 ORDER BY counter DESC;"
+    let query = "SELECT COUNT(*) as count FROM (SELECT enrollment_id, count(*) AS counter FROM hits GROUP BY enrollment_id) INNER JOIN enrollments ON enrollment_id=enrollments.id WHERE counter > 1;"
     let results = await runQuery(query, []);
-    return results;
+    return results[0].count;
 }
 
 export async function getDeviceStats() {

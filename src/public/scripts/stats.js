@@ -18,35 +18,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (typeof Chart !== 'undefined') {
         console.log('Chart.js version:', Chart.version);
         
-        // Test if we can create a simple chart
-        setTimeout(() => {
-            const testCanvas = document.getElementById('requestsChart');
-            if (testCanvas) {
-                console.log('Test canvas found, trying to create test chart...');
-                try {
-                    const testCtx = testCanvas.getContext('2d');
-                    const testChart = new Chart(testCtx, {
-                        type: 'line',
-                        data: {
-                            labels: ['Test 1', 'Test 2', 'Test 3'],
-                            datasets: [{
-                                label: 'Test Data',
-                                data: [1, 2, 3],
-                                borderColor: 'rgb(255, 99, 132)',
-                                backgroundColor: 'rgba(255, 99, 132, 0.1)'
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false
-                        }
-                    });
-                    console.log('Test chart created successfully!');
-                } catch (error) {
-                    console.error('Test chart creation failed:', error);
-                }
-            }
-        }, 1000);
+        // Chart.js is available and working
     }
 
     // Check if user is already logged in
@@ -63,6 +35,10 @@ document.addEventListener('DOMContentLoaded', function() {
         e.preventDefault();
         
         const token = tokenInput.value.trim();
+        console.log('Raw token input value:', tokenInput.value);
+        console.log('Trimmed token:', token);
+        console.log('Token length:', token.length);
+        
         if (!token) {
             showError('Inserisci un token valido');
             return;
@@ -80,8 +56,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     async function validateToken(token) {
         console.log('Validating token:', token);
-        if (isLoading) return;
+        if (isLoading) {
+            console.log('Already validating, skipping...');
+            return;
+        }
         isLoading = true;
+        console.log('Starting token validation...');
         
         try {
             const response = await fetch(`/api/stats/summary?token=${encodeURIComponent(token)}`);
@@ -91,6 +71,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log('Token is valid, showing dashboard');
                 localStorage.setItem('statsToken', token);
                 showDashboard();
+                // Reset isLoading before calling loadStatsData
+                isLoading = false;
+                console.log('isLoading reset to false, calling loadStatsData...');
                 loadStatsData(token);
             } else {
                 console.log('Token is invalid, showing login form');
@@ -107,14 +90,17 @@ document.addEventListener('DOMContentLoaded', function() {
             showError('Errore di connessione. Riprova.');
         } finally {
             isLoading = false;
+            console.log('Token validation completed, isLoading reset to false');
         }
     }
 
     function showLoginForm() {
         loginForm.style.display = 'block';
         dashboard.style.display = 'none';
-        tokenInput.value = '';
-        loginError.style.display = 'none';
+        tokenInput.value = ''; // Clear token input
+        tokenInput.placeholder = 'Inserisci il token'; // Reset placeholder
+        loginError.style.display = 'none'; // Hide any previous errors
+        console.log('Login form shown, input cleared');
     }
 
     function showDashboard() {
@@ -128,11 +114,20 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     async function loadStatsData(token) {
-        if (isLoading) return;
+        console.log('loadStatsData called with token:', token);
+        console.log('isLoading:', isLoading);
+        
+        if (isLoading) {
+            console.log('Already loading, skipping...');
+            return;
+        }
         isLoading = true;
+        console.log('Starting to load stats data...');
         
         try {
+            console.log('Making API request to:', `/api/stats/summary?token=${encodeURIComponent(token)}`);
             const response = await fetch(`/api/stats/summary?token=${encodeURIComponent(token)}`);
+            console.log('API response status:', response.status);
             
             if (!response.ok) {
                 throw new Error('Failed to fetch stats data');
@@ -140,16 +135,64 @@ document.addEventListener('DOMContentLoaded', function() {
             
             const data = await response.json();
             console.log('Stats data loaded:', data);
+            console.log('Data keys:', Object.keys(data));
+            console.log('requestsDayByDay length:', data.requestsDayByDay ? data.requestsDayByDay.length : 'undefined');
+            console.log('enrollmentsDayByDay length:', data.enrollmentsDayByDay ? data.enrollmentsDayByDay.length : 'undefined');
+            console.log('activeUsersDayByDay length:', data.activeUsersDayByDay ? data.activeUsersDayByDay.length : 'undefined');
+            console.log('deviceData:', data.deviceData);
+            console.log('courseData:', data.courseData);
             
             // Update summary cards
             updateSummaryCards(data);
             
+            // Check Chart.js and canvas elements
+            console.log('Chart.js available:', typeof Chart !== 'undefined');
+            console.log('requestsChart canvas:', document.getElementById('requestsChart'));
+            console.log('enrollmentsChart canvas:', document.getElementById('enrollmentsChart'));
+            console.log('activeUsersChart canvas:', document.getElementById('activeUsersChart'));
+            console.log('devicesChart canvas:', document.getElementById('devicesChart'));
+            console.log('coursesChart canvas:', document.getElementById('coursesChart'));
+
             // Update charts
-            updateRequestsChart(data.requestsDayByDay);
-            updateEnrollmentsChart(data.enrollmentsDayByDay);
-            updateActiveUsersChart(data.activeUsersDayByDay);
-            updateDevicesChart(data.deviceData);
-            updateCoursesChart(data.courseData);
+            console.log('Updating requests chart...');
+            try {
+                updateRequestsChart(data.requestsDayByDay);
+                console.log('Requests chart updated successfully');
+            } catch (error) {
+                console.error('Error updating requests chart:', error);
+            }
+            
+            console.log('Updating enrollments chart...');
+            try {
+                updateEnrollmentsChart(data.enrollmentsDayByDay);
+                console.log('Enrollments chart updated successfully');
+            } catch (error) {
+                console.error('Error updating enrollments chart:', error);
+            }
+            
+            console.log('Updating active users chart...');
+            try {
+                updateActiveUsersChart(data.activeUsersDayByDay);
+                console.log('Active users chart updated successfully');
+            } catch (error) {
+                console.error('Error updating active users chart:', error);
+            }
+            
+            console.log('Updating devices chart...');
+            try {
+                updateDevicesChart(data.deviceData);
+                console.log('Devices chart updated successfully');
+            } catch (error) {
+                console.error('Error updating devices chart:', error);
+            }
+            
+            console.log('Updating courses chart...');
+            try {
+                updateCoursesChart(data.courseData);
+                console.log('Courses chart updated successfully');
+            } catch (error) {
+                console.error('Error updating courses chart:', error);
+            }
             
             // Update last updated time
             document.getElementById('lastUpdated').textContent = new Date().toLocaleString('it-IT');
@@ -186,7 +229,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const ctx = canvas.getContext('2d');
         
-        if (window.requestsChart) {
+        if (window.requestsChart && typeof window.requestsChart.destroy === 'function') {
             window.requestsChart.destroy();
         }
         
@@ -227,22 +270,30 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 }
             });
+            console.log('Requests chart created successfully!');
         } catch (error) {
             console.error('Error creating requests chart:', error);
         }
     }
 
     function updateEnrollmentsChart(data) {
-        const ctx = document.getElementById('enrollmentsChart').getContext('2d');
+        console.log('Creating enrollments chart with data:', data);
+        const canvas = document.getElementById('enrollmentsChart');
+        console.log('Enrollments canvas found:', canvas ? 'Yes' : 'No');
+        if (!canvas) {
+            console.error('Canvas element enrollmentsChart not found!');
+            return;
+        }
+        const ctx = canvas.getContext('2d');
         
-        if (window.enrollmentsChart) {
+        if (window.enrollmentsChart && typeof window.enrollmentsChart.destroy === 'function') {
             window.enrollmentsChart.destroy();
         }
         
         window.enrollmentsChart = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: data.map(item => new Date(item.x)),
+                labels: data.map(item => new Date(item.x).toLocaleDateString()),
                 datasets: [{
                     label: 'Iscrizioni',
                     data: data.map(item => item.y),
@@ -255,44 +306,9 @@ document.addEventListener('DOMContentLoaded', function() {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                interaction: {
-                    intersect: false,
-                    mode: 'index'
-                },
-                plugins: {
-                    tooltip: {
-                        enabled: true,
-                        mode: 'index',
-                        intersect: false,
-                        callbacks: {
-                            title: function(context) {
-                                return new Date(context[0].label).toLocaleDateString('it-IT');
-                            },
-                            label: function(context) {
-                                return `Iscrizioni: ${context.parsed.y}`;
-                            }
-                        }
-                    }
-                },
                 scales: {
-                    x: {
-                        type: 'time',
-                        time: {
-                            tooltipFormat: 'dd MMM yyyy',
-                            displayFormats: {
-                                day: 'dd MMM'
-                            }
-                        },
-                        title: {
-                            display: true,
-                            text: 'Data'
-                        }
-                    },
                     y: {
-                        title: {
-                            display: true,
-                            text: 'Numero Iscrizioni'
-                        }
+                        beginAtZero: true
                     }
                 }
             }
@@ -300,16 +316,23 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function updateActiveUsersChart(data) {
-        const ctx = document.getElementById('activeUsersChart').getContext('2d');
+        console.log('Creating active users chart with data:', data);
+        const canvas = document.getElementById('activeUsersChart');
+        console.log('Active users canvas found:', canvas ? 'Yes' : 'No');
+        if (!canvas) {
+            console.error('Canvas element activeUsersChart not found!');
+            return;
+        }
+        const ctx = canvas.getContext('2d');
         
-        if (window.activeUsersChart) {
+        if (window.activeUsersChart && typeof window.activeUsersChart.destroy === 'function') {
             window.activeUsersChart.destroy();
         }
         
         window.activeUsersChart = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: data.map(item => new Date(item.x)),
+                labels: data.map(item => new Date(item.x).toLocaleDateString()),
                 datasets: [{
                     label: 'Utenti Attivi',
                     data: data.map(item => item.y),
@@ -322,44 +345,9 @@ document.addEventListener('DOMContentLoaded', function() {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                interaction: {
-                    intersect: false,
-                    mode: 'index'
-                },
-                plugins: {
-                    tooltip: {
-                        enabled: true,
-                        mode: 'index',
-                        intersect: false,
-                        callbacks: {
-                            title: function(context) {
-                                return new Date(context[0].label).toLocaleDateString('it-IT');
-                            },
-                            label: function(context) {
-                                return `Utenti Attivi: ${context.parsed.y}`;
-                            }
-                        }
-                    }
-                },
                 scales: {
-                    x: {
-                        type: 'time',
-                        time: {
-                            tooltipFormat: 'dd MMM yyyy',
-                            displayFormats: {
-                                day: 'dd MMM'
-                            }
-                        },
-                        title: {
-                            display: true,
-                            text: 'Data'
-                        }
-                    },
                     y: {
-                        title: {
-                            display: true,
-                            text: 'Numero Utenti'
-                        }
+                        beginAtZero: true
                     }
                 }
             }
@@ -367,9 +355,16 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function updateDevicesChart(data) {
-        const ctx = document.getElementById('devicesChart').getContext('2d');
+        console.log('Creating devices chart with data:', data);
+        const canvas = document.getElementById('devicesChart');
+        console.log('Devices canvas found:', canvas ? 'Yes' : 'No');
+        if (!canvas) {
+            console.error('Canvas element devicesChart not found!');
+            return;
+        }
+        const ctx = canvas.getContext('2d');
         
-        if (window.devicesChart) {
+        if (window.devicesChart && typeof window.devicesChart.destroy === 'function') {
             window.devicesChart.destroy();
         }
         
@@ -428,9 +423,16 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function updateCoursesChart(data) {
-        const ctx = document.getElementById('coursesChart').getContext('2d');
+        console.log('Creating courses chart with data:', data);
+        const canvas = document.getElementById('coursesChart');
+        console.log('Courses canvas found:', canvas ? 'Yes' : 'No');
+        if (!canvas) {
+            console.error('Canvas element coursesChart not found!');
+            return;
+        }
+        const ctx = canvas.getContext('2d');
         
-        if (window.coursesChart) {
+        if (window.coursesChart && typeof window.coursesChart.destroy === 'function') {
             window.coursesChart.destroy();
         }
         
