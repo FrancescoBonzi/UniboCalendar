@@ -138,7 +138,7 @@ export function getCoursesGivenArea(area) {
 
 // Finding "SITO DEL CORSO" from https://www.unibo.it/it/didattica/corsi-di-studio/corso/[year]/[code]
 export async function getTimetableUrlGivenUniboUrl(unibo_url, callback) {
-    console.log(unibo_url);
+    // console.log(unibo_url);
     return await fetch(unibo_url).then(x => x.text())
         .then(function (html) {
             var $ = cheerio.load(html);
@@ -163,7 +163,7 @@ export async function getCurriculaGivenCourseUrl(unibo_url) {
     }
     var type = timetable_url.split("/")[3];
     var curricula_url = timetable_url + "/" + LANGUAGE[type] + "/@@available_curricula";
-    console.log(curricula_url);
+    // console.log(curricula_url);
     // ex. https://corsi.unibo.it/laurea/clei/orario-lezioni/@@available_curricula
     return await fetch(curricula_url).then(x => x.json())
         .catch(function (err) {
@@ -433,9 +433,7 @@ export async function getDeviceStats() {
             GROUP BY truncated_user_agent
             ORDER BY count DESC
         `;
-        let results = await runQuery(query, []);
-        console.log('Device stats query results:', results);
-        
+        let results = await runQuery(query, []);        
         let data = { x: [], y: [] };
         
         // Show only top 6 devices, group the rest as "Others"
@@ -455,7 +453,6 @@ export async function getDeviceStats() {
             data.y.push(othersCount);
         }
         
-        console.log('Processed device data:', data);
         return data;
     } catch (error) {
         console.error('Error in getDeviceStats:', error);

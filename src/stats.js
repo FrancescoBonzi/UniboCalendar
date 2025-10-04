@@ -88,9 +88,7 @@ export async function getDeviceStats() {
             GROUP BY truncated_user_agent
             ORDER BY count DESC
         `;
-        let results = await runQuery(query, []);
-        console.log('Device stats query results:', results);
-        
+        let results = await runQuery(query, []);        
         let data = { x: [], y: [] };
         
         // Show only top 6 devices, group the rest as "Others"
@@ -110,7 +108,6 @@ export async function getDeviceStats() {
             data.y.push(othersCount);
         }
         
-        console.log('Processed device data:', data);
         return data;
     } catch (error) {
         console.error('Error in getDeviceStats:', error);
