@@ -109,9 +109,14 @@ document.addEventListener('DOMContentLoaded', function() {
             if (canvas) {
                 const ctx = canvas.getContext('2d');
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-                ctx.fillStyle = '#f0f0f0';
+                
+                // Get colors that adapt to dark mode
+                const bgColor = getComputedStyle(document.body).getPropertyValue('--bs-body-bg') || '#ffffff';
+                const textColor = getComputedStyle(document.body).getPropertyValue('--bs-body-color') || '#212529';
+                
+                ctx.fillStyle = bgColor;
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.fillStyle = '#666';
+                ctx.fillStyle = textColor;
                 ctx.font = '16px Arial';
                 ctx.textAlign = 'center';
                 ctx.fillText('Caricamento...', canvas.width / 2, canvas.height / 2);
