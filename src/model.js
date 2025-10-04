@@ -217,12 +217,17 @@ export function generateUrl(type, course, year, curriculum, lectures) {
     //Creating URL to get the calendar
     const id = generateId()
     //unibocalendar.duckdns.org
-    var url = "webcal://unibocalendar.it/get_ical?id=" + id
+    var webcalUrl = "webcal://unibocalendar.it/get_ical?id=" + id
+    var googleUrl = "https://unibocalendar.it/get_ical/" + id + ".ics"
 
     // Writing logs
     var params = [id, new Date().getTime(), type, course, year, curriculum];
     log_enrollment(params, lectures);
-    return url;
+
+    return {
+        webcal: webcalUrl,
+        google: googleUrl
+    };
 }
 
 export function checkEnrollment(uuid_value) {

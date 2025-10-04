@@ -44,8 +44,8 @@ async function get_calendar_url(req, res, next) {
     } else if (typeof lectures === "string") {
         lectures = [lectures];
     }
-    let url = model.generateUrl(type, course, year, curriculum, lectures);
-    res.render("link", { "page": "link", "url": url });
+    let urls = model.generateUrl(type, course, year, curriculum, lectures);
+    res.render("link", { "page": "link", "urls": urls });
 }
 
 async function get_ical(req, res, next) {
@@ -53,6 +53,15 @@ async function get_ical(req, res, next) {
     let alert = req.query.alert === undefined ? null : parseInt(req.query.alert);
     let unibo_cal = await model.getICalendarEvents(id, req.get("User-Agent"), alert);
     res.type("text/calendar");
+    res.send(unibo_cal);
+}
+
+async function get_ical_ics(req, res, next) {
+    const id = req.params.id;
+    let alert = req.query.alert === undefined ? null : parseInt(req.query.alert);
+    let unibo_cal = await model.getICalendarEvents(id, req.get("User-Agent"), alert);
+    res.type("text/calendar");
+    res.setHeader('Content-Disposition', 'attachment; filename="calendar.ics"');
     res.send(unibo_cal);
 }
 
@@ -76,6 +85,7 @@ export const router = (() => {
     r.post("/course", course_page);
     r.post("/get_calendar_url", get_calendar_url);
     r.get("/get_ical", get_ical);
+    r.get("/get_ical/:id.ics", get_ical_ics);
     r.get("/get_courses_given_area", get_courses_given_area);
     r.post("/get_curricula_given_course", get_curricula_given_course);
     r.get("/bonk", bonk);
