@@ -1,5 +1,3 @@
-import sqlite3 from "sqlite3";
-import * as model from "./model.js";
 import { db } from "./model.js";
 
 function runQuery(query, params) {

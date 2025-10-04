@@ -54,8 +54,8 @@ let updateTimer = null;
         isLoading = true;
         
         try {
-            // Quick token validation - just check if it exists in DB
-            const response = await fetch(`/api/stats/summary?token=${encodeURIComponent(token)}`);
+            // Use dedicated lightweight token validation endpoint
+            const response = await fetch(`/api/validate-token?token=${encodeURIComponent(token)}`);
             
             if (response.ok) {
                 localStorage.setItem('statsToken', token);
