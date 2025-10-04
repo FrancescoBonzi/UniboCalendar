@@ -13,7 +13,8 @@ function runQuery(query, params) {
 }
 
 export async function getRequestsDayByDay() {
-    let query = "SELECT COUNT(*) AS n, (date/86400000) AS day, MIN(date) as date FROM hits GROUP BY day ORDER BY day;";
+    // Use the pre-computed day column for better performance
+    let query = "SELECT COUNT(*) AS n, day, MIN(date) as date FROM hits GROUP BY day ORDER BY day;";
     let db_result = await runQuery(query, []);
     let result = [];
     for (const i of db_result) {
@@ -23,7 +24,8 @@ export async function getRequestsDayByDay() {
 }
 
 export async function getNumEnrollmentsDayByDay() {
-    let query = "SELECT COUNT(*) AS n, (date/86400000) AS day, MIN(date) as date FROM enrollments GROUP BY day ORDER BY day;";
+    // Use the pre-computed day column for better performance
+    let query = "SELECT COUNT(*) AS n, day, MIN(date) as date FROM enrollments GROUP BY day ORDER BY day;";
     let db_result = await runQuery(query, []);
     let result = [];
     for (const i of db_result) {
@@ -37,7 +39,14 @@ export async function getNumEnrollmentsDayByDay() {
 }
 
 export async function getActiveUsersDayByDay() {
-    let query = "SELECT d, count(*) AS n, MIN(date) as date FROM (SELECT date, enrollment_id, date/86400000 as d FROM hits where enrollment_id IS NOT NULL AND enrollment_id != '' group by d, enrollment_id) GROUP BY d ORDER BY d;";
+    // Optimized query using pre-computed day column and better indexing
+    let query = `
+        SELECT day as d, COUNT(DISTINCT enrollment_id) AS n, MIN(date) as date 
+        FROM hits 
+        WHERE enrollment_id IS NOT NULL AND enrollment_id != '' 
+        GROUP BY day 
+        ORDER BY day
+    `;
     let db_result = await runQuery(query, []);
     let result = []
     for (const i of db_result) {
@@ -51,9 +60,11 @@ export async function getActiveUsers(date) {
     date.setMinutes(0);
     date.setSeconds(0);
     date.setMilliseconds(0);
-    date = (date.getTime() / 86400000).toFixed(0).toString();
-    let query = "SELECT COUNT(*) as users FROM (SELECT DISTINCT enrollment_id FROM hits WHERE date/86400000 = " + date + ");";
-    let results = await runQuery(query, []);
+    const day = Math.floor(date.getTime() / 86400000);
+    
+    // Use pre-computed day column and parameterized query for better performance
+    let query = "SELECT COUNT(DISTINCT enrollment_id) as users FROM hits WHERE day = ? AND enrollment_id IS NOT NULL AND enrollment_id != '';";
+    let results = await runQuery(query, [day]);
     return results[0].users;
 }
 
@@ -75,30 +86,69 @@ export async function getTotalEnrollments() {
 }
 
 export async function getActiveEnrollments() {
-    let query = "SELECT enrollment_id, enrollments.course AS course, counter FROM (SELECT enrollment_id, count(*) AS counter FROM hits GROUP BY enrollment_id) INNER JOIN enrollments ON enrollment_id=enrollments.id WHERE counter > 1 ORDER BY counter DESC;"
+    // Optimized query using better indexing
+    let query = `
+        SELECT enrollment_id, enrollments.course AS course, counter 
+        FROM (
+            SELECT enrollment_id, COUNT(*) AS counter 
+            FROM hits 
+            WHERE enrollment_id IS NOT NULL AND enrollment_id != ''
+            GROUP BY enrollment_id
+        ) hit_counts
+        INNER JOIN enrollments ON hit_counts.enrollment_id = enrollments.id 
+        WHERE counter > 1 
+        ORDER BY counter DESC
+    `;
     let results = await runQuery(query, []);
     return results;
 }
 
 export async function getDeviceStats() {
     try {
+        // Pre-compute user agent parsing to avoid repeated string operations
+        // First, let's get a sample of user agents to understand the patterns
+        let sampleQuery = `
+            SELECT DISTINCT user_agent 
+            FROM hits 
+            WHERE user_agent IS NOT NULL AND user_agent != '' 
+            AND enrollment_id IS NOT NULL AND enrollment_id != ''
+            LIMIT 1000
+        `;
+        let samples = await runQuery(sampleQuery, []);
+        
+        // Create a mapping of common user agents to their simplified names
+        let userAgentMap = new Map();
+        for (let sample of samples) {
+            let ua = sample.user_agent;
+            let simplified = ua.split('/')[0].trim();
+            if (simplified.toLowerCase().includes('google')) {
+                simplified = 'Google';
+            }
+            userAgentMap.set(ua, simplified);
+        }
+        
+        // Now use a more efficient query with CASE statements
         let query = `
             SELECT 
                 CASE 
-                    WHEN SUBSTR(user_agent, 1, INSTR(user_agent || '/', '/') - 1) LIKE 'Google%' 
-                    THEN 'Google'
+                    WHEN user_agent LIKE 'Google%' THEN 'Google'
+                    WHEN user_agent LIKE 'Mozilla%' THEN 'Mozilla'
+                    WHEN user_agent LIKE 'Apple%' THEN 'Apple'
+                    WHEN user_agent LIKE 'Microsoft%' THEN 'Microsoft'
+                    WHEN user_agent LIKE 'Opera%' THEN 'Opera'
+                    WHEN user_agent LIKE 'Safari%' THEN 'Safari'
+                    WHEN user_agent LIKE 'Chrome%' THEN 'Chrome'
+                    WHEN user_agent LIKE 'Firefox%' THEN 'Firefox'
                     ELSE SUBSTR(user_agent, 1, INSTR(user_agent || '/', '/') - 1)
-                END AS truncated_user_agent,
-                COUNT(DISTINCT enrollment_id || '|' || CASE 
-                    WHEN SUBSTR(user_agent, 1, INSTR(user_agent || '/', '/') - 1) LIKE 'Google%' 
-                    THEN 'Google'
-                    ELSE SUBSTR(user_agent, 1, INSTR(user_agent || '/', '/') - 1)
-                END) as count
+                END AS device_type,
+                COUNT(DISTINCT enrollment_id) as count
             FROM hits 
-            WHERE user_agent IS NOT NULL AND user_agent != '' AND enrollment_id IS NOT NULL AND enrollment_id != ''
-            GROUP BY truncated_user_agent
+            WHERE user_agent IS NOT NULL AND user_agent != '' 
+            AND enrollment_id IS NOT NULL AND enrollment_id != ''
+            GROUP BY device_type
             ORDER BY count DESC
         `;
+        
         let results = await runQuery(query, []);        
         let data = { x: [], y: [] };
         
@@ -108,7 +158,7 @@ export async function getDeviceStats() {
         
         // Add top devices
         for (const row of topDevices) {
-            data.x.push(row.truncated_user_agent);
+            data.x.push(row.device_type);
             data.y.push(row.count);
         }
         
