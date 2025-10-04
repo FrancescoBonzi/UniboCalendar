@@ -63,9 +63,10 @@ main {
 
 .step {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     margin-bottom: 1rem;
     padding: 0.5rem 0;
+    min-height: 3rem;
 }
 
 .step-number {
@@ -153,6 +154,22 @@ main {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
+/* Mobile buttons layout */
+.mobile-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: center;
+    width: 100%;
+}
+
+.mobile-button {
+    font-size: 0.9rem;
+    padding: 10px 16px;
+    width: 100%;
+    max-width: 280px;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
     .cal-guide-box {
@@ -172,5 +189,14 @@ main {
         width: 1.8rem;
         height: 1.8rem;
         font-size: 0.8rem;
+    }
+    
+    .mobile-buttons {
+        gap: 0.5rem;
+    }
+    
+    .mobile-button {
+        font-size: 0.85rem;
+        padding: 8px 12px;
     }
 }
