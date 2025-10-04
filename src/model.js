@@ -25,6 +25,9 @@ process.on("exit", () => {
     db.close();
 });
 
+// Export the shared database connection for use in other modules
+export { db };
+
 class UniboEventClass {
     constructor(title, start, end, location, url, docente) {
         this.title = title;
@@ -349,12 +352,10 @@ export async function getICalendarEvents(id, ua, alert) {
     }
 }
 
-// Helper function to run database queries
+// Helper function to run database queries using the shared connection
 function runQuery(query, params) {
     return new Promise((resolve, reject) => {
-        let db = new sqlite3.Database(DB_FILE);
         db.all(query, params, (err, rows) => {
-            db.close();
             if (err) {
                 reject(err);
             } else {

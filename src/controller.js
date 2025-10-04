@@ -1,6 +1,6 @@
 import { Router } from "express";
 import * as model from "./model.js";
-import sqlite3 from "sqlite3";
+import { db } from "./model.js";
 
 function statsTokenMiddleware(req, res, next) {
     const providedToken = req.query.token;
@@ -14,16 +14,14 @@ function statsTokenMiddleware(req, res, next) {
         return res.status(400).json({ error: "Invalid token format" });
     }
     
-    let db = new sqlite3.Database("./logs/data.db");
-    db.all("SELECT * FROM token WHERE id = ?", [providedToken], (err, rows) => {
-        db.close();
-        
+    // Use shared database connection from model.js
+    db.get("SELECT id FROM token WHERE id = ?", [providedToken], (err, row) => {
         if (err) {
             console.error("Database error in statsTokenMiddleware:", err);
             return res.status(500).json({ error: "Database error" });
         }
         
-        if (rows.length === 0) {
+        if (!row) {
             return res.status(403).json({ error: "Invalid token" });
         }
         
@@ -106,8 +104,11 @@ async function stats_page(req, res, next) {
 
 async function get_stats_summary(req, res, next) {
     try {
-        // Add security headers
+        // Add security headers and CORS
         res.set({
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
             'X-Content-Type-Options': 'nosniff',
             'X-Frame-Options': 'DENY',
             'X-XSS-Protection': '1; mode=block',
@@ -144,6 +145,17 @@ async function get_stats_summary(req, res, next) {
 
 export const router = (() => {
     const r = Router();
+    
+    // Handle CORS preflight requests
+    r.options("/api/stats/summary", (req, res) => {
+        res.set({
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        });
+        res.status(200).end();
+    });
+    
     r.get("/", home_page);
     r.post("/course", course_page);
     r.post("/get_calendar_url", get_calendar_url);

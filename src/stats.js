@@ -1,5 +1,18 @@
 import sqlite3 from "sqlite3";
 import * as model from "./model.js";
+import { db } from "./model.js";
+
+function runQuery(query, params) {
+    return new Promise((res, rej) => {
+        db.all(query, params, (e, r) => {
+            if (e) {
+                rej(e);
+            } else {
+                res(r);
+            }
+        })
+    })
+}
 
 export async function getRequestsDayByDay() {
     let query = "SELECT COUNT(*) AS n, (date/86400000) AS day, MIN(date) as date FROM hits GROUP BY day ORDER BY day;";
@@ -113,18 +126,4 @@ export async function getDeviceStats() {
         console.error('Error in getDeviceStats:', error);
         return { x: [], y: [] };
     }
-}
-
-function runQuery(query, params) {
-    return new Promise((res, rej) => {
-        let db = new sqlite3.Database("./logs/data.db");
-        db.all(query, params, (e, r) => {
-            db.close();
-            if (e) {
-                rej(e);
-            } else {
-                res(r);
-            }
-        })
-    })
 }

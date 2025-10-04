@@ -54,16 +54,19 @@ let updateTimer = null;
         isLoading = true;
         
         try {
+            // Quick token validation - just check if it exists in DB
             const response = await fetch(`/api/stats/summary?token=${encodeURIComponent(token)}`);
             
             if (response.ok) {
                 localStorage.setItem('statsToken', token);
+                // Show dashboard immediately with loading state
                 showDashboard();
-                // Reset isLoading before calling loadStatsData
+                showLoadingState();
+                
+                // Load stats data in background (non-blocking)
                 isLoading = false;
                 loadStatsData(token);
             } else {
-                // Clear invalid token
                 localStorage.removeItem('statsToken');
                 showLoginForm();
                 const errorData = await response.json();
@@ -92,59 +95,65 @@ let updateTimer = null;
         dashboard.style.display = 'block';
     }
 
+    function showLoadingState() {
+        // Show loading indicators for all charts
+        const charts = ['requestsChart', 'enrollmentsChart', 'activeUsersChart', 'devicesChart', 'coursesChart'];
+        charts.forEach(chartId => {
+            const canvas = document.getElementById(chartId);
+            if (canvas) {
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#f0f0f0';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#666';
+                ctx.font = '16px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('Caricamento...', canvas.width / 2, canvas.height / 2);
+            }
+        });
+        
+        // Show loading for summary cards
+        document.getElementById('totalEnrollments').textContent = '...';
+        document.getElementById('activeUsersToday').textContent = '...';
+        document.getElementById('activeEnrollments').textContent = '...';
+    }
+
     function showError(message) {
         loginError.textContent = message;
         loginError.style.display = 'block';
     }
 
     async function loadStatsData(token) {
-        if (isLoading) {
-            return;
-        }
-        isLoading = true;
-        
         try {
             const response = await fetch(`/api/stats/summary?token=${encodeURIComponent(token)}`);
             
             if (!response.ok) {
-                throw new Error('Failed to fetch stats data');
-        }
+                throw new Error(`Failed to fetch stats data: ${response.status} ${response.statusText}`);
+            }
         
-        const data = await response.json();
-        
-        // Update summary cards
-        updateSummaryCards(data);
+            const data = await response.json();
+            
+            // Update summary cards first (fastest)
+            updateSummaryCards(data);
 
-            // Update charts
-            try {
-                updateRequestsChart(data.requestsDayByDay);
-            } catch (error) {
-                console.error('Error updating requests chart:', error);
-            }
+            // Update charts in parallel for better performance
+            const chartUpdates = [
+                () => updateRequestsChart(data.requestsDayByDay),
+                () => updateEnrollmentsChart(data.enrollmentsDayByDay),
+                () => updateActiveUsersChart(data.activeUsersDayByDay),
+                () => updateDevicesChart(data.deviceData),
+                () => updateCoursesChart(data.courseData)
+            ];
             
-            try {
-                updateEnrollmentsChart(data.enrollmentsDayByDay);
-            } catch (error) {
-                console.error('Error updating enrollments chart:', error);
-            }
-            
-            try {
-                updateActiveUsersChart(data.activeUsersDayByDay);
-            } catch (error) {
-                console.error('Error updating active users chart:', error);
-            }
-            
-            try {
-                updateDevicesChart(data.deviceData);
-            } catch (error) {
-                console.error('Error updating devices chart:', error);
-            }
-            
-            try {
-                updateCoursesChart(data.courseData);
-            } catch (error) {
-                console.error('Error updating courses chart:', error);
-            }
+            // Execute chart updates in parallel
+            await Promise.all(chartUpdates.map(update => {
+                try {
+                    return update();
+                } catch (error) {
+                    console.error('Error updating chart:', error);
+                    return Promise.resolve();
+                }
+            }));
             
             // Start the update timer
             startUpdateTimer();
@@ -152,8 +161,6 @@ let updateTimer = null;
         } catch (error) {
             console.error('Error loading stats data:', error);
             showError('Errore nel caricamento dei dati: ' + error.message);
-        } finally {
-            isLoading = false;
         }
     }
 
