@@ -15,11 +15,6 @@
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-#loginForm .card-header {
-    background-color: #f8f9fa;
-    border-bottom: 1px solid #dee2e6;
-}
-
 /* Dashboard styling */
 #dashboard .card {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -27,8 +22,7 @@
 }
 
 #dashboard .card-header {
-    background-color: #f8f9fa;
-    border-bottom: 1px solid #dee2e6;
+    /* Let Bootstrap handle dark mode automatically */
     font-weight: 600;
 }
 
@@ -39,7 +33,8 @@
 }
 
 #dashboard .card-body h5 {
-    color: #6c757d;
+    /* Use Bootstrap's muted text color for dark mode compatibility */
+    color: var(--bs-secondary-color);
     font-size: 0.9rem;
     margin-bottom: 0.5rem;
 }

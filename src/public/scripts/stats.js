@@ -7,9 +7,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const loginError = document.getElementById('loginError');
     const logoutBtn = document.getElementById('logoutBtn');
     
-    let isLoading = false;
-let lastUpdateTime = null;
-let updateTimer = null;
+    let lastUpdateTime = null;
+    let updateTimer = null;
 
     // Temporary: Clear localStorage on page load to fix the issue
     localStorage.removeItem('statsToken');
@@ -31,13 +30,22 @@ let updateTimer = null;
         e.preventDefault();
         
         const token = tokenInput.value.trim();
+        const submitButton = tokenForm.querySelector('button[type="submit"]');
         
         if (!token) {
             showError('Inserisci un token valido');
             return;
         }
 
-        await validateToken(token);
+        // Show loading state on button
+        setButtonLoading(submitButton, true);
+        
+        try {
+            await validateToken(token);
+        } finally {
+            // Reset button state
+            setButtonLoading(submitButton, false);
+        }
     });
 
     // Handle logout
@@ -48,11 +56,6 @@ let updateTimer = null;
     });
 
     async function validateToken(token) {
-        if (isLoading) {
-            return;
-        }
-        isLoading = true;
-        
         try {
             // Use dedicated lightweight token validation endpoint
             const response = await fetch(`/api/validate-token?token=${encodeURIComponent(token)}`);
@@ -64,7 +67,6 @@ let updateTimer = null;
                 showLoadingState();
                 
                 // Load stats data in background (non-blocking)
-                isLoading = false;
                 loadStatsData(token);
             } else {
                 localStorage.removeItem('statsToken');
@@ -77,8 +79,6 @@ let updateTimer = null;
             localStorage.removeItem('statsToken');
             showLoginForm();
             showError('Errore di connessione. Riprova.');
-        } finally {
-            isLoading = false;
         }
     }
 
@@ -88,6 +88,12 @@ let updateTimer = null;
         tokenInput.value = ''; // Clear token input
         tokenInput.placeholder = 'Inserisci il token'; // Reset placeholder
         loginError.style.display = 'none'; // Hide any previous errors
+        
+        // Reset button state in case it was in loading state
+        const submitButton = tokenForm.querySelector('button[type="submit"]');
+        if (submitButton) {
+            setButtonLoading(submitButton, false);
+        }
     }
 
     function showDashboard() {
@@ -121,6 +127,20 @@ let updateTimer = null;
     function showError(message) {
         loginError.textContent = message;
         loginError.style.display = 'block';
+    }
+
+    function setButtonLoading(button, isLoading) {
+        if (isLoading) {
+            button.disabled = true;
+            button.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Caricamento...';
+            button.classList.add('btn-secondary');
+            button.classList.remove('btn-primary');
+        } else {
+            button.disabled = false;
+            button.innerHTML = 'Accedi';
+            button.classList.add('btn-primary');
+            button.classList.remove('btn-secondary');
+        }
     }
 
     async function loadStatsData(token) {
