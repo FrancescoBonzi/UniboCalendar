@@ -45,7 +45,7 @@ async function get_calendar_url(req, res, next) {
         lectures = [lectures];
     }
     let url = model.generateUrl(type, course, year, curriculum, lectures);
-    res.render("link", { "page": "link", "url": url });
+    res.render("link", { "page": "link", "url": url, "encoded": encodeURIComponent(url)});
 }
 
 async function get_ical(req, res, next) {
