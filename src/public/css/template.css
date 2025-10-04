@@ -12,12 +12,13 @@ div h1 a:hover {
     /*background-color: #ffffff;*/
     padding: 20px;
     border-radius: 10px;
+    background: none !important;
 }
 
 @media (prefers-color-scheme: dark) {
     #box {
-        background-color: #212529;
-        box-shadow: 0 0 5px rgba(255, 255, 255, 0.1);
+        background: none !important;
+        box-shadow: none !important;
     }
     body {
         background-color: #111;
@@ -26,8 +27,8 @@ div h1 a:hover {
 
 @media (prefers-color-scheme: light) {
     #box {
-        background-color: #fff;
-        box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        background: none !important;
+        box-shadow: none !important;
     }
     body {
         background-color: #f8f9fa;
