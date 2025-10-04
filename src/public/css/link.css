@@ -209,11 +209,11 @@ main {
     }
     
     .apple-button {
-        background: #1a202c;
+        background: #4a5568;
     }
     
     .apple-button:hover {
-        background: #2d3748;
+        background: #718096;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
     }
 }
