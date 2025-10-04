@@ -1,5 +1,35 @@
 import { Router } from "express";
 import * as model from "./model.js";
+import sqlite3 from "sqlite3";
+
+function statsTokenMiddleware(req, res, next) {
+    const providedToken = req.query.token;
+    
+    if (!providedToken) {
+        return res.status(401).json({ error: "Token required to access stats" });
+    }
+    
+    // Basic input validation
+    if (typeof providedToken !== 'string' || providedToken.length > 100) {
+        return res.status(400).json({ error: "Invalid token format" });
+    }
+    
+    let db = new sqlite3.Database("./logs/data.db");
+    db.all("SELECT * FROM token WHERE id = ?", [providedToken], (err, rows) => {
+        db.close();
+        
+        if (err) {
+            console.error("Database error in statsTokenMiddleware:", err);
+            return res.status(500).json({ error: "Database error" });
+        }
+        
+        if (rows.length === 0) {
+            return res.status(403).json({ error: "Invalid token" });
+        }
+        
+        next();
+    });
+}
 
 function bonk(req, res, next) {
     res.writeHead(302, {
@@ -70,6 +100,48 @@ async function get_curricula_given_course(req, res, next) {
     res.send(JSON.stringify(curricula));
 }
 
+async function stats_page(req, res, next) {
+    res.render("stats", { "page": "stats" });
+}
+
+async function get_stats_summary(req, res, next) {
+    try {
+        // Add security headers
+        res.set({
+            'X-Content-Type-Options': 'nosniff',
+            'X-Frame-Options': 'DENY',
+            'X-XSS-Protection': '1; mode=block',
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0'
+        });
+
+        const requestsData = await model.getRequestsDayByDay();
+        const enrollmentsData = await model.getNumEnrollmentsDayByDay();
+        const activeUsersData = await model.getActiveUsersDayByDay();
+        const activeUsersToday = await model.getActiveUsers(new Date());
+        const courseData = await model.getNumUsersForCourses();
+        const totalEnrollments = await model.getTotalEnrollments();
+        const activeEnrollments = await model.getActiveEnrollments();
+        const deviceData = await model.getDeviceStats();
+
+        res.type("application/json");
+        res.send(JSON.stringify({
+            requestsDayByDay: requestsData,
+            enrollmentsDayByDay: enrollmentsData,
+            activeUsersDayByDay: activeUsersData,
+            activeUsersToday: activeUsersToday,
+            courseData: courseData,
+            totalEnrollments: totalEnrollments,
+            activeEnrollments: activeEnrollments,
+            deviceData: deviceData
+        }));
+    } catch (error) {
+        console.error("Error in get_stats_summary:", error);
+        res.status(500).json({ error: "Failed to fetch stats data" });
+    }
+}
+
 export const router = (() => {
     const r = Router();
     r.get("/", home_page);
@@ -78,6 +150,8 @@ export const router = (() => {
     r.get("/get_ical", get_ical);
     r.get("/get_courses_given_area", get_courses_given_area);
     r.post("/get_curricula_given_course", get_curricula_given_course);
+    r.get("/stats", stats_page);
+    r.get("/api/stats/summary", statsTokenMiddleware, get_stats_summary);
     r.get("/bonk", bonk);
     r.use(error404); // 404 catch-all handler (middleware)
     r.use(error500); // 500 error handler (middleware)
