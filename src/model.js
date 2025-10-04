@@ -264,7 +264,6 @@ export async function getICalendarEvents(id, ua, alert) {
             let vcalendar = await cache_check_promise;
 
             if (vcalendar === false) {
-		    console.log("Generating, not in cache");
                 let query_enrollments = "SELECT * FROM enrollments WHERE id = ?";
                 let enrollment_promise = new Promise((res, rej) =>
                     db.get(query_enrollments, id, function (e, enrollments_info) {
