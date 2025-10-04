@@ -19,3 +19,188 @@ main {
 .collapse {
     transition: ease-in-out;
 }
+
+/* Override #box styling for link page only */
+#box {
+    background: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+}
+
+/* New Calendar Guide Styles */
+.cal-guide-box {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+    max-width: 400px;
+    width: 100%;
+    margin: 0 1rem;
+}
+
+
+.cal-header {
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.cal-icon {
+    width: 4rem !important;
+    height: 4rem !important;
+    margin-bottom: 1rem;
+}
+
+.cal-header h3 {
+    color: #333;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.cal-steps {
+    margin-bottom: 2rem;
+}
+
+.step {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+    padding: 0.5rem 0;
+    min-height: 3rem;
+}
+
+.step-with-button {
+    align-items: center;
+}
+
+.step-number {
+    background: #007bff;
+    color: white;
+    border-radius: 50%;
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 0.9rem;
+    margin-right: 1rem;
+    flex-shrink: 0;
+}
+
+.step p {
+    margin: 0;
+    color: #555;
+    line-height: 1.4;
+}
+
+.step kbd {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 3px;
+    padding: 0.2rem 0.4rem;
+    font-size: 0.8rem;
+    color: #495057;
+}
+
+.cal-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 12px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+    gap: 8px;
+}
+
+.button-icon {
+    width: 20px !important;
+    height: 20px !important;
+    margin: 0;
+}
+
+.google-button .button-icon {
+    background: white;
+    border-radius: 4px;
+    padding: 2px;
+}
+
+.google-button {
+    background: #4285f4;
+    color: white;
+}
+
+.google-button:hover {
+    background: #3367d6;
+    color: white;
+    text-decoration: none;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(66, 133, 244, 0.3);
+}
+
+.apple-button {
+    background: #000;
+    color: white;
+}
+
+.apple-button:hover {
+    background: #333;
+    color: white;
+    text-decoration: none;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Mobile buttons layout */
+.mobile-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: center;
+    width: 100%;
+}
+
+.mobile-button {
+    font-size: 0.9rem;
+    padding: 10px 16px;
+    width: 100%;
+    max-width: 280px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .cal-guide-box {
+        margin: 0 0.5rem;
+        padding: 1.5rem;
+    }
+    
+    .cal-header h3 {
+        font-size: 1.3rem;
+    }
+    
+    .step {
+        margin-bottom: 0.8rem;
+    }
+    
+    .step-number {
+        width: 1.8rem;
+        height: 1.8rem;
+        font-size: 0.8rem;
+    }
+    
+    .mobile-buttons {
+        gap: 0.5rem;
+    }
+    
+    .mobile-button {
+        font-size: 0.85rem;
+        padding: 8px 12px;
+    }
+}

@@ -285,9 +285,10 @@ export async function getICalendarEvents(id, ua, alert) {
                 let query_lectures = "SELECT lecture_id FROM requested_lectures WHERE enrollment_id = ?";
                 let lectures = await new Promise((res, rej) => db.all(query_lectures, id, (e, lectures) => { res(lectures) }));
 
-                for (var i = 0; i < lectures.length; i++) {
+                /*for (var i = 0; i < lectures.length; i++) {
                     link += "&insegnamenti=" + lectures[i]["lecture_id"];
-                }
+                }*/
+		    let lectureSet = new Set(lectures.map(x => x.lecture_id));
 
                 link += "&calendar_view=";
 
@@ -298,6 +299,9 @@ export async function getICalendarEvents(id, ua, alert) {
 
                 let calendar = [];
                 for (var l of json) {
+			if(!(lectureSet.has(l.extCode.split('|')[0])||lectureSet.has(l.extCode))) {
+				continue;
+			}
                     const start = new Date(l.start);
                     const end = new Date(l.end);
                     var location = null;
@@ -316,10 +320,24 @@ export async function getICalendarEvents(id, ua, alert) {
                     calendar.push(event);
                 }
 
+                let cache;
+                if(calendar.length === 0) {
+                    cache = false;
+                    const start = new Date();
+                    const day = 864e5;
+                    const end = new Date(+start + day / 24);
+                    const apologise = new UniboEventClass("Non ho trovato lezioni, riprova più tardi!", start, end, "unknown", "https://unibocalendar.it/get_ical?id=" + id, "");
+                    calendar.push(apologise);
+                    console.error(`The calendar at ${link} was empty!`);
+                } else {
+                    cache = true;
+                }
                 var factory = new iCalendar(alert);
                 vcalendar = factory.ical(calendar);
 
-                db.run(`INSERT INTO cache VALUES(?, ?, strftime("%s", "now") + ${ONE_UNIX_DAY})`, id, vcalendar);
+                if(cache) {
+                    db.run(`INSERT INTO cache VALUES(?, ?, strftime("%s", "now") + ${ONE_UNIX_DAY})`, id, vcalendar);
+                }
             }
 
             log_hit(id, ua);
