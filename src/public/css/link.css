@@ -20,6 +20,13 @@ main {
     transition: ease-in-out;
 }
 
+/* Override #box styling for link page only */
+#box {
+    background: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+}
+
 /* New Calendar Guide Styles */
 .cal-guide-box {
     background: #ffffff;
