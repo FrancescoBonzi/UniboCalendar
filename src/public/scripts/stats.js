@@ -8,6 +8,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const logoutBtn = document.getElementById('logoutBtn');
     
     let isLoading = false;
+let lastUpdateTime = null;
+let updateTimer = null;
 
     // Temporary: Clear localStorage on page load to fix the issue
     console.log('Clearing localStorage to fix login issue');
@@ -51,6 +53,7 @@ document.addEventListener('DOMContentLoaded', function() {
     logoutBtn.addEventListener('click', function() {
         console.log('Logging out, clearing localStorage');
         localStorage.removeItem('statsToken');
+        stopUpdateTimer();
         showLoginForm();
     });
 
@@ -131,20 +134,20 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (!response.ok) {
                 throw new Error('Failed to fetch stats data');
-            }
-            
-            const data = await response.json();
-            console.log('Stats data loaded:', data);
+        }
+        
+        const data = await response.json();
+        console.log('Stats data loaded:', data);
             console.log('Data keys:', Object.keys(data));
             console.log('requestsDayByDay length:', data.requestsDayByDay ? data.requestsDayByDay.length : 'undefined');
             console.log('enrollmentsDayByDay length:', data.enrollmentsDayByDay ? data.enrollmentsDayByDay.length : 'undefined');
             console.log('activeUsersDayByDay length:', data.activeUsersDayByDay ? data.activeUsersDayByDay.length : 'undefined');
             console.log('deviceData:', data.deviceData);
             console.log('courseData:', data.courseData);
-            
-            // Update summary cards
-            updateSummaryCards(data);
-            
+        
+        // Update summary cards
+        updateSummaryCards(data);
+        
             // Check Chart.js and canvas elements
             console.log('Chart.js available:', typeof Chart !== 'undefined');
             console.log('requestsChart canvas:', document.getElementById('requestsChart'));
@@ -158,7 +161,7 @@ document.addEventListener('DOMContentLoaded', function() {
             try {
                 updateRequestsChart(data.requestsDayByDay);
                 console.log('Requests chart updated successfully');
-            } catch (error) {
+    } catch (error) {
                 console.error('Error updating requests chart:', error);
             }
             
@@ -194,8 +197,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.error('Error updating courses chart:', error);
             }
             
-            // Update last updated time
-            document.getElementById('lastUpdated').textContent = new Date().toLocaleString('it-IT');
+            // Start the update timer
+            startUpdateTimer();
             
         } catch (error) {
             console.error('Error loading stats data:', error);
@@ -216,6 +219,48 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('activeEnrollments').textContent = activeEnrollments;
     }
 
+    function startUpdateTimer() {
+        // Clear existing timer
+        if (updateTimer) {
+            clearInterval(updateTimer);
+        }
+        
+        // Set initial time
+        lastUpdateTime = new Date();
+        updateLastUpdatedDisplay();
+        
+        // Update every second
+        updateTimer = setInterval(updateLastUpdatedDisplay, 1000);
+    }
+
+    function updateLastUpdatedDisplay() {
+        if (!lastUpdateTime) return;
+        
+        const now = new Date();
+        const diffMs = now - lastUpdateTime;
+        const diffSeconds = Math.floor(diffMs / 1000);
+        const diffMinutes = Math.floor(diffSeconds / 60);
+        const diffHours = Math.floor(diffMinutes / 60);
+        
+        let timeString;
+        if (diffHours > 0) {
+            timeString = `${diffHours}h ${diffMinutes % 60}m fa`;
+        } else if (diffMinutes > 0) {
+            timeString = `${diffMinutes}m fa`;
+        } else {
+            timeString = `${diffSeconds}s fa`;
+        }
+        
+        document.getElementById('lastUpdated').textContent = timeString;
+    }
+
+    function stopUpdateTimer() {
+        if (updateTimer) {
+            clearInterval(updateTimer);
+            updateTimer = null;
+        }
+    }
+
     function updateRequestsChart(data) {
         console.log('Creating requests chart with data:', data);
         console.log('Chart.js available:', typeof Chart !== 'undefined');
@@ -224,9 +269,9 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Canvas element found:', canvas ? 'Yes' : 'No');
         if (!canvas) {
             console.error('Canvas element requestsChart not found!');
-            return;
-        }
-        
+        return;
+    }
+    
         const ctx = canvas.getContext('2d');
         
         if (window.requestsChart && typeof window.requestsChart.destroy === 'function') {
@@ -250,7 +295,7 @@ document.addEventListener('DOMContentLoaded', function() {
             window.requestsChart = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: data.map(item => new Date(item.x).toLocaleDateString()),
+                    labels: data.map(item => new Date(item.x).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })),
                     datasets: [{
                         label: 'Richieste',
                         data: data.map(item => item.y),
@@ -258,20 +303,20 @@ document.addEventListener('DOMContentLoaded', function() {
                         backgroundColor: 'rgba(255, 99, 132, 0.1)',
                         fill: true,
                         tension: 0.4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
                     }
                 }
-            });
+            }
+        });
             console.log('Requests chart created successfully!');
-        } catch (error) {
+    } catch (error) {
             console.error('Error creating requests chart:', error);
         }
     }
@@ -282,7 +327,7 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Enrollments canvas found:', canvas ? 'Yes' : 'No');
         if (!canvas) {
             console.error('Canvas element enrollmentsChart not found!');
-            return;
+        return;
         }
         const ctx = canvas.getContext('2d');
         
@@ -293,7 +338,7 @@ document.addEventListener('DOMContentLoaded', function() {
         window.enrollmentsChart = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: data.map(item => new Date(item.x).toLocaleDateString()),
+                labels: data.map(item => new Date(item.x).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })),
                 datasets: [{
                     label: 'Iscrizioni',
                     data: data.map(item => item.y),
@@ -321,8 +366,8 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Active users canvas found:', canvas ? 'Yes' : 'No');
         if (!canvas) {
             console.error('Canvas element activeUsersChart not found!');
-            return;
-        }
+        return;
+    }
         const ctx = canvas.getContext('2d');
         
         if (window.activeUsersChart && typeof window.activeUsersChart.destroy === 'function') {
@@ -332,7 +377,7 @@ document.addEventListener('DOMContentLoaded', function() {
         window.activeUsersChart = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: data.map(item => new Date(item.x).toLocaleDateString()),
+                labels: data.map(item => new Date(item.x).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })),
                 datasets: [{
                     label: 'Utenti Attivi',
                     data: data.map(item => item.y),
@@ -360,8 +405,8 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Devices canvas found:', canvas ? 'Yes' : 'No');
         if (!canvas) {
             console.error('Canvas element devicesChart not found!');
-            return;
-        }
+        return;
+    }
         const ctx = canvas.getContext('2d');
         
         if (window.devicesChart && typeof window.devicesChart.destroy === 'function') {
@@ -466,18 +511,8 @@ document.addEventListener('DOMContentLoaded', function() {
             'rgba(255, 159, 64, 0.8)',
             'rgba(199, 199, 199, 0.8)',
             'rgba(83, 102, 255, 0.8)',
-            'rgba(255, 99, 255, 0.8)',
-            'rgba(99, 255, 132, 0.8)',
+            'rgba(255, 234, 99, 0.8)',
             'rgba(255, 132, 99, 0.8)',
-            'rgba(132, 99, 255, 0.8)',
-            'rgba(99, 255, 255, 0.8)',
-            'rgba(255, 255, 99, 0.8)',
-            'rgba(99, 132, 255, 0.8)',
-            'rgba(255, 99, 99, 0.8)',
-            'rgba(99, 255, 99, 0.8)',
-            'rgba(255, 132, 255, 0.8)',
-            'rgba(132, 255, 99, 0.8)',
-            'rgba(99, 99, 255, 0.8)'
         ];
         
         window.coursesChart = new Chart(ctx, {
@@ -496,6 +531,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 responsive: true,
                 maintainAspectRatio: false,
                 indexAxis: 'y',
+                layout: {
+                    padding: {
+                        left: 10,
+                        right: 10,
+                        top: 10,
+                        bottom: 10
+                    }
+                },
                 scales: {
                     x: {
                         title: {
@@ -505,8 +548,26 @@ document.addEventListener('DOMContentLoaded', function() {
                     },
                     y: {
                         title: {
-                            display: true,
-                            text: 'Corsi'
+                            display: false
+                        },
+                        ticks: {
+                            maxRotation: 0,
+                            minRotation: 0,
+                            padding: 15,
+                            font: {
+                                size: 11
+                            },
+                            callback: function(value, index, values) {
+                                // Ensure all labels are displayed
+                                return this.getLabelForValue(value);
+                            }
+                        },
+                        grid: {
+                            display: false
+                        },
+                        afterFit: function(scale) {
+                            // Ensure proper spacing for all labels
+                            scale.height = Math.max(scale.height, labels.length * 25);
                         }
                     }
                 },
