@@ -5,6 +5,9 @@ Questo sito è
 online qui: https://unibocalendar.it
 
 ![unibocalendar_screenshots](https://user-images.githubusercontent.com/35273715/188617075-59af9148-33d6-425b-a1e9-21d81ba64d87.png)
+<img width="1394" height="745" alt="Screenshot 2025-10-05 at 5 02 08 PM" src="https://github.com/user-attachments/assets/6c4bbf9c-532c-48cc-9a00-46b391b6a027" />
+<img width="1401" height="450" alt="Screenshot 2025-10-05 at 5 04 22 PM" src="https://github.com/user-attachments/assets/b994ac31-e6bf-46de-8fba-e67e8b6b652a" />
+
 
 ## Attivazione
 
