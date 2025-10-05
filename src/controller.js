@@ -127,7 +127,10 @@ async function get_curricula_given_course(req, res, next) {
 }
 
 async function stats_page(req, res, next) {
-    res.render("stats", { "page": "stats" });
+    res.render("stats", { 
+        "page": "stats",
+        "timestamp": Date.now()
+    });
 }
 
 async function get_stats_summary(req, res, next) {
