@@ -153,6 +153,7 @@ async function get_stats_summary(req, res, next) {
         const totalEnrollments = await model.getTotalEnrollments();
         const activeEnrollments = await model.getActiveEnrollments();
         const deviceData = await model.getDeviceStats();
+        const urlGenerationData = await model.getUrlGenerationByCourseDayByDay();
 
         res.type("application/json");
         res.send(JSON.stringify({
@@ -163,7 +164,8 @@ async function get_stats_summary(req, res, next) {
             courseData: courseData,
             totalEnrollments: totalEnrollments,
             activeEnrollments: activeEnrollments,
-            deviceData: deviceData
+            deviceData: deviceData,
+            urlGenerationData: urlGenerationData
         }));
     } catch (error) {
         console.error("Error in get_stats_summary:", error);

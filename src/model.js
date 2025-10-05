@@ -478,3 +478,82 @@ export async function getDeviceStats() {
         return { x: [], y: [] };
     }
 }
+
+export async function getUrlGenerationByCourseDayByDay() {
+    try {
+        // First get the top 20 courses by enrollment count
+        let topCoursesQuery = "SELECT course FROM enrollments GROUP BY course ORDER BY COUNT(*) DESC LIMIT 20;";
+        let topCourses = await runQuery(topCoursesQuery, []);
+        
+        if (topCourses.length === 0) {
+            return { courses: [], data: {} };
+        }
+        
+        const courseNames = topCourses.map(row => row.course);
+        
+        // Get URL generation data for each course day by day
+        let query = `
+            SELECT 
+                e.course,
+                (e.date/86400000) AS day,
+                COUNT(*) as url_count
+            FROM enrollments e
+            WHERE e.course IN (${courseNames.map(() => '?').join(',')})
+            GROUP BY e.course, (e.date/86400000)
+        `;
+        
+        let results = await runQuery(query, courseNames);
+        
+        // Organize data by course
+        let dataByCourse = {};
+        for (const course of courseNames) {
+            dataByCourse[course] = [];
+        }
+        
+        // Process results and fill in missing days with 0 values
+        let allDays = new Set();
+        for (const row of results) {
+            allDays.add(row.day);
+            if (!dataByCourse[row.course]) {
+                dataByCourse[row.course] = [];
+            }
+            dataByCourse[row.course].push({
+                x: row.date, // Send as timestamp
+                y: row.url_count,
+                day: row.day
+            });
+        }
+        
+        // Fill missing days with 0 values for each course
+        const sortedDays = Array.from(allDays).sort();
+        for (const course of courseNames) {
+            const courseData = dataByCourse[course];
+            const courseDays = new Set(courseData.map(item => item.day));
+            
+            for (const day of sortedDays) {
+                if (!courseDays.has(day)) {
+                    // Find a date for this day from other courses
+                    const dayData = results.find(r => r.day === day);
+                    if (dayData) {
+                        courseData.push({
+                            x: dayData.date, // Send as timestamp
+                            y: 0,
+                            day: day
+                        });
+                    }
+                }
+            }
+            
+            // Sort by day
+            courseData.sort((a, b) => a.day - b.day);
+        }
+        
+        return {
+            courses: courseNames,
+            data: dataByCourse
+        };
+    } catch (error) {
+        console.error('Error in getUrlGenerationByCourseDayByDay:', error);
+        return { courses: [], data: {} };
+    }
+}

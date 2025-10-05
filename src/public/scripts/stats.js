@@ -103,7 +103,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function showLoadingState() {
         // Show loading indicators for all charts
-        const charts = ['requestsChart', 'enrollmentsChart', 'activeUsersChart', 'devicesChart', 'coursesChart'];
+        const charts = ['requestsChart', 'enrollmentsChart', 'activeUsersChart', 'devicesChart', 'urlGenerationChart'];
         charts.forEach(chartId => {
             const canvas = document.getElementById(chartId);
             if (canvas) {
@@ -167,7 +167,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 () => updateEnrollmentsChart(data.enrollmentsDayByDay),
                 () => updateActiveUsersChart(data.activeUsersDayByDay),
                 () => updateDevicesChart(data.deviceData),
-                () => updateCoursesChart(data.courseData)
+                () => updateUrlGenerationChart(data.urlGenerationData, data.courseData)
             ];
             
             // Execute chart updates in parallel
@@ -425,16 +425,28 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    function updateCoursesChart(data) {
-        const canvas = document.getElementById('coursesChart');
+
+    function updateUrlGenerationChart(data, courseData) {
+        const canvas = document.getElementById('urlGenerationChart');
         if (!canvas) {
-            console.error('Canvas element coursesChart not found!');
+            console.error('Canvas element urlGenerationChart not found!');
             return;
         }
         const ctx = canvas.getContext('2d');
         
-        if (window.coursesChart && typeof window.coursesChart.destroy === 'function') {
-            window.coursesChart.destroy();
+        if (window.urlGenerationChart && typeof window.urlGenerationChart.destroy === 'function') {
+            window.urlGenerationChart.destroy();
+        }
+        
+        if (!data || !data.courses || data.courses.length === 0) {
+            // Show empty state
+            ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--bs-body-bg') || '#ffffff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--bs-body-color') || '#212529';
+            ctx.font = '16px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Nessun dato disponibile', canvas.width / 2, canvas.height / 2);
+            return;
         }
         
         // Format course names
@@ -454,82 +466,130 @@ document.addEventListener('DOMContentLoaded', function() {
                 .trim();
         }
         
-        const labels = data.x.slice(0, 20).map(formatCourseName);
-        const values = data.y.slice(0, 20);
+        // Create a map of course names to enrollment counts
+        const enrollmentMap = {};
+        if (courseData && courseData.x && courseData.y) {
+            courseData.x.forEach((courseName, index) => {
+                enrollmentMap[courseName] = courseData.y[index];
+            });
+        }
         
-        // Define colors for the chart
+        // Generate colors for each course
         const colors = [
-            'rgba(54, 162, 235, 0.8)',
-            'rgba(255, 99, 132, 0.8)',
-            'rgba(255, 205, 86, 0.8)',
-            'rgba(75, 192, 192, 0.8)',
-            'rgba(153, 102, 255, 0.8)',
-            'rgba(255, 159, 64, 0.8)',
-            'rgba(199, 199, 199, 0.8)',
-            'rgba(83, 102, 255, 0.8)',
-            'rgba(255, 234, 99, 0.8)',
-            'rgba(255, 132, 99, 0.8)',
+            'rgb(54, 162, 235)',
+            'rgb(255, 99, 132)',
+            'rgb(255, 205, 86)',
+            'rgb(75, 192, 192)',
+            'rgb(153, 102, 255)',
+            'rgb(255, 159, 64)',
+            'rgb(199, 199, 199)',
+            'rgb(83, 102, 255)',
+            'rgb(255, 234, 99)',
+            'rgb(255, 132, 99)',
+            'rgb(99, 255, 132)',
+            'rgb(132, 99, 255)',
+            'rgb(255, 99, 255)',
+            'rgb(99, 255, 255)',
+            'rgb(255, 255, 99)',
+            'rgb(99, 132, 255)',
+            'rgb(255, 99, 99)',
+            'rgb(99, 255, 99)',
+            'rgb(255, 132, 132)',
+            'rgb(132, 255, 132)'
         ];
         
-        window.coursesChart = new Chart(ctx, {
-            type: 'bar',
+        // Prepare datasets for each course
+        const datasets = data.courses.map((course, index) => {
+            const courseData = data.data[course] || [];
+            const enrollmentCount = enrollmentMap[course] || 0;
+            const formattedCourseName = formatCourseName(course);
+            
+            return {
+                label: `${formattedCourseName} (${enrollmentCount.toLocaleString()} iscritti)`,
+                data: courseData.map(item => {
+                    // Create a consistent date from the day number
+                    // day number represents days since Unix epoch
+                    const date = new Date(item.day * 86400000);
+                    return { x: date, y: item.y };
+                }),
+                borderColor: colors[index % colors.length],
+                backgroundColor: colors[index % colors.length],
+                fill: false,
+                tension: 0.4,
+                pointRadius: 2,
+                pointHoverRadius: 4
+            };
+        });
+        
+        // Get all unique dates for labels
+        const allDates = new Set();
+        data.courses.forEach(course => {
+            const courseData = data.data[course] || [];
+            courseData.forEach(item => {
+                // Create consistent date from day number
+                const date = new Date(item.day * 86400000);
+                allDates.add(date.getTime());
+            });
+        });
+        
+        const sortedDates = Array.from(allDates).sort();
+        const labels = sortedDates.map(date => new Date(date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }));
+        
+        window.urlGenerationChart = new Chart(ctx, {
+            type: 'line',
             data: {
                 labels: labels,
-                datasets: [{
-                    label: 'Numero Utenti',
-                    data: values,
-                    backgroundColor: colors.slice(0, labels.length),
-                    borderColor: colors.slice(0, labels.length).map(color => color.replace('0.8', '1')),
-                    borderWidth: 1
-                }]
+                datasets: datasets
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                indexAxis: 'y',
-                layout: {
-                    padding: {
-                        left: 10,
-                        right: 10,
-                        top: 10,
-                        bottom: 10
-                    }
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
                 },
                 scales: {
                     x: {
                         title: {
                             display: true,
-                            text: 'Numero Utenti'
+                            text: 'Data'
                         }
                     },
                     y: {
+                        beginAtZero: true,
                         title: {
-                            display: false
-                        },
-                        ticks: {
-                            maxRotation: 0,
-                            minRotation: 0,
-                            padding: 15,
-                            font: {
-                                size: 11
-                            },
-                            callback: function(value, index, values) {
-                                // Ensure all labels are displayed
-                                return this.getLabelForValue(value);
-                            }
-                        },
-                        grid: {
-                            display: false
-                        },
-                        afterFit: function(scale) {
-                            // Ensure proper spacing for all labels
-                            scale.height = Math.max(scale.height, labels.length * 25);
+                            display: true,
+                            text: 'URL Generate'
                         }
                     }
                 },
                 plugins: {
                     legend: {
-                        display: false
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 20,
+                            font: {
+                                size: 11
+                            },
+                            boxWidth: 12,
+                            boxHeight: 12
+                        }
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                        callbacks: {
+                            title: function(context) {
+                                return new Date(context[0].label).toLocaleDateString('it-IT', { 
+                                    weekday: 'long', 
+                                    year: 'numeric', 
+                                    month: 'long', 
+                                    day: 'numeric' 
+                                });
+                            }
+                        }
                     }
                 }
             }
