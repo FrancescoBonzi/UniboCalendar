@@ -3,41 +3,83 @@
             <h1>Unibo Calendar</h1>
             <h6>Clicca sul calendario che vuoi utilizzare e in un attimo hai finito</h6>
         </div>
-        <!--
-        <main class="d-flex flex-column justify-content-center mt-3">
-        <section id="box">
-            <div class="jumbotron">
-                <h1>Vuoi configurare le notifiche?</h1>
-                <p class="lead">Cliccando il pulsante sotto puoi abilitare le notifiche per il tuo calendario.</p>
-                <hr class="my-4">
-                <p>
-                    Se non fai niente, non ti verrà inviata nessuna notifica prima di ogni lezione, ma le potrai
-                    comunque visualizzare sul tuo calendario
-                </p>
-                <a class="btn btn-primary btn-lg" href="#" onclick="toggle()" role="button">Configura</a>
-                <div class="collapse mt-4" id="alertCollapse">
-                    <div class="card card-body">
-                        <div class="form-group">
-                            <label for="alert_mins">Con quanti minuti di anticipo vuoi ricevere un promemoria delle
-                                lezioni?</label>
-                            <input type="number" min="0" onchange="updateLinks(this)" class="form-control"
-                                id="alert_mins">
-                        </div>
+        <section class="d-flex flex-column flex-md-row justify-content-around mt-4" id="box">
+            <!-- Google Calendar Box -->
+            <div class="cal-guide-box mb-4 mb-md-0">
+                <div class="cal-header">
+                    <img src="media/google.png" alt="Google Calendar" class="cal-icon">
+                    <h3>Aggiungi a Google Calendar</h3>
+                </div>
+                <div class="cal-steps">
+                    <div class="step">
+                        <span class="step-number">1</span>
+                        <p>Clicca il pulsante qui sotto</p>
+                    </div>
+                    <div class="step">
+                        <span class="step-number">2</span>
+                        <p>Si aprirà Google Calendar</p>
+                    </div>
+                    <div class="step">
+                        <span class="step-number">3</span>
+                        <p>Incolla il link in  <kbd>URL del calendario</kbd></p>
+                    </div>
+                    <div class="step">
+                        <span class="step-number">4</span>
+                        <p>Clicca <kbd>Aggiungi calendario</kbd></p>
+                    </div>
+                    <div class="step">
+                        <span class="step-number">5</span>
+                        <p>Ora lo troverai in <kbd>Altri calendari</kbd> dove puoi cambiare il nome</p>
+                    </div>
+                    <div class="step">
+                         <span class="step-number">⚠️</span>
+                         <p>Potresti dover attendere qualche minuto prima che appaiano gli eventi</p>
                     </div>
                 </div>
+                <a href="https://calendar.google.com/calendar/u/0/r/settings/addbyurl"
+                   onclick="navigator.clipboard.writeText('{{{url}}}')"
+                   target="_blank"
+                   class="cal-button google-button">
+                   <img src="media/google.png" alt="Google" class="button-icon"> Copia URL e Apri Google Calendar
+                </a>
             </div>
-        </section>
-        </main>
-        -->
-        <section class="d-flex flex-row justify-content-around mt-3" id="box">
-            <div class="cal-link">
-                <p>Aggiungi a Google</p>
-                <a href="https://calendar.google.com/calendar/u/0/r?cid={{{url}}}" target="_blank"><img
-                        src="media/google.png" class="d-block m-auto"></img></a>
+
+            <!-- Apple Calendar Box -->
+            <div class="cal-guide-box">
+                <div class="cal-header">
+                    <img src="media/apple.png" alt="Apple Calendar" class="cal-icon">
+                    <h3>Aggiungi ad Apple Calendar</h3>
+                </div>
+                <div class="cal-steps">
+                    <div class="step">
+                        <span class="step-number">1</span>
+                        <p>Clicca il pulsante qui sotto</p>
+                    </div>
+                    <div class="step">
+                        <span class="step-number">2</span>
+                        <p>Si aprirà l'app Calendario di Apple</p>
+                    </div>
+                    <div class="step">
+                        <span class="step-number">3</span>
+                        <p>Clicca <kbd>Iscriviti</kbd></p>
+                    </div>
+                    <div class="step">
+                        <span class="step-number">4</span>
+                        <p>Scegli un nome (e.g. Unibo Calendar) + conferma in alto a destra</p>
+                    </div>
+                    <div class="step">
+                        <span class="step-number">5</span>
+                        <p>Ora lo troverai tra i tuoi calendari <kbd>iCloud</kbd></p>
+                    </div>
+                    <div class="step">
+                         <span class="step-number">⚠️</span>
+                         <p>Potresti dover attendere qualche minuto prima che appaiano gli eventi</p>
+                    </div>
+                </div>
+                <a href="{{{url}}}" target="_blank" class="cal-button apple-button">
+                   <img src="media/apple.png" alt="Apple" class="button-icon"> Apri Apple Calendar
+                </a>
             </div>
-            <div class="cal-link">
-                <p>Aggiungi ad Apple</p>
-                <a href="{{{url}}}" target="_blank"><img src="media/apple.png" class="d-block m-auto"></img></a>
-            </div>
+
         </section>
 </div>
