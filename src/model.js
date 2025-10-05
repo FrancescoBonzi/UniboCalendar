@@ -25,6 +25,9 @@ process.on("exit", () => {
     db.close();
 });
 
+// Export the shared database connection for use in other modules
+export { db };
+
 class UniboEventClass {
     constructor(title, start, end, location, url, docente) {
         this.title = title;
@@ -138,7 +141,7 @@ export function getCoursesGivenArea(area) {
 
 // Finding "SITO DEL CORSO" from https://www.unibo.it/it/didattica/corsi-di-studio/corso/[year]/[code]
 export async function getTimetableUrlGivenUniboUrl(unibo_url, callback) {
-    console.log(unibo_url);
+    // console.log(unibo_url);
     return await fetch(unibo_url).then(x => x.text())
         .then(function (html) {
             var $ = cheerio.load(html);
@@ -163,7 +166,7 @@ export async function getCurriculaGivenCourseUrl(unibo_url) {
     }
     var type = timetable_url.split("/")[3];
     var curricula_url = timetable_url + "/" + LANGUAGE[type] + "/@@available_curricula";
-    console.log(curricula_url);
+    // console.log(curricula_url);
     // ex. https://corsi.unibo.it/laurea/clei/orario-lezioni/@@available_curricula
     return await fetch(curricula_url).then(x => x.json())
         .catch(function (err) {
@@ -346,5 +349,211 @@ export async function getICalendarEvents(id, ua, alert) {
     } catch (error) {
         console.error("Error in getICalendarEvents:", error);
         throw error;
+    }
+}
+
+// Helper function to run database queries using the shared connection
+function runQuery(query, params) {
+    return new Promise((resolve, reject) => {
+        db.all(query, params, (err, rows) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(rows);
+            }
+        });
+    });
+}
+
+export async function getRequestsDayByDay() {
+    let query = "SELECT COUNT(*) AS n, (date/86400000) AS day, MIN(date) as date FROM hits GROUP BY day ORDER BY day;";
+    let db_result = await runQuery(query, []);
+    let result = [];
+    for (const i of db_result) {
+        result.push({ x: new Date(i.date), y: i.n });
+    }
+    return result;
+}
+
+export async function getNumEnrollmentsDayByDay() {
+    let query = "SELECT COUNT(*) AS n, (date/86400000) AS day, MIN(date) as date FROM enrollments GROUP BY day ORDER BY day;";
+    let db_result = await runQuery(query, []);
+    let result = [];
+    for (const i of db_result) {
+        if (result.length == 0) {
+            result.push({ x: new Date(i.date), y: i.n });
+        } else {
+            result.push({ x: new Date(i.date), y: i.n + result[result.length - 1].y });
+        }
+    }
+    return result;
+}
+
+export async function getActiveUsersDayByDay() {
+    let query = "SELECT d, count(*) AS n, MIN(date) as date FROM (SELECT date, enrollment_id, date/86400000 as d FROM hits where enrollment_id IS NOT NULL AND enrollment_id != '' group by d, enrollment_id) GROUP BY d ORDER BY d;";
+    let db_result = await runQuery(query, []);
+    let result = []
+    for (const i of db_result) {
+        result.push({ x: new Date(i.date), y: i.n });
+    }
+    return result;
+}
+
+export async function getActiveUsers(date) {
+    date.setHours(0);
+    date.setMinutes(0);
+    date.setSeconds(0);
+    date.setMilliseconds(0);
+    date = (date.getTime() / 86400000).toFixed(0).toString();
+    let query = "SELECT COUNT(*) as users FROM (SELECT DISTINCT enrollment_id FROM hits WHERE date/86400000 = " + date + ");";
+    let results = await runQuery(query, []);
+    return results[0].users;
+}
+
+export async function getNumUsersForCourses() {
+    let query = "SELECT course AS x, COUNT(*) as y FROM enrollments GROUP BY course ORDER BY y DESC LIMIT 20;";
+    let results = await runQuery(query, []);
+    let data = { x: [], y: [] };
+    for (const row of results) {
+        data.x.push(row.x);
+        data.y.push(row.y);
+    }
+    return data;
+}
+
+export async function getTotalEnrollments() {
+    let query = "SELECT COUNT(*) as users FROM enrollments;";
+    let result = await runQuery(query, []);
+    return result[0].users;
+}
+
+export async function getActiveEnrollments() {
+    let query = "SELECT COUNT(*) as count FROM (SELECT enrollment_id, count(*) AS counter FROM hits GROUP BY enrollment_id) INNER JOIN enrollments ON enrollment_id=enrollments.id WHERE counter > 1;"
+    let results = await runQuery(query, []);
+    return results[0].count;
+}
+
+export async function getDeviceStats() {
+    try {
+        let query = `
+            SELECT 
+                CASE 
+                    WHEN SUBSTR(user_agent, 1, INSTR(user_agent || '/', '/') - 1) LIKE 'Google%' 
+                    THEN 'Google'
+                    ELSE SUBSTR(user_agent, 1, INSTR(user_agent || '/', '/') - 1)
+                END AS truncated_user_agent,
+                COUNT(DISTINCT enrollment_id || '|' || CASE 
+                    WHEN SUBSTR(user_agent, 1, INSTR(user_agent || '/', '/') - 1) LIKE 'Google%' 
+                    THEN 'Google'
+                    ELSE SUBSTR(user_agent, 1, INSTR(user_agent || '/', '/') - 1)
+                END) as count
+            FROM hits 
+            WHERE user_agent IS NOT NULL AND user_agent != '' AND enrollment_id IS NOT NULL AND enrollment_id != ''
+            GROUP BY truncated_user_agent
+            ORDER BY count DESC
+        `;
+        let results = await runQuery(query, []);        
+        let data = { x: [], y: [] };
+        
+        // Show only top 6 devices, group the rest as "Others"
+        const topDevices = results.slice(0, 6);
+        const otherDevices = results.slice(6);
+        
+        // Add top devices
+        for (const row of topDevices) {
+            data.x.push(row.truncated_user_agent);
+            data.y.push(row.count);
+        }
+        
+        // Add "Others" if there are remaining devices
+        if (otherDevices.length > 0) {
+            const othersCount = otherDevices.reduce((sum, row) => sum + row.count, 0);
+            data.x.push('Altri');
+            data.y.push(othersCount);
+        }
+        
+        return data;
+    } catch (error) {
+        console.error('Error in getDeviceStats:', error);
+        return { x: [], y: [] };
+    }
+}
+
+export async function getUrlGenerationByCourseDayByDay() {
+    try {
+        // First get the top 20 courses by enrollment count
+        let topCoursesQuery = "SELECT course FROM enrollments GROUP BY course ORDER BY COUNT(*) DESC LIMIT 20;";
+        let topCourses = await runQuery(topCoursesQuery, []);
+        
+        if (topCourses.length === 0) {
+            return { courses: [], data: {} };
+        }
+        
+        const courseNames = topCourses.map(row => row.course);
+        
+        // Get URL generation data for each course day by day
+        let query = `
+            SELECT 
+                e.course,
+                (e.date/86400000) AS day,
+                COUNT(*) as url_count
+            FROM enrollments e
+            WHERE e.course IN (${courseNames.map(() => '?').join(',')})
+            GROUP BY e.course, (e.date/86400000)
+        `;
+        
+        let results = await runQuery(query, courseNames);
+        
+        // Organize data by course
+        let dataByCourse = {};
+        for (const course of courseNames) {
+            dataByCourse[course] = [];
+        }
+        
+        // Process results and fill in missing days with 0 values
+        let allDays = new Set();
+        for (const row of results) {
+            allDays.add(row.day);
+            if (!dataByCourse[row.course]) {
+                dataByCourse[row.course] = [];
+            }
+            dataByCourse[row.course].push({
+                x: row.date, // Send as timestamp
+                y: row.url_count,
+                day: row.day
+            });
+        }
+        
+        // Fill missing days with 0 values for each course
+        const sortedDays = Array.from(allDays).sort();
+        for (const course of courseNames) {
+            const courseData = dataByCourse[course];
+            const courseDays = new Set(courseData.map(item => item.day));
+            
+            for (const day of sortedDays) {
+                if (!courseDays.has(day)) {
+                    // Find a date for this day from other courses
+                    const dayData = results.find(r => r.day === day);
+                    if (dayData) {
+                        courseData.push({
+                            x: dayData.date, // Send as timestamp
+                            y: 0,
+                            day: day
+                        });
+                    }
+                }
+            }
+            
+            // Sort by day
+            courseData.sort((a, b) => a.day - b.day);
+        }
+        
+        return {
+            courses: courseNames,
+            data: dataByCourse
+        };
+    } catch (error) {
+        console.error('Error in getUrlGenerationByCourseDayByDay:', error);
+        return { courses: [], data: {} };
     }
 }

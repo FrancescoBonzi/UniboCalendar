@@ -1,0 +1,136 @@
+<!-- Login Form (initially visible) -->
+<div id="loginForm" class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-4">
+            <div class="card">
+                <div class="card-header text-center">
+                    <h4 class="mb-0">Accesso Statistiche</h4>
+                </div>
+                <div class="card-body">
+                    <form id="tokenForm">
+                        <div class="mb-3">
+                            <label for="tokenInput" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="tokenInput" placeholder="Password" required>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">Accedi</button>
+                        </div>
+                    </form>
+                    <div id="loginError" class="alert alert-danger mt-3" style="display: none;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Dashboard (initially hidden) -->
+<div id="dashboard" class="container mt-4" style="display: none;">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="mb-0">Statistiche</h1>
+                <button id="logoutBtn" class="btn btn-outline-secondary">Logout</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">Iscrizioni Totali</h5>
+                    <h3 class="text-primary" id="totalEnrollments">-</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">Utenti Attivi Oggi</h5>
+                    <h3 class="text-success" id="activeUsersToday">-</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">Iscrizioni Attive</h5>
+                    <h3 class="text-info" id="activeEnrollments">-</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">Last Updated</h5>
+                    <h6 class="text-muted" id="lastUpdated">-</h6>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Richieste di Aggiornamento</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="requestsChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Nuove Iscrizioni</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="enrollmentsChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Utenti Attivi</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="activeUsersChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Dispositivi Più Utilizzati</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="devicesChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Generazione URL per Corso (Top 20)</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="urlGenerationChart" width="400" height="500"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>

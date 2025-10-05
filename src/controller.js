@@ -1,5 +1,61 @@
 import { Router } from "express";
 import * as model from "./model.js";
+import { db } from "./model.js";
+
+async function validate_token(req, res, next) {
+    const providedToken = req.query.token;
+    
+    if (!providedToken) {
+        return res.status(401).json({ error: "Token required" });
+    }
+    
+    // Basic input validation
+    if (typeof providedToken !== 'string' || providedToken.length > 100) {
+        return res.status(400).json({ error: "Invalid token format" });
+    }
+    
+    // Use shared database connection from model.js
+    db.get("SELECT id FROM token WHERE id = ?", [providedToken], (err, row) => {
+        if (err) {
+            console.error("Database error in validate_token:", err);
+            return res.status(500).json({ error: "Database error" });
+        }
+        
+        if (!row) {
+            return res.status(403).json({ error: "Invalid token" });
+        }
+        
+        // Token is valid - return success immediately
+        res.json({ valid: true });
+    });
+}
+
+function statsTokenMiddleware(req, res, next) {
+    const providedToken = req.query.token;
+    
+    if (!providedToken) {
+        return res.status(401).json({ error: "Token required to access stats" });
+    }
+    
+    // Basic input validation
+    if (typeof providedToken !== 'string' || providedToken.length > 100) {
+        return res.status(400).json({ error: "Invalid token format" });
+    }
+    
+    // Use shared database connection from model.js
+    db.get("SELECT id FROM token WHERE id = ?", [providedToken], (err, row) => {
+        if (err) {
+            console.error("Database error in statsTokenMiddleware:", err);
+            return res.status(500).json({ error: "Database error" });
+        }
+        
+        if (!row) {
+            return res.status(403).json({ error: "Invalid token" });
+        }
+        
+        next();
+    });
+}
 
 function bonk(req, res, next) {
     res.writeHead(302, {
@@ -70,14 +126,87 @@ async function get_curricula_given_course(req, res, next) {
     res.send(JSON.stringify(curricula));
 }
 
+async function stats_page(req, res, next) {
+    res.render("stats", { 
+        "page": "stats",
+        "timestamp": Date.now()
+    });
+}
+
+async function get_stats_summary(req, res, next) {
+    try {
+        // Add security headers and CORS
+        res.set({
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+            'X-Content-Type-Options': 'nosniff',
+            'X-Frame-Options': 'DENY',
+            'X-XSS-Protection': '1; mode=block',
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0'
+        });
+
+        const requestsData = await model.getRequestsDayByDay();
+        const enrollmentsData = await model.getNumEnrollmentsDayByDay();
+        const activeUsersData = await model.getActiveUsersDayByDay();
+        const activeUsersToday = await model.getActiveUsers(new Date());
+        const courseData = await model.getNumUsersForCourses();
+        const totalEnrollments = await model.getTotalEnrollments();
+        const activeEnrollments = await model.getActiveEnrollments();
+        const deviceData = await model.getDeviceStats();
+        const urlGenerationData = await model.getUrlGenerationByCourseDayByDay();
+
+        res.type("application/json");
+        res.send(JSON.stringify({
+            requestsDayByDay: requestsData,
+            enrollmentsDayByDay: enrollmentsData,
+            activeUsersDayByDay: activeUsersData,
+            activeUsersToday: activeUsersToday,
+            courseData: courseData,
+            totalEnrollments: totalEnrollments,
+            activeEnrollments: activeEnrollments,
+            deviceData: deviceData,
+            urlGenerationData: urlGenerationData
+        }));
+    } catch (error) {
+        console.error("Error in get_stats_summary:", error);
+        res.status(500).json({ error: "Failed to fetch stats data" });
+    }
+}
+
 export const router = (() => {
     const r = Router();
+    
+    // Handle CORS preflight requests
+    r.options("/api/stats/summary", (req, res) => {
+        res.set({
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        });
+        res.status(200).end();
+    });
+    
+    r.options("/api/validate-token", (req, res) => {
+        res.set({
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        });
+        res.status(200).end();
+    });
+    
     r.get("/", home_page);
     r.post("/course", course_page);
     r.post("/get_calendar_url", get_calendar_url);
     r.get("/get_ical", get_ical);
     r.get("/get_courses_given_area", get_courses_given_area);
     r.post("/get_curricula_given_course", get_curricula_given_course);
+    r.get("/stats", stats_page);
+    r.get("/api/validate-token", validate_token);
+    r.get("/api/stats/summary", statsTokenMiddleware, get_stats_summary);
     r.get("/bonk", bonk);
     r.use(error404); // 404 catch-all handler (middleware)
     r.use(error500); // 500 error handler (middleware)
