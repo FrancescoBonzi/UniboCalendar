@@ -582,7 +582,12 @@ document.addEventListener('DOMContentLoaded', function() {
                         intersect: false,
                         callbacks: {
                             title: function(context) {
-                                return new Date(context[0].label).toLocaleDateString('it-IT', { 
+                                // Get the actual date from the first dataset's data point
+                                const dataIndex = context[0].dataIndex;
+                                const firstDataset = context[0].chart.data.datasets[0];
+                                const actualDate = firstDataset.data[dataIndex].x;
+                                
+                                return actualDate.toLocaleDateString('it-IT', { 
                                     weekday: 'long', 
                                     year: 'numeric', 
                                     month: 'long', 
