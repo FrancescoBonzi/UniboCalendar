@@ -4,12 +4,6 @@
     min-height: 300px;
 }
 
-/* Corsi Top chart should be taller to accommodate all course names */
-#coursesChart {
-    height: 600px !important;
-    min-height: 600px;
-}
-
 /* Login form styling */
 #loginForm .card {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
