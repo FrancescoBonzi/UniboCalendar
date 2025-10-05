@@ -1,13 +1,17 @@
-# UniboCalendar
-Servizio gratuito che consente a tutti gli studenti Unibo di aggiungere l'orario delle lezioni al proprio calendario, filtrando solo quelle di interesse. Oltre a fornire in modo facile e immediato tutte le informazioni disponibili sui corsi, mantiene la sincronizzazione attiva per rilevare cambiamenti nell'orario e aggiornarsi da solo.
-
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/38caf683-a408-4b95-87ed-3966a5ca8eeb" alt="UniboCalendar" width="400" height="auto" style="max-width: 100%;">
+  <br/>
+  <br/>
+</p>
+Servizio gratuito che consente a tutti gli studenti Unibo di aggiungere l'orario delle lezioni al proprio calendario, filtrando solo quelle di interesse. Oltre a fornire in modo facile e immediato tutte le informazioni disponibili sui corsi, mantiene la sincronizzazione attiva per rilevare cambiamenti nell'orario e aggiornarsi da solo. 
+<br><br>
 Questo sito è 
 online qui: https://unibocalendar.it
+<br><br>
 
 ![unibocalendar_screenshots](https://user-images.githubusercontent.com/35273715/188617075-59af9148-33d6-425b-a1e9-21d81ba64d87.png)
 <img width="1394" height="745" alt="Screenshot 2025-10-05 at 5 02 08 PM" src="https://github.com/user-attachments/assets/6c4bbf9c-532c-48cc-9a00-46b391b6a027" />
 <img width="1401" height="450" alt="Screenshot 2025-10-05 at 5 04 22 PM" src="https://github.com/user-attachments/assets/b994ac31-e6bf-46de-8fba-e67e8b6b652a" />
-
 
 ## Attivazione
 
