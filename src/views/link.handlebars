@@ -33,9 +33,7 @@
                     </div>
                 </div>
                 <a href="https://calendar.google.com/calendar/u/0/r/settings/addbyurl"
-                   onclick="navigator.clipboard.writeText('{{{url}}}')"
-                   target="_blank"
-                   rel="noopener noreferrer"
+                   onclick="navigator.clipboard.writeText('{{{url}}}'); window.open(this.href, '_blank').focus(); return false;"
                    class="cal-button google-button">
                    <img src="media/google.png" alt="Google" class="button-icon"> Copia URL e Apri Google Calendar
                 </a>
@@ -69,7 +67,7 @@
                          <p>Potresti dover attendere qualche minuto prima che appaiano gli eventi</p>
                     </div>
                 </div>
-                <a href="{{{url}}}" target="_blank" class="cal-button apple-button">
+                <a href="{{{url}}}" onclick="window.open(this.href, '_blank').focus(); return false;" class="cal-button apple-button">
                    <img src="media/apple.png" alt="Apple" class="button-icon"> Apri Apple Calendar
                 </a>
             </div>
