@@ -1,7 +1,28 @@
 /* All charts should have the same rectangular shape */
 #requestsChart, #enrollmentsAndUsersChart, #devicesChart, #ratioChart {
     height: 300px !important;
-    min-height: 300px;
+    min-height: 300px !important;
+    max-height: 300px !important;
+    width: 100% !important;
+}
+
+/* Ensure chart containers also maintain consistent height */
+.chart-container {
+    height: 300px !important;
+    min-height: 300px !important;
+    max-height: 300px !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+/* Force canvas elements to fill their containers */
+.chart-container canvas {
+    height: 300px !important;
+    min-height: 300px !important;
+    max-height: 300px !important;
+    width: 100% !important;
 }
 
 /* Login form styling */
