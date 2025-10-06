@@ -13,10 +13,7 @@
 #dashboard .card {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     border: none;
-}
-
-#enrollmentsAndUsersChart .card, #ratioChart .card {
-    height: 100% !important;
+    height: 100%;
 }
 
 #dashboard .card-header {
