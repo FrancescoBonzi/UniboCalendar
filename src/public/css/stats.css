@@ -2,27 +2,6 @@
 #requestsChart, #enrollmentsAndUsersChart, #devicesChart, #ratioChart {
     height: 300px !important;
     min-height: 300px !important;
-    max-height: 300px !important;
-    width: 100% !important;
-}
-
-/* Ensure chart containers also maintain consistent height */
-.chart-container {
-    height: 300px !important;
-    min-height: 300px !important;
-    max-height: 300px !important;
-    padding: 0 !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-}
-
-/* Force canvas elements to fill their containers */
-.chart-container canvas {
-    height: 300px !important;
-    min-height: 300px !important;
-    max-height: 300px !important;
-    width: 100% !important;
 }
 
 /* Login form styling */
@@ -34,6 +13,10 @@
 #dashboard .card {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     border: none;
+}
+
+#enrollmentsAndUsersChart .card, #ratioChart .card {
+    height: 100% !important;
 }
 
 #dashboard .card-header {
