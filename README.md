@@ -7,6 +7,15 @@
   <p></p>
 </h1>
 
+<p align="center">
+  <img src="https://img.shields.io/badge/Daily%20Users%20(2025)-3000%2B-00C853?logo=leaf&logoColor=white&labelColor=00C853" />
+  <img src="https://img.shields.io/badge/Google%20Calendar-4285F4?logo=google&logoColor=white&labelColor=4285F4" />
+  <img src="https://img.shields.io/badge/Apple%20Calendar-999999?logo=apple&logoColor=white&labelColor=999999" />
+</p>
+
+
+
+
 Servizio gratuito che consente a tutti gli studenti Unibo di aggiungere l'orario delle lezioni al proprio calendario, filtrando solo quelle di interesse. Oltre a fornire in modo facile e immediato tutte le informazioni disponibili sui corsi, mantiene la sincronizzazione attiva per rilevare cambiamenti nell'orario e aggiornarsi da solo. 
 <br><br>
 Questo sito è 
