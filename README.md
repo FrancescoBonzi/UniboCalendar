@@ -1,8 +1,12 @@
-<p align="center">
-  <img src="https://github.com/user-attachments/assets/38caf683-a408-4b95-87ed-3966a5ca8eeb" alt="UniboCalendar" width="400" height="auto" style="max-width: 100%;">
-  <br/>
-  <br/>
-</p>
+<h1 align="center">
+  <img src="https://github.com/FrancescoBonzi/UniboCalendar/blob/master/src/public/calendar.png?raw=true"
+       alt="Logo"
+       height="27"
+       >
+  &nbsp; Unibo Calendar
+  <p></p>
+</h1>
+
 Servizio gratuito che consente a tutti gli studenti Unibo di aggiungere l'orario delle lezioni al proprio calendario, filtrando solo quelle di interesse. Oltre a fornire in modo facile e immediato tutte le informazioni disponibili sui corsi, mantiene la sincronizzazione attiva per rilevare cambiamenti nell'orario e aggiornarsi da solo. 
 <br><br>
 Questo sito è 
@@ -11,9 +15,9 @@ online qui: https://unibocalendar.it
 
 ![unibocalendar_screenshots](https://user-images.githubusercontent.com/35273715/188617075-59af9148-33d6-425b-a1e9-21d81ba64d87.png)
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/6c4bbf9c-532c-48cc-9a00-46b391b6a027" alt="Google Calendar on Android" width="97%" height="auto" style="max-width: 100%;"/>
+  <img src="https://github.com/user-attachments/assets/3602f59b-f6ea-4612-8a45-801a308cd09b" alt="Google Calendar on Android" width="97%" height="auto" style="max-width: 100%;"/>
 </p>
-<img width="1401" height="450" alt="Statistics on Macbook Air" src="https://github.com/user-attachments/assets/b994ac31-e6bf-46de-8fba-e67e8b6b652a" />
+<img width="1401" height="450" alt="Statistics on Macbook Air" src="https://github.com/user-attachments/assets/dc9f7a0b-6895-48bd-bda9-08be7bf91264" />
 
 ## Attivazione
 
