@@ -103,7 +103,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function showLoadingState() {
         // Show loading indicators for all charts
-        const charts = ['requestsChart', 'enrollmentsChart', 'activeUsersChart', 'devicesChart', 'urlGenerationChart'];
+        const charts = ['requestsChart', 'enrollmentsAndUsersChart', 'devicesChart', 'ratioChart', 'urlGenerationChart'];
         charts.forEach(chartId => {
             const canvas = document.getElementById(chartId);
             if (canvas) {
@@ -164,9 +164,9 @@ document.addEventListener('DOMContentLoaded', function() {
             // Update charts in parallel for better performance
             const chartUpdates = [
                 () => updateRequestsChart(data.requestsDayByDay),
-                () => updateEnrollmentsChart(data.enrollmentsDayByDay),
-                () => updateActiveUsersChart(data.activeUsersDayByDay),
+                () => updateEnrollmentsAndUsersChart(data.enrollmentsDayByDay, data.activeUsersDayByDay),
                 () => updateDevicesChart(data.deviceData),
+                () => updateRatioChart(data.enrollmentsDayByDay, data.activeUsersDayByDay),
                 () => updateUrlGenerationChart(data.urlGenerationData, data.courseData)
             ];
             
@@ -285,67 +285,43 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    function updateEnrollmentsChart(data) {
-        const canvas = document.getElementById('enrollmentsChart');
+    function updateEnrollmentsAndUsersChart(enrollmentsData, activeUsersData) {
+        const canvas = document.getElementById('enrollmentsAndUsersChart');
         if (!canvas) {
-            console.error('Canvas element enrollmentsChart not found!');
-        return;
+            console.error('Canvas element enrollmentsAndUsersChart not found!');
+            return;
         }
         const ctx = canvas.getContext('2d');
         
-        if (window.enrollmentsChart && typeof window.enrollmentsChart.destroy === 'function') {
-            window.enrollmentsChart.destroy();
+        if (window.enrollmentsAndUsersChart && typeof window.enrollmentsAndUsersChart.destroy === 'function') {
+            window.enrollmentsAndUsersChart.destroy();
         }
         
-        window.enrollmentsChart = new Chart(ctx, {
+        // Use enrollments data for labels since both datasets should have the same dates
+        const labels = enrollmentsData.map(item => new Date(item.x).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }));
+        
+        window.enrollmentsAndUsersChart = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: data.map(item => new Date(item.x).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })),
-                datasets: [{
-                    label: 'Iscrizioni',
-                    data: data.map(item => item.y),
-                    borderColor: 'rgb(255, 159, 64)',
-                    backgroundColor: 'rgba(255, 159, 64, 0.1)',
-                    fill: true,
-                    tension: 0.4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Nuove Iscrizioni',
+                        data: enrollmentsData.map(item => item.y),
+                        borderColor: 'rgb(255, 159, 64)',
+                        backgroundColor: 'rgba(255, 159, 64, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Utenti Attivi',
+                        data: activeUsersData.map(item => item.y),
+                        borderColor: 'rgb(75, 192, 192)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.1)',
+                        fill: true,
+                        tension: 0.4
                     }
-                }
-            }
-        });
-    }
-
-    function updateActiveUsersChart(data) {
-        const canvas = document.getElementById('activeUsersChart');
-        if (!canvas) {
-            console.error('Canvas element activeUsersChart not found!');
-        return;
-    }
-        const ctx = canvas.getContext('2d');
-        
-        if (window.activeUsersChart && typeof window.activeUsersChart.destroy === 'function') {
-            window.activeUsersChart.destroy();
-        }
-        
-        window.activeUsersChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: data.map(item => new Date(item.x).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })),
-                datasets: [{
-                    label: 'Utenti Attivi',
-                    data: data.map(item => item.y),
-                    borderColor: 'rgb(75, 192, 192)',
-                    backgroundColor: 'rgba(75, 192, 192, 0.1)',
-                    fill: true,
-                    tension: 0.4
-                }]
+                ]
             },
             options: {
                 responsive: true,
@@ -425,6 +401,107 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    function updateRatioChart(enrollmentsData, activeUsersData) {
+        const canvas = document.getElementById('ratioChart');
+        if (!canvas) {
+            console.error('Canvas element ratioChart not found!');
+            return;
+        }
+        const ctx = canvas.getContext('2d');
+        
+        if (window.ratioChart && typeof window.ratioChart.destroy === 'function') {
+            window.ratioChart.destroy();
+        }
+
+        // Handle case where data is undefined or not an array
+        if (!enrollmentsData || !activeUsersData || !Array.isArray(enrollmentsData) || !Array.isArray(activeUsersData) || enrollmentsData.length === 0) {
+            console.warn('Ratio chart data is empty or undefined');
+            // Show empty state
+            ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--bs-body-bg') || '#ffffff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--bs-body-color') || '#212529';
+            ctx.font = '16px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Nessun dato disponibile', canvas.width / 2, canvas.height / 2);
+            return;
+        }
+
+        const activeUsersCumulative = activeUsersData.reduce((acc, item, index) => {
+            const cumulativeValue = (acc[acc.length - 1]?.y || 0) + item.y;
+            acc.push({ x: item.x, y: cumulativeValue });
+            return acc;
+        }, [])
+        const enrollmentsCumulative = enrollmentsData.reduce((acc, item, index) => {
+            const cumulativeValue = (acc[acc.length - 1]?.y || 0) + item.y;
+            acc.push({ x: item.x, y: cumulativeValue });
+            return acc;
+        }, [])
+
+        console.log("activeUsersCumulative", activeUsersCumulative);
+        console.log("enrollmentsCumulative", enrollmentsCumulative);
+        
+        const ratioData = [];
+        const minLength = Math.min(enrollmentsCumulative.length, activeUsersCumulative.length);
+        for (let i = 0; i < minLength; i++) {
+            if (enrollmentsCumulative[i] && activeUsersCumulative[i] && enrollmentsCumulative[i].y > 0) {
+                ratioData.push({
+                    x: new Date(enrollmentsCumulative[i].x).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }),
+                    y: (activeUsersCumulative[i].y / enrollmentsCumulative[i].y) * 100
+                });
+            }
+        }
+
+        console.log("ratioData", ratioData.map(item => item.x), ratioData.map(item => item.y));
+
+        try {
+            window.ratioChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ratioData.map(item => item.x),
+                    datasets: [{
+                        label: 'Rapporto (%)',
+                        data: ratioData.map(item => item.y),
+                        borderColor: 'rgb(153, 102, 255)',
+                        backgroundColor: 'rgba(153, 102, 255, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Data'
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return 'Rapporto: ' + context.parsed.y.toFixed(2) + '%';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        } catch (error) {
+            console.error('Error creating ratio chart:', error);
+        }
+    }
 
     function updateUrlGenerationChart(data, courseData) {
         const canvas = document.getElementById('urlGenerationChart');
