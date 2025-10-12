@@ -1,61 +1,6 @@
 import { Router } from "express";
 import * as model from "./model.js";
-import { db } from "./model.js";
-
-async function validate_token(req, res, next) {
-    const providedToken = req.query.token;
-    
-    if (!providedToken) {
-        return res.status(401).json({ error: "Token required" });
-    }
-    
-    // Basic input validation
-    if (typeof providedToken !== 'string' || providedToken.length > 100) {
-        return res.status(400).json({ error: "Invalid token format" });
-    }
-    
-    // Use shared database connection from model.js
-    db.get("SELECT id FROM token WHERE id = ?", [providedToken], (err, row) => {
-        if (err) {
-            console.error("Database error in validate_token:", err);
-            return res.status(500).json({ error: "Database error" });
-        }
-        
-        if (!row) {
-            return res.status(403).json({ error: "Invalid token" });
-        }
-        
-        // Token is valid - return success immediately
-        res.json({ valid: true });
-    });
-}
-
-function statsTokenMiddleware(req, res, next) {
-    const providedToken = req.query.token;
-    
-    if (!providedToken) {
-        return res.status(401).json({ error: "Token required to access stats" });
-    }
-    
-    // Basic input validation
-    if (typeof providedToken !== 'string' || providedToken.length > 100) {
-        return res.status(400).json({ error: "Invalid token format" });
-    }
-    
-    // Use shared database connection from model.js
-    db.get("SELECT id FROM token WHERE id = ?", [providedToken], (err, row) => {
-        if (err) {
-            console.error("Database error in statsTokenMiddleware:", err);
-            return res.status(500).json({ error: "Database error" });
-        }
-        
-        if (!row) {
-            return res.status(403).json({ error: "Invalid token" });
-        }
-        
-        next();
-    });
-}
+import { validateTokenMiddleware, validateTokenEndpoint } from "./db.js";
 
 function bonk(req, res, next) {
     res.writeHead(302, {
@@ -205,8 +150,8 @@ export const router = (() => {
     r.get("/get_courses_given_area", get_courses_given_area);
     r.post("/get_curricula_given_course", get_curricula_given_course);
     r.get("/stats", stats_page);
-    r.get("/api/validate-token", validate_token);
-    r.get("/api/stats/summary", statsTokenMiddleware, get_stats_summary);
+    r.get("/api/validate-token", validateTokenEndpoint);
+    r.get("/api/stats/summary", validateTokenMiddleware, get_stats_summary);
     r.get("/bonk", bonk);
     r.use(error404); // 404 catch-all handler (middleware)
     r.use(error500); // 500 error handler (middleware)

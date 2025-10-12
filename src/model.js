@@ -3,7 +3,7 @@ import fetch from "node-fetch";
 import csv from "csv-parser";
 import * as fs from "fs";
 import { iCalendar } from "./icalendar.js";
-import sqlite3 from "sqlite3";
+import { dbRun, dbGet, dbAll } from "./db.js";
 import rb from "randombytes";
 import b32 from "base32.js";
 
@@ -17,16 +17,6 @@ const LANGUAGE = {
 }
 const ONE_UNIX_DAY = 24 * 3600;
 const DATA_FILE = "./opendata/corsi.csv";
-const DB_FILE = "./logs/data.db";
-
-// Create a single instance of the database connection
-const db = new sqlite3.Database(DB_FILE);
-process.on("exit", () => {
-    db.close();
-});
-
-// Export the shared database connection for use in other modules
-export { db };
 
 class UniboEventClass {
     constructor(title, start, end, location, url, docente) {
@@ -51,45 +41,23 @@ export function generateId(length) {
 
 export function log_hit(id, ua) {
     let query = "INSERT INTO hits VALUES (?, ?, ?)";
-    return new Promise((resolve, reject) => {
-        db.run(query, new Date().getTime(), id, ua, function (error) {
-            if (error) {
-                reject(error);
-            } else {
-                resolve();
-            }
-        });
-    });
+    return dbRun(query, [new Date().getTime(), id, ua]);
 }
 
-export function log_enrollment(params, lectures) {
+export async function log_enrollment(params, lectures) {
     let enrollment_query = "INSERT INTO enrollments VALUES(?, ?, ?, ?, ?, ?)";
     let lectures_query = "INSERT INTO requested_lectures VALUES(?, ?)";
 
-    return new Promise((resolve, reject) => {
-        db.run(enrollment_query, params, function (error) {
-            if (error) {
-                reject(error);
-            } else {
-                // Use Promise.all to handle multiple asynchronous calls
-                Promise.all(
-                    lectures.map((lecture) =>
-                        new Promise((res, rej) => {
-                            db.run(lectures_query, params[0], lecture, function (err) {
-                                if (err) {
-                                    rej(err);
-                                } else {
-                                    res();
-                                }
-                            });
-                        })
-                    )
-                )
-                    .then(resolve)
-                    .catch(reject);
-            }
-        });
-    });
+    try {
+        await dbRun(enrollment_query, params);
+        
+        // Use Promise.all to handle multiple asynchronous calls
+        await Promise.all(
+            lectures.map((lecture) => dbRun(lectures_query, [params[0], lecture]))
+        );
+    } catch (error) {
+        throw error;
+    }
 }
 
 export function getAreas() {
@@ -228,16 +196,13 @@ export function generateUrl(type, course, year, curriculum, lectures) {
     return url;
 }
 
-export function checkEnrollment(uuid_value) {
+export async function checkEnrollment(uuid_value) {
     if (uuid_value === undefined || uuid_value === null) {
-        return new Promise((res) => res(false));
+        return false;
     } else {
         let query = "SELECT * FROM enrollments WHERE id = ?";
-        return new Promise((res) => {
-            db.get(query, uuid_value, function (e, x) {
-                res(x !== undefined);
-            });
-        });
+        const result = await dbGet(query, [uuid_value]);
+        return result !== undefined;
     }
 }
 
@@ -253,27 +218,14 @@ export async function getICalendarEvents(id, ua, alert) {
             var factory = new iCalendar(alert);
             return factory.ical([ask_for_update_event]);
         } else {
-            // Use the existing database connection
-            db.run("DELETE FROM cache WHERE expiration < strftime('%s', 'now')");
-            let cache_check_promise = new Promise((res, rej) =>
-                db.get("SELECT value FROM cache WHERE id = ?", id, function (e, result) {
-                    if (result === undefined) {
-                        res(false);
-                    } else {
-                        res(result["value"]);
-                    }
-                })
-            );
-            let vcalendar = await cache_check_promise;
+            // Use the centralized database connection
+            await dbRun("DELETE FROM cache WHERE expiration < strftime('%s', 'now')");
+            let cache_result = await dbGet("SELECT value FROM cache WHERE id = ?", [id]);
+            let vcalendar = cache_result ? cache_result.value : false;
 
             if (vcalendar === false) {
                 let query_enrollments = "SELECT * FROM enrollments WHERE id = ?";
-                let enrollment_promise = new Promise((res, rej) =>
-                    db.get(query_enrollments, id, function (e, enrollments_info) {
-                        res(enrollments_info);
-                    })
-                );
-                let enrollments_info = await enrollment_promise;
+                let enrollments_info = await dbGet(query_enrollments, [id]);
                 let type = enrollments_info["type"];
                 let course = enrollments_info["course"];
                 let year = enrollments_info["year"];
@@ -286,7 +238,7 @@ export async function getICalendarEvents(id, ua, alert) {
                 }
 
                 let query_lectures = "SELECT lecture_id FROM requested_lectures WHERE enrollment_id = ?";
-                let lectures = await new Promise((res, rej) => db.all(query_lectures, id, (e, lectures) => { res(lectures) }));
+                let lectures = await dbAll(query_lectures, [id]);
 
                 /*for (var i = 0; i < lectures.length; i++) {
                     link += "&insegnamenti=" + lectures[i]["lecture_id"];
@@ -339,7 +291,7 @@ export async function getICalendarEvents(id, ua, alert) {
                 vcalendar = factory.ical(calendar);
 
                 if(cache) {
-                    db.run(`INSERT INTO cache VALUES(?, ?, strftime("%s", "now") + ${ONE_UNIX_DAY})`, id, vcalendar);
+                    await dbRun(`INSERT INTO cache VALUES(?, ?, strftime("%s", "now") + ${ONE_UNIX_DAY})`, [id, vcalendar]);
                 }
             }
 
@@ -352,22 +304,10 @@ export async function getICalendarEvents(id, ua, alert) {
     }
 }
 
-// Helper function to run database queries using the shared connection
-function runQuery(query, params) {
-    return new Promise((resolve, reject) => {
-        db.all(query, params, (err, rows) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(rows);
-            }
-        });
-    });
-}
 
 export async function getRequestsDayByDay() {
     let query = "SELECT COUNT(*) AS n, (date/86400000) AS day, MIN(date) as date FROM hits GROUP BY day ORDER BY day;";
-    let db_result = await runQuery(query, []);
+    let db_result = await dbAll(query, []);
     let result = [];
     for (const i of db_result) {
         result.push({ x: new Date(i.date), y: i.n });
@@ -377,7 +317,7 @@ export async function getRequestsDayByDay() {
 
 export async function getNumEnrollmentsDayByDay() {
     let query = "SELECT COUNT(*) AS n, (date/86400000) AS day, MIN(date) as date FROM enrollments GROUP BY day ORDER BY day;";
-    let db_result = await runQuery(query, []);
+    let db_result = await dbAll(query, []);
     let result = [];
     for (const i of db_result) {
         if (result.length == 0) {
@@ -391,7 +331,7 @@ export async function getNumEnrollmentsDayByDay() {
 
 export async function getActiveUsersDayByDay() {
     let query = "SELECT d, count(*) AS n, MIN(date) as date FROM (SELECT date, enrollment_id, date/86400000 as d FROM hits where enrollment_id IS NOT NULL AND enrollment_id != '' group by d, enrollment_id) GROUP BY d ORDER BY d;";
-    let db_result = await runQuery(query, []);
+    let db_result = await dbAll(query, []);
     let result = []
     for (const i of db_result) {
         result.push({ x: new Date(i.date), y: i.n });
@@ -406,13 +346,13 @@ export async function getActiveUsers(date) {
     date.setMilliseconds(0);
     date = (date.getTime() / 86400000).toFixed(0).toString();
     let query = "SELECT COUNT(*) as users FROM (SELECT DISTINCT enrollment_id FROM hits WHERE date/86400000 = " + date + ");";
-    let results = await runQuery(query, []);
+    let results = await dbAll(query, []);
     return results[0].users;
 }
 
 export async function getNumUsersForCourses() {
     let query = "SELECT course AS x, COUNT(*) as y FROM enrollments GROUP BY course ORDER BY y DESC LIMIT 20;";
-    let results = await runQuery(query, []);
+    let results = await dbAll(query, []);
     let data = { x: [], y: [] };
     for (const row of results) {
         data.x.push(row.x);
@@ -423,13 +363,13 @@ export async function getNumUsersForCourses() {
 
 export async function getTotalEnrollments() {
     let query = "SELECT COUNT(*) as users FROM enrollments;";
-    let result = await runQuery(query, []);
+    let result = await dbAll(query, []);
     return result[0].users;
 }
 
 export async function getActiveEnrollments() {
     let query = "SELECT COUNT(*) as count FROM (SELECT enrollment_id, count(*) AS counter FROM hits GROUP BY enrollment_id) INNER JOIN enrollments ON enrollment_id=enrollments.id WHERE counter > 1;"
-    let results = await runQuery(query, []);
+    let results = await dbAll(query, []);
     return results[0].count;
 }
 
@@ -452,7 +392,7 @@ export async function getDeviceStats() {
             GROUP BY truncated_user_agent
             ORDER BY count DESC
         `;
-        let results = await runQuery(query, []);        
+        let results = await dbAll(query, []);        
         let data = { x: [], y: [] };
         
         // Show only top 6 devices, group the rest as "Others"
@@ -483,7 +423,7 @@ export async function getUrlGenerationByCourseDayByDay() {
     try {
         // First get the top 20 courses by enrollment count
         let topCoursesQuery = "SELECT course FROM enrollments GROUP BY course ORDER BY COUNT(*) DESC LIMIT 20;";
-        let topCourses = await runQuery(topCoursesQuery, []);
+        let topCourses = await dbAll(topCoursesQuery, []);
         
         if (topCourses.length === 0) {
             return { courses: [], data: {} };
@@ -502,7 +442,7 @@ export async function getUrlGenerationByCourseDayByDay() {
             GROUP BY e.course, (e.date/86400000)
         `;
         
-        let results = await runQuery(query, courseNames);
+        let results = await dbAll(query, courseNames);
         
         // Organize data by course
         let dataByCourse = {};
