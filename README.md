@@ -53,7 +53,9 @@ Il client è in html e javascript ed utilizza [Bootstrap](https://getbootstrap.c
 
 Il codice è strutturato secondo il paradigma [Model-View-Controller](https://it.wikipedia.org/wiki/Model-view-controller) (MVC).
 
-<img width="1514" height="1212" alt="UniboCalendar" src="https://github.com/user-attachments/assets/477ad083-6c73-43d5-b76d-e89e34c00249" />
+<img width="1514" height="1212" alt="UniboCalendar" src="https://github.com/user-attachments/assets/477ad083-6c73-43d5-b76d-e89e34c00249#gh-light-mode-only" />
+<img width="1514" height="1212" alt="UniboCalendar-dark" src="https://github.com/user-attachments/assets/984491fb-ac8e-44ba-ba56-3dadfb82bd15#gh-dark-mode-only" />
+
 
 ## Contribuire al progetto
 Questo sistema è stato sviluppato quasi interamente da due persone nel corso di 3 anni. Essendo un progetto portato avanti solo nel tempo libero presenta alcuni miglioramenti che sarebbero necessari, sopratutto per quanto riguarda la scalabilità, ma che risultano impegnativi da affrontare con così poche risorse. Il contributo di persone esterne è quindi molto apprezzato e anzi incoraggiato!
