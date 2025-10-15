@@ -4,10 +4,9 @@ import * as hbs from "express-handlebars"
 import { router } from "./controller.js"
 import { checkForOpendataUpdates } from "./update_opendata.js"
 import { __dirname } from "./utils.js"
-import { db, dbGet, initDatabase, validateTokenMiddleware } from "./db.js"
+import { initDatabase, validateTokenMiddleware } from "./db.js"
 
 var app = express();
-
 
 //set up port
 app.set("port", process.env.PORT || 3002);
@@ -33,9 +32,7 @@ app.set("view engine", "handlebars");
 // Update opendata on launch
 checkForOpendataUpdates();
 
-/**
- * Initialize database tables and indexes
- */
+// Initialize database tables and indexes
 async function initializeApp() {
     try {
         await initDatabase();
