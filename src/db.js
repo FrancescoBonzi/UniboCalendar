@@ -38,7 +38,7 @@ process.on("SIGTERM", () => {
 });
 
 process.on("exit", () => {
-    db.close();
+    closeDatabase();
 });
 
 // Helper function to promisify database operations
@@ -173,31 +173,9 @@ export async function validateTokenMiddleware(req, res, next) {
 
 // Token validation for API endpoints (returns JSON response)
 export async function validateTokenEndpoint(req, res) {
-    try {
-        const providedToken = req.query.token;
-        
-        if (!providedToken) {
-            return res.status(401).json({ error: "Token required" });
-        }
-        
-        // Basic input validation
-        if (typeof providedToken !== 'string' || providedToken.length > 100) {
-            return res.status(400).json({ error: "Invalid token format" });
-        }
-        
-        // Check token in database
-        const row = await dbGet("SELECT id FROM token WHERE id = ?", [providedToken]);
-        
-        if (!row) {
-            return res.status(403).json({ error: "Invalid token" });
-        }
-        
-        // Token is valid
+    validateTokenMiddleware(req, res, () => {
         res.json({ valid: true });
-    } catch (err) {
-        console.error("Database error in validateTokenEndpoint:", err);
-        return res.status(500).json({ error: "Database error" });
-    }
+    });
 }
 
 // Export the database instance for backward compatibility
