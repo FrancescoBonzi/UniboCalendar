@@ -8,7 +8,7 @@
 </h1>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Daily%20Users%20(2025)-3000%2B-00C853?logo=leaf&logoColor=white&labelColor=00C853" />
+  <img src="https://img.shields.io/badge/Daily%20Users%20(2025)-4000%2B-00C853?logo=leaf&logoColor=white&labelColor=00C853" />
   <img src="https://img.shields.io/badge/Google%20Calendar-4285F4?logo=google&logoColor=white&labelColor=4285F4" />
   <img src="https://img.shields.io/badge/Apple%20Calendar-999999?logo=apple&logoColor=white&labelColor=999999" />
 </p>
