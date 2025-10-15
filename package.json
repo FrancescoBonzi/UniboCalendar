@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "start": "cd src; node index.js",
-    "build": "docker build -t unibocalendar:latest ."
+    "build": "docker build -t unibocalendar:latest .",
+    "test": "node --experimental-vm-modules node_modules/.bin/jest",
+    "test:watch": "node --experimental-vm-modules node_modules/.bin/jest --watch"
   },
   "dependencies": {
     "base32.js": "^0.1.0",
@@ -28,5 +30,8 @@
     "url": "https://github.com/FrancescoBonzi/UniboCalendar/issues"
   },
   "homepage": "https://github.com/FrancescoBonzi/UniboCalendar#readme",
-  "type": "module"
+  "type": "module",
+  "devDependencies": {
+    "jest": "^30.2.0"
+  }
 }
