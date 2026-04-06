@@ -35,6 +35,9 @@ async function course_page(req, res, next) {
 
 async function get_calendar_url(req, res, next) {
     const timetable_url = req.body.timetable_url;
+    if (!timetable_url) {
+        return res.status(400).send("Missing timetable_url");
+    }
     const type = timetable_url.split("/")[3];
     const course = timetable_url.split("/")[4];
     const year = req.body.year;
