@@ -96,7 +96,9 @@ async function get_stats_summary(req, res, next) {
         // const requestsData = await model.getRequestsDayByDay();
         const enrollmentsData = await model.getNumEnrollmentsDayByDay();
         // const activeUsersData = await model.getActiveUsersDayByDay();
-        // const activeUsersToday = await model.getActiveUsers(new Date());
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        const activeUsersYesterday = await model.getActiveUsers(yesterday);
         const courseData = await model.getNumUsersForCourses();
         const totalEnrollments = await model.getTotalEnrollments();
         const activeEnrollments = await model.getActiveEnrollments();
@@ -111,7 +113,7 @@ async function get_stats_summary(req, res, next) {
             // activeUsersDayByDay: activeUsersData,
             activeUsersDayByDay: [],
             // activeUsersToday: activeUsersToday,
-            activeUsersToday: 0,
+            activeUsersToday: activeUsersYesterday,
             courseData: courseData,
             totalEnrollments: totalEnrollments,
             activeEnrollments: activeEnrollments,

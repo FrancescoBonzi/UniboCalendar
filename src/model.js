@@ -387,14 +387,12 @@ export async function getActiveUsersDayByDay() {
 }
 
 export async function getActiveUsers(date) {
-    date.setHours(0);
-    date.setMinutes(0);
-    date.setSeconds(0);
-    date.setMilliseconds(0);
-    date = (date.getTime() / 86400000).toFixed(0).toString();
-    let query = "SELECT COUNT(*) as users FROM (SELECT DISTINCT enrollment_id FROM hits WHERE date/86400000 = " + date + ");";
-    let results = await dbAll(query, []);
-    return results[0].users;
+    date.setHours(0, 0, 0, 0);
+    const day = Number((date.getTime() / 86400000).toFixed(0));
+    const start = day * 86400000;
+    const query = "SELECT COUNT(*) AS users FROM (SELECT DISTINCT enrollment_id FROM hits WHERE date >= ? AND date < ?)";
+    const result = await dbGet(query, [start, start + 86400000]);
+    return result.users;
 }
 
 export async function getNumUsersForCourses() {
