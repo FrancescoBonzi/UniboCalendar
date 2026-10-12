@@ -17,6 +17,51 @@ const LANGUAGE = {
 }
 const ONE_UNIX_DAY = 24 * 3600;
 const DATA_FILE = "./opendata/corsi.csv";
+// Unibo rejects any @@orario_reale_json range longer than 45 days.
+const TIMETABLE_WINDOW_DAYS = 45;
+const TIMETABLE_WINDOW_COUNT = 6;
+
+function isoDateUTC(date) {
+    return date.toISOString().slice(0, 10);
+}
+
+function addUtcDays(date, days) {
+    const next = new Date(date.getTime());
+    next.setUTCDate(next.getUTCDate() + days);
+    return next;
+}
+
+function academicYearStart(now = new Date()) {
+    const year = now.getUTCMonth() >= 8 ? now.getUTCFullYear() : now.getUTCFullYear() - 1;
+    return new Date(Date.UTC(year, 8, 1));
+}
+
+function timetableWindows(now = new Date()) {
+    const origin = academicYearStart(now);
+    const windows = [];
+    for (let i = 0; i < TIMETABLE_WINDOW_COUNT; i++) {
+        const start = addUtcDays(origin, i * (TIMETABLE_WINDOW_DAYS + 1));
+        const end = addUtcDays(start, TIMETABLE_WINDOW_DAYS);
+        windows.push({ start: isoDateUTC(start), end: isoDateUTC(end) });
+    }
+    return windows;
+}
+
+async function fetchTimetable(link) {
+    const batches = await Promise.all(timetableWindows().map(async ({ start, end }) => {
+        const url = `${link}&start=${start}&end=${end}`;
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`Timetable request failed (${response.status}) for ${start}..${end}`);
+        }
+        const data = await response.json();
+        if (!Array.isArray(data)) {
+            throw new Error(`Timetable request returned no lecture list for ${start}..${end}`);
+        }
+        return data;
+    }));
+    return batches.flat();
+}
 
 class UniboEventClass {
     constructor(title, start, end, location, url, docente) {
@@ -247,10 +292,12 @@ export async function getICalendarEvents(id, ua, alert) {
 
                 link += "&calendar_view=";
 
-                let json = await fetch(link).then(x => x.json()).catch(function (err) {
+                let json = [];
+                try {
+                    json = await fetchTimetable(link);
+                } catch (err) {
                     console.error(err);
-                    return "An error occurred while creating the calendar.";
-                });
+                }
 
                 let calendar = [];
                 for (var l of json) {
