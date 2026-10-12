@@ -308,7 +308,7 @@ export async function getICalendarEvents(id, ua, alert) {
                     const end = new Date(l.end);
                     var location = null;
                     if (l.aule && Array.isArray(l.aule) && l.aule.length > 0) {
-                        location = l.aule[0].des_risorsa + ", " + l.aule[0].des_indirizzo;
+                        location = l.aule.map(x => x.des_risorsa + ", " + x.des_indirizzo).join(', ');
                     }
                     var url = null;
                     if (!(l.teams === undefined) && !(l.teams === null)) {
