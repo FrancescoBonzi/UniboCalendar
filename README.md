@@ -8,13 +8,10 @@
 </h1>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Daily%20Users%20(2025)-3000%2B-00C853?logo=leaf&logoColor=white&labelColor=00C853" />
+  <img src="https://img.shields.io/badge/Daily%20Users%20(2025)-4000%2B-00C853?logo=leaf&logoColor=white&labelColor=00C853" />
   <img src="https://img.shields.io/badge/Google%20Calendar-4285F4?logo=google&logoColor=white&labelColor=4285F4" />
   <img src="https://img.shields.io/badge/Apple%20Calendar-999999?logo=apple&logoColor=white&labelColor=999999" />
 </p>
-
-
-
 
 Servizio gratuito che consente a tutti gli studenti Unibo di aggiungere l'orario delle lezioni al proprio calendario, filtrando solo quelle di interesse. Oltre a fornire in modo facile e immediato tutte le informazioni disponibili sui corsi, mantiene la sincronizzazione attiva per rilevare cambiamenti nell'orario e aggiornarsi da solo. 
 <br><br>
@@ -55,6 +52,10 @@ Il server è realizzato con [Node.js](https://nodejs.dev/en/), utilizzando la li
 Il client è in html e javascript ed utilizza [Bootstrap](https://getbootstrap.com) per i fogli di stile.
 
 Il codice è strutturato secondo il paradigma [Model-View-Controller](https://it.wikipedia.org/wiki/Model-view-controller) (MVC).
+
+<img width="1514" height="1212" alt="UniboCalendar" src="https://github.com/user-attachments/assets/477ad083-6c73-43d5-b76d-e89e34c00249#gh-light-mode-only" />
+<img width="1514" height="1212" alt="UniboCalendar-dark" src="https://github.com/user-attachments/assets/984491fb-ac8e-44ba-ba56-3dadfb82bd15#gh-dark-mode-only" />
+
 
 ## Contribuire al progetto
 Questo sistema è stato sviluppato quasi interamente da due persone nel corso di 3 anni. Essendo un progetto portato avanti solo nel tempo libero presenta alcuni miglioramenti che sarebbero necessari, sopratutto per quanto riguarda la scalabilità, ma che risultano impegnativi da affrontare con così poche risorse. Il contributo di persone esterne è quindi molto apprezzato e anzi incoraggiato!
