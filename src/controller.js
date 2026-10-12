@@ -93,26 +93,30 @@ async function get_stats_summary(req, res, next) {
             'Expires': '0'
         });
 
-        const requestsData = await model.getRequestsDayByDay();
+        // const requestsData = await model.getRequestsDayByDay();
         const enrollmentsData = await model.getNumEnrollmentsDayByDay();
-        const activeUsersData = await model.getActiveUsersDayByDay();
-        const activeUsersToday = await model.getActiveUsers(new Date());
+        // const activeUsersData = await model.getActiveUsersDayByDay();
+        // const activeUsersToday = await model.getActiveUsers(new Date());
         const courseData = await model.getNumUsersForCourses();
         const totalEnrollments = await model.getTotalEnrollments();
         const activeEnrollments = await model.getActiveEnrollments();
-        const deviceData = await model.getDeviceStats();
+        // const deviceData = await model.getDeviceStats();
         const urlGenerationData = await model.getUrlGenerationByCourseDayByDay();
 
         res.type("application/json");
         res.send(JSON.stringify({
-            requestsDayByDay: requestsData,
+            // requestsDayByDay: requestsData,
+            requestsDayByDay: [],
             enrollmentsDayByDay: enrollmentsData,
-            activeUsersDayByDay: activeUsersData,
-            activeUsersToday: activeUsersToday,
+            // activeUsersDayByDay: activeUsersData,
+            activeUsersDayByDay: [],
+            // activeUsersToday: activeUsersToday,
+            activeUsersToday: 0,
             courseData: courseData,
             totalEnrollments: totalEnrollments,
             activeEnrollments: activeEnrollments,
-            deviceData: deviceData,
+            // deviceData: deviceData,
+            deviceData: { x: [], y: [] },
             urlGenerationData: urlGenerationData
         }));
     } catch (error) {
